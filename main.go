@@ -1,12 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
-func Server(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Nursing 101")
+func setupRouter() *gin.Engine {
+	r := gin.Default()
+	r.GET("/courses/1", func(c *gin.Context) {
+		c.String(200, "Nursing 101")
+	})
+	return r
 }
 
-func main() {}
+func main() {
+	r := setupRouter()
+	r.Run(":8080")
+}

@@ -4,20 +4,19 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGETCourses(t *testing.T) {
 	t.Run("returns the name of a course", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/courses/1", nil)
+		router := setupRouter()
+		request, _ := http.NewRequest("GET", "/courses/1", nil)
 		response := httptest.NewRecorder()
 
-		Server(response, request)
+		router.ServeHTTP(response, request)
 
-		got := response.Body.String()
-		want := "Nursing 101"
-
-		if got != want {
-			t.Errorf("got %q want %q", got, want)
-		}
+		assert.Equal(t, 200, response.Code)
+		assert.Equal(t, "Nursing 101", response.Body.String())
 	})
 }
