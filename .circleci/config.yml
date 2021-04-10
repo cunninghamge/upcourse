@@ -1,0 +1,30 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.16
+        environment:
+            PGHOST: localhost
+            PGUSER: course-chart-be
+      - image: postgres:9.5
+        environment:
+          POSTGRES_USER: course-chart-be
+          POSTGRES_DB: course_chart_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: go mod download
+      - run:
+          name: Waiting for Postgres to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: database setup
+          command: |
+            psql -c "CREATE DATABASE course_chart"
+            psql -c "CREATE DATABASE course_chart_test"
+            go run migrations/*.go
+      - run:
+          name: Run tests
+          command: go test
