@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
@@ -42,8 +43,11 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	port := ":" + os.Getenv("PORT")
+
 	db := database.Connect()
 
-	r := setupRouter(db)
-	r.Run(":8080")
+	router := setupRouter(db)
+
+	log.Fatal(router.Run(port))
 }

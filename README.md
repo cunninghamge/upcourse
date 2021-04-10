@@ -46,6 +46,7 @@
       DB_USER: <your postgres username>
       DB_ADDRESS: "localhost:5432"
       DB_NAME: "course_chart"
+      PORT: "8080"
       ```
       To get your postgres username, enter the following in the command line:<br>
       `psql postgres`<br>
