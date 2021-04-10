@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-pg/pg"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,8 +37,9 @@ func TestGETCourses(t *testing.T) {
 }
 
 func dbConnect() *pg.DB {
+	godotenv.Load()
 	pgOptions := &pg.Options{
-		User:     "postgres",
+		User:     os.Getenv("POSTGRES_USER"),
 		Database: "course_chart_test",
 	}
 	db := pg.Connect(pgOptions)
