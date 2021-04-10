@@ -18,11 +18,12 @@ jobs:
       - run:
           name: Waiting for Postgres to be ready
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run:
+      - run: 
           name: database setup
-          command: |
-          go run migrations/*.go init
-          go run migrations/*.go
+          command: go run migrations/*.go init
+      - run:
+          name: database migrations
+          command: go run migrations/*.go
       - run:
           name: Run tests
           command: go test
