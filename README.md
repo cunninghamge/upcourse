@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/CourseChart/course-chart-be.svg?style=svg)](https://circleci.com/gh/circleci/circleci-docs)
+
 # Course Chart BE
 
 ## Table of Contents
