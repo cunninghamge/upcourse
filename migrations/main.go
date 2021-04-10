@@ -14,7 +14,7 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	migrate("course_chart")
+	// migrate("course_chart")
 	migrate("course_chart_test")
 }
 
