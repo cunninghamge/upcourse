@@ -6,11 +6,10 @@ jobs:
         environment:
             PGHOST: localhost
             PGUSER: course-chart-be
-      - image: postgres:9.5
+      - image: postgres:9.5.18
         environment:
           POSTGRES_USER: course-chart-be
           POSTGRES_DB: course_chart_test
-          POSTGRES_PASSWORD: ""
     steps:
       - checkout
       - run:
