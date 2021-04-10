@@ -1,8 +1,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
+	"github.com/joho/godotenv"
+
+	database "course-chart/config"
 )
 
 type Course struct {
@@ -15,14 +20,9 @@ type Course struct {
 	UpdatedAt   string
 }
 
-func setupRouter() *gin.Engine {
+func setupRouter(db *pg.DB) *gin.Engine {
 	r := gin.Default()
 	r.GET("/courses/1", func(c *gin.Context) {
-		db := pg.Connect(&pg.Options{
-			User:     "postgres",
-			Database: "course_chart",
-		})
-		defer db.Close()
 
 		course := &Course{Id: 1}
 		err := db.Model(course).WherePK().Select()
@@ -30,12 +30,20 @@ func setupRouter() *gin.Engine {
 			panic(err)
 		}
 
-		c.String(200, course.CreatedAt)
+		c.String(200, course.Name)
 	})
 	return r
 }
 
 func main() {
-	r := setupRouter()
+	err := godotenv.Load()
+	if err != nil {
+		log.Print(err)
+		log.Fatal("Error loading .env file")
+	}
+
+	db := database.Connect()
+
+	r := setupRouter(db)
 	r.Run(":8080")
 }
