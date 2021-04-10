@@ -33,15 +33,7 @@
     a. create the databases:<br>
       `psql -c "CREATE DATABASE course_chart`
       `psql -c "CREATE DATABASE course_chart_test`<br>
-    b. cd into the migrations directory:<br>
-      `cd migrations`<br>
-    c. initialize the go-pg/migrations package:<br>
-      `go run *.go init`<br>
-    d. run the migrations:<br>
-      `go run *.go`<br>
-    e. return to the root directory:<br>
-      `cd ..`<br>
-    f. Create a `.env` file and add the following:
+    b. Create a `.env` file and add the following:
       ```
       DB_USER: <your postgres username>
       DB_ADDRESS: "localhost:5432"
@@ -51,6 +43,10 @@
       To get your postgres username, enter the following in the command line:<br>
       `psql postgres`<br>
       `\du`
+    c. initialize the go-pg/migrations package:<br>
+      `go run migrations/*.go init`<br>
+    d. run the migrations:<br>
+      `go run migrations/*.go`<br>
   4. To launch a local server:<br>
     `go run course-chart`<br>
     Once the server is running you can send requests to `localhost:8080`<br>
