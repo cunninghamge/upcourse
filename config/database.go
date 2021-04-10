@@ -54,9 +54,8 @@ func pgOptionsRelease() *pg.Options {
 func pgOptionsDefault() *pg.Options {
 	pgOptions := &pg.Options{
 		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASSWORD"),
-		Addr:     os.Getenv("DB_ADDRESS"),
 		Database: os.Getenv("DB_NAME"),
+		Addr:     os.Getenv("DB_ADDRESS"),
 	}
 
 	return pgOptions
