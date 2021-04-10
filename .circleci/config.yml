@@ -1,4 +1,26 @@
 version: 2.1
+
+orbs:
+  heroku: circleci/heroky@1.2.5
+
+workflows:
+  heroku_deploy:
+    jobs:
+      - build
+      - heroku/deploy-via-git:
+          requires:
+            - build
+          filters:
+            branches:
+              only: sequential-branch-filter
+          post-steps:
+            - run: 
+                name: database setup
+                command: go run migrations/*.go init
+            - run:
+                name: database migrations
+                command: go run migrations/*.go
+
 jobs:
   build:
     docker:

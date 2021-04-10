@@ -11,6 +11,8 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
+
+	"course-chart/config"
 )
 
 func TestGETCourses(t *testing.T) {
@@ -38,11 +40,7 @@ func TestGETCourses(t *testing.T) {
 
 func dbConnect() *pg.DB {
 	godotenv.Load()
-	pgOptions := &pg.Options{
-		User:     os.Getenv("POSTGRES_USER"),
-		Database: "course_chart_test",
-	}
-	db := pg.Connect(pgOptions)
+	db := pg.Connect(config.PGOptionsTest())
 
 	if db == nil {
 		log.Printf("Could not connect to database")

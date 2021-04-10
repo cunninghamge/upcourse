@@ -15,9 +15,9 @@ func Connect() *pg.DB {
 
 	switch mode {
 	case "release":
-		pgOptions = pgOptionsRelease()
+		pgOptions = PGOptionsRelease()
 	default:
-		pgOptions = pgOptionsDefault()
+		pgOptions = PGOptionsDefault()
 	}
 
 	db := pg.Connect(pgOptions)
@@ -32,7 +32,7 @@ func Connect() *pg.DB {
 	return db
 }
 
-func pgOptionsRelease() *pg.Options {
+func PGOptionsRelease() *pg.Options {
 	parsedUrl, err := url.Parse(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		panic(err)
@@ -51,12 +51,17 @@ func pgOptionsRelease() *pg.Options {
 	return pgOptions
 }
 
-func pgOptionsDefault() *pg.Options {
-	pgOptions := &pg.Options{
+func PGOptionsDefault() *pg.Options {
+	return &pg.Options{
 		User:     os.Getenv("POSTGRES_USER"),
 		Database: os.Getenv("POSTGRES_NAME"),
 		Addr:     os.Getenv("POSTGRES_ADDRESS"),
 	}
+}
 
-	return pgOptions
+func PGOptionsTest() *pg.Options {
+	return &pg.Options{
+		User:     os.Getenv("POSTGRES_USER"),
+		Database: "course_chart_test",
+	}
 }
