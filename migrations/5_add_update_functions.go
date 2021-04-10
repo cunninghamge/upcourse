@@ -25,10 +25,10 @@ CREATE TRIGGER update_module_activity_updated_at BEFORE UPDATE ON module_activit
 		return err
 	}, func(db migrations.DB) error {
 		fmt.Println("removing update functions...")
-		_, err := db.Exec(`DROP TRIGGER update_updated_at_column ON courses;
-DROP TRIGGER update_updated_at_column ON modules;
-DROP TRIGGER update_updated_at_column ON activities;
-DROP TRIGGER update_updated_at_column ON module_activities;
+		_, err := db.Exec(`DROP TRIGGER update_course_updated_at ON courses;
+DROP TRIGGER update_module_updated_at ON modules;
+DROP TRIGGER update_activity_updated_at ON activities;
+DROP TRIGGER update_module_activity_updated_at ON module_activities;
 `)
 		return err
 	})
