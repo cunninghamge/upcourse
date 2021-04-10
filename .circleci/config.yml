@@ -21,10 +21,7 @@ jobs:
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: database setup
-          command: |
-            psql -c "CREATE DATABASE course_chart"
-            psql -c "CREATE DATABASE course_chart_test"
-            go run migrations/*.go
+          command: go run migrations/*.go
       - run:
           name: Run tests
           command: go test
