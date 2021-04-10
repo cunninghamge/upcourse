@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+	flag.Usage = usage
+	flag.Parse()
+
 	migrate("course_chart")
 	migrate("course_chart_test")
 }
@@ -30,6 +33,11 @@ func migrate(db string) {
 	} else {
 		fmt.Printf("%q version is %d\n", db, oldVersion)
 	}
+}
+
+func usage() {
+	flag.PrintDefaults()
+	os.Exit(2)
 }
 
 func errorf(s string, args ...interface{}) {
