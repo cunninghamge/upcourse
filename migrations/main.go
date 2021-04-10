@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-pg/migrations"
 	"github.com/go-pg/pg"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -18,8 +19,10 @@ func main() {
 }
 
 func migrate(db string) {
+	godotenv.Load()
+
 	database := pg.Connect(&pg.Options{
-		User:     "postgres",
+		User:     os.Getenv("POSTGRES_USER"),
 		Database: db,
 	})
 	defer database.Close()

@@ -10,7 +10,6 @@ jobs:
         environment:
           POSTGRES_USER: course-chart-be
           POSTGRES_DB: course_chart_test
-          POSTGRES_HOST_AUTH_METHOD: trust
     steps:
       - checkout
       - run:
