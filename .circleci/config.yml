@@ -10,6 +10,7 @@ jobs:
         environment:
           POSTGRES_USER: course-chart-be
           POSTGRES_DB: course_chart_test
+          POSTGRES_PASSWORD: ""
     steps:
       - checkout
       - run:
