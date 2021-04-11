@@ -7,21 +7,41 @@ import (
 
 	"github.com/go-pg/migrations"
 	"github.com/go-pg/pg"
+	"github.com/joho/godotenv"
+
+	"course-chart/config"
 )
 
 func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	migrate("course_chart")
-	migrate("course_chart_test")
+	godotenv.Load()
+	mode := os.Getenv("GIN_MODE")
+
+	switch mode {
+	case "test":
+		migrate("test")
+	case "release":
+		migrate("release")
+	default:
+		migrate("test")
+		migrate("default")
+	}
 }
 
 func migrate(db string) {
-	database := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Database: db,
-	})
+	var pgOptions *pg.Options
+	switch db {
+	case "test":
+		pgOptions = config.PGOptionsTest()
+	case "release":
+		pgOptions = config.PGOptionsRelease()
+	default:
+		pgOptions = config.PGOptionsDefault()
+	}
+
+	database := pg.Connect(pgOptions)
 	defer database.Close()
 
 	oldVersion, newVersion, err := migrations.Run(database, flag.Args()...)
@@ -29,9 +49,9 @@ func migrate(db string) {
 		exitf(err.Error())
 	}
 	if newVersion != oldVersion {
-		fmt.Printf("migrated %q from version %d to %d\n", db, oldVersion, newVersion)
+		fmt.Printf("migrated %q from version %d to %d\n", pgOptions.Database, oldVersion, newVersion)
 	} else {
-		fmt.Printf("%q version is %d\n", db, oldVersion)
+		fmt.Printf("%q version is %d\n", pgOptions.Database, oldVersion)
 	}
 }
 

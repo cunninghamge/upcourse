@@ -37,11 +37,7 @@ func setupRouter(db *pg.DB) *gin.Engine {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Print(err)
-		log.Fatal("Error loading .env file")
-	}
+	godotenv.Load()
 
 	port := ":" + os.Getenv("PORT")
 
