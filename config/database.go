@@ -59,10 +59,3 @@ func SQLDBDefault() *gorm.DB {
 
 	return gormDB
 }
-
-// func PGOptionsTest() *pg.Options {
-// 	// return &pg.Options{
-// 	// 	User:     os.Getenv("POSTGRES_USER"),
-// 	// 	Database: "course_chart_test",
-// 	// }
-// }
