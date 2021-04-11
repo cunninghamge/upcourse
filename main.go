@@ -1,14 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-pg/pg"
 	"github.com/joho/godotenv"
-
-	database "course-chart/config"
+	_ "github.com/lib/pq"
 )
 
 type Course struct {
@@ -21,17 +20,17 @@ type Course struct {
 	UpdatedAt   string
 }
 
-func setupRouter(db *pg.DB) *gin.Engine {
+func setupRouter(db *sql.DB) *gin.Engine {
 	r := gin.Default()
 	r.GET("/courses/1", func(c *gin.Context) {
 
-		course := &Course{Id: 1}
-		err := db.Model(course).WherePK().Select()
+		// course := &Course{Id: 1}
+		_, err := db.Query("SELECT * FROM courses WHERE id = 1")
 		if err != nil {
 			panic(err)
 		}
 
-		c.String(200, course.Name)
+		c.String(200, "connected to db with no error")
 	})
 	return r
 }
@@ -41,7 +40,11 @@ func main() {
 
 	port := ":" + os.Getenv("PORT")
 
-	db := database.Connect()
+	// db := database.Connect()
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL")+"?sslmode=require")
+	if err != nil {
+		log.Fatalf("Error opening database: %q", err)
+	}
 
 	router := setupRouter(db)
 
