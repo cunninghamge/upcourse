@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 
 	database "course-chart/config"
 )
