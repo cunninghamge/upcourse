@@ -5,11 +5,12 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 )
 
 func Connect() *pg.DB {
-	mode := os.Getenv("GIN_MODE")
+	mode := gin.Mode()
 
 	var pgOptions *pg.Options
 
