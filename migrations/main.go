@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-pg/migrations"
 	"github.com/go-pg/pg"
 	"github.com/joho/godotenv"
@@ -17,7 +18,7 @@ func main() {
 	flag.Parse()
 
 	godotenv.Load()
-	mode := os.Getenv("GIN_MODE")
+	mode := gin.Mode()
 
 	switch mode {
 	case "test":
