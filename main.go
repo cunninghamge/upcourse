@@ -26,13 +26,13 @@ func setupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 	r.GET("/courses/1", func(c *gin.Context) {
 
-		// course := &Course{Id: 1}
-		// _, err := db.Query("SELECT * FROM courses WHERE id = 1")
-		// if err != nil {
-		// 	panic(err)
-		// }
+		var course Course
+		result := db.First(&course, 1)
 
-		c.String(200, "still working")
+		log.Print(result)
+		log.Print(course)
+
+		c.String(200, course.Name)
 	})
 	return r
 }
