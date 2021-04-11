@@ -9,8 +9,6 @@ import (
 	"github.com/go-pg/migrations"
 	"github.com/go-pg/pg"
 	"github.com/joho/godotenv"
-
-	"course-chart/config"
 )
 
 func main() {
@@ -23,8 +21,6 @@ func main() {
 	switch mode {
 	case "test":
 		migrate("test")
-	case "release":
-		migrate("release")
 	default:
 		migrate("test")
 		migrate("default")
@@ -35,11 +31,9 @@ func migrate(db string) {
 	var pgOptions *pg.Options
 	switch db {
 	case "test":
-		pgOptions = config.PGOptionsTest()
-	case "release":
-		pgOptions = config.PGOptionsRelease()
+		pgOptions = PGOptionsTest()
 	default:
-		pgOptions = config.PGOptionsDefault()
+		pgOptions = PGOptionsDefault()
 	}
 
 	database := pg.Connect(pgOptions)
@@ -68,4 +62,19 @@ func errorf(s string, args ...interface{}) {
 func exitf(s string, args ...interface{}) {
 	errorf(s, args...)
 	os.Exit(1)
+}
+
+func PGOptionsDefault() *pg.Options {
+	return &pg.Options{
+		User:     os.Getenv("POSTGRES_USER"),
+		Database: os.Getenv("POSTGRES_NAME"),
+		Addr:     os.Getenv("POSTGRES_ADDRESS"),
+	}
+}
+
+func PGOptionsTest() *pg.Options {
+	return &pg.Options{
+		User:     os.Getenv("POSTGRES_USER"),
+		Database: "course_chart_test",
+	}
 }
