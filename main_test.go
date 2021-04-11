@@ -1,18 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
-	"github.com/go-pg/pg"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-
-	"course-chart/config"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func TestGETCourses(t *testing.T) {
@@ -21,11 +19,8 @@ func TestGETCourses(t *testing.T) {
 	t.Run("returns the name of a course", func(t *testing.T) {
 		course := &Course{
 			Id:   1,
-			Name: "Nursing 101",
+			Name: "Foundations of Nursing",
 		}
-
-		db.Insert(course)
-		defer db.Delete(course)
 
 		router := setupRouter(db)
 		request, _ := http.NewRequest("GET", fmt.Sprintf("/courses/%d", course.Id), nil)
@@ -38,16 +33,26 @@ func TestGETCourses(t *testing.T) {
 	})
 }
 
-func dbConnect() *pg.DB {
-	godotenv.Load()
-	db := pg.Connect(config.PGOptionsTest())
+func dbConnect() *gorm.DB {
+	const (
+		host   = "localhost"
+		port   = 5432
+		user   = "postgres"
+		dbname = "course_chart_test"
+	)
 
-	if db == nil {
-		log.Printf("Could not connect to database")
-		os.Exit(100)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"dbname=%s sslmode=disable",
+		host, port, user, dbname)
+
+	sqlDB, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatalf("Error opening database: %q", err)
 	}
 
-	log.Printf("Connected to database")
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
 
-	return db
+	return gormDB
 }

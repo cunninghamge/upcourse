@@ -1,13 +1,15 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"gorm.io/gorm"
+
+	database "course-chart/config"
 )
 
 type Course struct {
@@ -20,17 +22,17 @@ type Course struct {
 	UpdatedAt   string
 }
 
-func setupRouter(db *sql.DB) *gin.Engine {
+func setupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 	r.GET("/courses/1", func(c *gin.Context) {
 
-		// course := &Course{Id: 1}
-		_, err := db.Query("SELECT * FROM courses WHERE id = 1")
-		if err != nil {
-			panic(err)
-		}
+		var course Course
+		result := db.First(&course, 1)
 
-		c.String(200, "connected to db with no error")
+		log.Print(result)
+		log.Print(course)
+
+		c.String(200, course.Name)
 	})
 	return r
 }
@@ -40,11 +42,7 @@ func main() {
 
 	port := ":" + os.Getenv("PORT")
 
-	// db := database.Connect()
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL")+"?sslmode=require")
-	if err != nil {
-		log.Fatalf("Error opening database: %q", err)
-	}
+	db := database.Connect()
 
 	router := setupRouter(db)
 

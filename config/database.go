@@ -1,67 +1,61 @@
 package config
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
-	"net/url"
 	"os"
 
-	"github.com/go-pg/pg"
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func Connect() *pg.DB {
-	// mode := gin.Mode()
+func Connect() *gorm.DB {
+	mode := gin.Mode()
 
-	var pgOptions *pg.Options
-
-	// switch mode {
-	// case "release":
-	pgOptions = PGOptionsRelease()
-	// default:
-	// 	pgOptions = PGOptionsDefault()
-	// }
-
-	db := pg.Connect(pgOptions)
-
-	if db == nil {
-		log.Printf("Could not connect to database")
-		os.Exit(100)
+	switch mode {
+	case "release":
+		return DBConnectRelease()
+	default:
+		return SQLDBDefault()
 	}
-
-	log.Printf("Connected to database")
-
-	return db
 }
 
-func PGOptionsRelease() *pg.Options {
-	parsedUrl, err := url.Parse(os.Getenv("DATABASE_URL"))
+func DBConnectRelease() *gorm.DB {
+	sqlDB, err := sql.Open("postgres", os.Getenv("DATABASE_URL")+"?sslmode=require")
+
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error opening database: %q", err)
 	}
 
-	pgOptions := &pg.Options{
-		User:     parsedUrl.User.Username(),
-		Database: parsedUrl.Path[1:] + "?sslmode=require",
-		Addr:     parsedUrl.Host,
-	}
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
 
-	if password, ok := parsedUrl.User.Password(); ok {
-		pgOptions.Password = password
-	}
-
-	return pgOptions
+	return gormDB
 }
 
-func PGOptionsDefault() *pg.Options {
-	return &pg.Options{
-		User:     os.Getenv("POSTGRES_USER"),
-		Database: os.Getenv("POSTGRES_NAME"),
-		Addr:     os.Getenv("POSTGRES_ADDRESS"),
-	}
-}
+func SQLDBDefault() *gorm.DB {
+	const (
+		host   = "localhost"
+		port   = 5432
+		user   = "postgres"
+		dbname = "course_chart"
+	)
 
-func PGOptionsTest() *pg.Options {
-	return &pg.Options{
-		User:     os.Getenv("POSTGRES_USER"),
-		Database: "course_chart_test",
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"dbname=%s sslmode=disable",
+		host, port, user, dbname)
+
+	sqlDB, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatalf("Error opening database: %q", err)
 	}
+
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
+
+	return gormDB
 }
