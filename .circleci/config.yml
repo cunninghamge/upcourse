@@ -13,13 +13,6 @@ workflows:
           filters:
             branches:
               only: sequential-branch-filter
-          post-steps:
-            - run: 
-                name: database setup
-                command: go run migrations/*.go init
-            - run:
-                name: database migrations
-                command: go run migrations/*.go
 
 jobs:
   build:
@@ -30,7 +23,7 @@ jobs:
             PGUSER: course-chart-be
       - image: postgres:9.5.18
         environment:
-          POSTGRES_USER: course-chart-be
+          POSTGRES_USER: postgres
           POSTGRES_DB: course_chart_test
     steps:
       - checkout
