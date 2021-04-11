@@ -5,21 +5,20 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 )
 
 func Connect() *pg.DB {
-	mode := gin.Mode()
+	// mode := gin.Mode()
 
 	var pgOptions *pg.Options
 
-	switch mode {
-	case "release":
-		pgOptions = PGOptionsRelease()
-	default:
-		pgOptions = PGOptionsDefault()
-	}
+	// switch mode {
+	// case "release":
+	pgOptions = PGOptionsRelease()
+	// default:
+	// 	pgOptions = PGOptionsDefault()
+	// }
 
 	db := pg.Connect(pgOptions)
 
@@ -41,7 +40,7 @@ func PGOptionsRelease() *pg.Options {
 
 	pgOptions := &pg.Options{
 		User:     parsedUrl.User.Username(),
-		Database: parsedUrl.Path[1:],
+		Database: parsedUrl.Path[1:] + "?sslmode=require",
 		Addr:     parsedUrl.Host,
 	}
 
