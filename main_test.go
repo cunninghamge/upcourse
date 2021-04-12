@@ -1,6 +1,7 @@
 package main
 
 import (
+	"course-chart/models"
 	"course-chart/routes"
 	"fmt"
 	"net/http"
@@ -18,7 +19,7 @@ func TestGETCourses(t *testing.T) {
 	config.Connect()
 
 	t.Run("returns the name of a course", func(t *testing.T) {
-		course := &routes.Course{
+		course := &models.Course{
 			Id:   1,
 			Name: "Foundations of Nursing",
 		}
