@@ -10,7 +10,7 @@ import (
 
 func GetCourse(c *gin.Context) {
 	var course models.Course
-	db.Conn.First(&course, c.Param("id"))
+	db.Conn.Preload("Modules.ModuleActivities.Activity").First(&course, c.Param("id"))
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
