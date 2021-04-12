@@ -16,9 +16,9 @@ func main() {
 
 	port := ":" + os.Getenv("PORT")
 
-	db := database.Connect()
+	database.Connect()
 
-	router := routes.Routes(db)
+	router := routes.GetRoutes()
 
 	log.Fatal(router.Run(port))
 }
