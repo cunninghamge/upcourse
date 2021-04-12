@@ -1,8 +1,9 @@
 package routes
 
 import (
+	db "course-chart/config"
+
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type Course struct {
@@ -15,14 +16,15 @@ type Course struct {
 	UpdatedAt   string
 }
 
-func Routes(db *gorm.DB) *gin.Engine {
+func GetRoutes() *gin.Engine {
 	r := gin.Default()
-	r.GET("/courses/1", func(c *gin.Context) {
-
-		var course Course
-		db.First(&course, 1)
-
-		c.String(200, course.Name)
-	})
+	r.GET("/courses/1", GetCourse)
 	return r
+}
+
+func GetCourse(c *gin.Context) {
+	var course Course
+	db.Conn.First(&course, 1)
+
+	c.String(200, course.Name)
 }
