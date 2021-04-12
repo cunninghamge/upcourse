@@ -3,13 +3,18 @@ package handlers
 import (
 	db "course-chart/config"
 	"course-chart/models"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetCourse(c *gin.Context) {
 	var course models.Course
-	db.Conn.First(&course, 1)
+	db.Conn.First(&course, c.Param("id"))
 
-	c.String(200, course.Name)
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Course found",
+		"data":    course,
+	})
 }
