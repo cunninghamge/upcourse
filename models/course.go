@@ -10,3 +10,8 @@ type Course struct {
 	UpdatedAt   string   `json:"-"`
 	Modules     []Module `json:"modules"`
 }
+
+type CourseIdentifier struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
