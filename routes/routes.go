@@ -8,6 +8,6 @@ import (
 
 func GetRoutes() *gin.Engine {
 	router := gin.Default()
-	router.GET("/courses/1", handlers.GetCourse)
+	router.GET("/courses/:id", handlers.GetCourse)
 	return router
 }
