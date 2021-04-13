@@ -33,13 +33,13 @@
     `brew install go`
   3. Set up the database:<br>
     a. create the databases:<br>
-      `psql -c "CREATE DATABASE course_chart`
+      `psql -c "CREATE DATABASE course_chart`<br>
       `psql -c "CREATE DATABASE course_chart_test`<br>
     b. Create a `.env` file and add the following:
       ```
-      DB_USER: <your postgres username>
-      DB_ADDRESS: "localhost:5432"
-      DB_NAME: "course_chart"
+      POSTGRES_USER: <your postgres username>
+      POSTGRES_ADDRESS: "localhost:5432"
+      POSTGRES_NAME: "course_chart"
       PORT: "8080"
       ```
       To get your postgres username, enter the following in the command line:<br>
