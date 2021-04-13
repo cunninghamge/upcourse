@@ -11,15 +11,20 @@ import (
 	"gorm.io/gorm"
 )
 
+var Conn *gorm.DB
+
 func Connect() *gorm.DB {
 	mode := gin.Mode()
 
 	switch mode {
 	case "release":
 		return DBConnectRelease()
+	case "test":
+		return DBConnectTest()
 	default:
-		return SQLDBDefault()
+		return DBConnectDefault()
 	}
+
 }
 
 func DBConnectRelease() *gorm.DB {
@@ -29,14 +34,16 @@ func DBConnectRelease() *gorm.DB {
 		log.Fatalf("Error opening database: %q", err)
 	}
 
-	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+	gormDB, _ := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
+
+	Conn = gormDB
 
 	return gormDB
 }
 
-func SQLDBDefault() *gorm.DB {
+func DBConnectDefault() *gorm.DB {
 	const (
 		host   = "localhost"
 		port   = 5432
@@ -53,9 +60,37 @@ func SQLDBDefault() *gorm.DB {
 		log.Fatalf("Error opening database: %q", err)
 	}
 
-	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+	gormDB, _ := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
+
+	Conn = gormDB
+
+	return gormDB
+}
+
+func DBConnectTest() *gorm.DB {
+	const (
+		host   = "localhost"
+		port   = 5432
+		user   = "postgres"
+		dbname = "course_chart_test"
+	)
+
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"dbname=%s sslmode=disable",
+		host, port, user, dbname)
+
+	sqlDB, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Fatalf("Error opening database: %q", err)
+	}
+
+	gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
+
+	Conn = gormDB
 
 	return gormDB
 }
