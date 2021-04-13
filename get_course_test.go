@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGETCourses(t *testing.T) {
+func TestGETCourse(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	config.Connect()
 
