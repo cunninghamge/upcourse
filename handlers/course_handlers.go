@@ -19,7 +19,7 @@ func RenderError(c *gin.Context, err error) {
 
 func GetCourse(c *gin.Context) {
 	var course models.Course
-	err := db.Conn.First(&course, c.Param("id")).Error
+	err := db.Conn.Preload("Modules.ModuleActivities.Activity").First(&course, c.Param("id")).Error
 
 	if err != nil {
 		RenderError(c, err)
