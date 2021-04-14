@@ -21,6 +21,8 @@
 
 ## API Contract
 
+[API Endpoint Documentation](https://documenter.getpostman.com/view/14310262/TzJpgevK)
+
 ## Technologies Used
 
 ## Local Setup
