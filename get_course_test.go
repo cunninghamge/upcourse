@@ -40,16 +40,16 @@ func TestGETCourse(t *testing.T) {
 		db := config.Conn
 		db.Preload("Modules.ModuleActivities.Activity").First(&course, 1)
 
-		if reflect.DeepEqual(nestedCourse.Data, models.Course{}) {
+		if reflect.DeepEqual(nestedCourse.Data.Course, models.Course{}) {
 			t.Errorf("response does not contain an id property")
 		}
 
 		assertResponseValue(t, nestedCourse.Message, "Course found", "Response message")
-		assertResponseValue(t, nestedCourse.Data.Id, course.Id, "Id")
-		assertResponseValue(t, nestedCourse.Data.Name, course.Name, "Name")
-		assertResponseValue(t, nestedCourse.Data.CreditHours, course.CreditHours, "CreditHours")
-		assertResponseValue(t, nestedCourse.Data.Length, course.Length, "Length")
-		firstResponseModule := nestedCourse.Data.Modules[0]
+		assertResponseValue(t, nestedCourse.Data.Course.Id, course.Id, "Id")
+		assertResponseValue(t, nestedCourse.Data.Course.Name, course.Name, "Name")
+		assertResponseValue(t, nestedCourse.Data.Course.CreditHours, course.CreditHours, "CreditHours")
+		assertResponseValue(t, nestedCourse.Data.Course.Length, course.Length, "Length")
+		firstResponseModule := nestedCourse.Data.Course.Modules[0]
 		firstDBModule := course.Modules[0]
 		assertResponseValue(t, firstResponseModule.Id, firstDBModule.Id, "Module Id")
 		assertResponseValue(t, firstResponseModule.Name, firstDBModule.Name, "Module Name")
@@ -68,7 +68,10 @@ func TestGETCourse(t *testing.T) {
 }
 
 type MarshaledResponse struct {
-	Data    models.Course
+	Data struct {
+		Course         models.Course
+		ActivityTotals []models.ActivityTotals
+	}
 	Message string
 	Status  int
 }

@@ -10,3 +10,11 @@ type Activity struct {
 	CreatedAt   string `json:"-"`
 	UpdatedAt   string `json:"-"`
 }
+
+type ActivityTotals struct {
+	Id         int    `json:"activityId"`
+	Name       string `json:"activityName"`
+	ModuleId   int    `json:"moduleId"`
+	ModuleName string `json:"moduleName"`
+	Minutes    int    `json:"minutes"`
+}

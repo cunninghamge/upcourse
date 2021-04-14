@@ -7,5 +7,6 @@ type Module struct {
 	CourseId         int              `json:"courseId"`
 	CreatedAt        string           `json:"-"`
 	UpdatedAt        string           `json:"-"`
+	Course           Course           `json:"-"`
 	ModuleActivities []ModuleActivity `json:"moduleActivities"`
 }
