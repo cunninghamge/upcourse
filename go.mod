@@ -3,6 +3,7 @@ module course-chart
 go 1.16
 
 require (
+	github.com/gin-contrib/cors v1.3.1 // indirect
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-pg/migrations v6.7.3+incompatible
 	github.com/go-pg/pg v8.0.7+incompatible
