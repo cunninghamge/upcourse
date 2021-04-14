@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  heroku: circleci/heroku@1.2.5
+  heroku: circleci/heroku@1.2.6
 
 workflows:
   heroku_deploy:
@@ -13,7 +13,14 @@ workflows:
           filters:
             branches:
               only: sequential-branch-filter
-
+          post-steps:
+            - run:
+                name: database migrations
+                command: go build -o bin/migrations -v .
+            - run:
+                name: database migrations
+                command: bin/migrations
+            
 jobs:
   build:
     docker:
@@ -33,12 +40,9 @@ jobs:
       - run:
           name: Waiting for Postgres to be ready
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run: 
-          name: database setup
-          command: go run migrations/*.go init
       - run:
           name: database migrations
-          command: go run migrations/*.go
+          command: go run ./migrations
       - run:
           name: Run tests
           command: go test

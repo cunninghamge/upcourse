@@ -47,10 +47,8 @@
       To get your postgres username, enter the following in the command line:<br>
       `psql postgres`<br>
       `\du`
-    c. initialize the go-pg/migrations package:<br>
-      `go run migrations/*.go init`<br>
-    d. run the migrations:<br>
-      `go run migrations/*.go`<br>
+    c. run the database migrations:<br>
+      `go run ./migrations`<br>
   4. To launch a local server:<br>
     `go run course-chart`<br>
     Once the server is running you can send requests to `localhost:8080`<br>
