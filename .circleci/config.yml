@@ -17,9 +17,10 @@ workflows:
             - checkout
             - run:
                 name: database migrations
-                command: |
-                go build -o bin/migrations -v .
-                bin/migrations
+                command: go build -o bin/migrations -v .
+            - run:
+                name: database migrations
+                command: bin/migrations
             
 jobs:
   build:
