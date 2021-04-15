@@ -3,7 +3,7 @@ package models
 import "time"
 
 type ModuleActivity struct {
-	Id         int       `json:"id"`
+	ID         int       `json:"id"`
 	Input      int       `json:"input"`
 	Notes      string    `json:"notes"`
 	ModuleId   int       `json:"-"`

@@ -63,7 +63,7 @@ func GetCourses(c *gin.Context) {
 
 	for _, course := range courses {
 		courseList = append(courseList, models.CourseIdentifier{
-			Id:   course.Id,
+			ID:   course.ID,
 			Name: course.Name,
 		})
 	}
@@ -72,5 +72,31 @@ func GetCourses(c *gin.Context) {
 		"status":  http.StatusOK,
 		"message": "Courses found",
 		"data":    courseList,
+	})
+}
+
+func CreateCourse(c *gin.Context) {
+	var input models.Course
+
+	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  bindErr.Error(),
+		})
+		return
+	}
+
+	err := db.Conn.Create(&input).Error
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status": http.StatusServiceUnavailable,
+			"error":  "Unable to create record",
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  http.StatusCreated,
+		"message": "Course created successfully",
 	})
 }

@@ -82,16 +82,16 @@ func seed(db *gorm.DB) {
 		(14, 'Miscellaneous', 'any additional assignments not listed', '', 1, FALSE);
 
 		INSERT INTO courses(id, name, institution, credit_hours, length)
-			VALUES (1, 'Foundations of Nursing', 'Colorado Nursing College', 3, 8);
+			VALUES (9999, 'Foundations of Nursing', 'Colorado Nursing College', 3, 8);
 		INSERT INTO modules(id, name, number, course_id)
-			VALUES (1, 'Module 1', 1, 1),
-			(2, 'Module 2', 2, 1),
-			(3, 'Module 3', 3, 1),
-			(4, 'Module 4', 4, 1),
-			(5, 'Module 5', 5, 1),
-			(6, 'Module 6', 6, 1),
-			(7, 'Module 7', 7, 1),
-			(8, 'Module 8', 8, 1);
+			VALUES (1, 'Module 1', 1, 9999),
+			(2, 'Module 2', 2, 9999),
+			(3, 'Module 3', 3, 9999),
+			(4, 'Module 4', 4, 9999),
+			(5, 'Module 5', 5, 9999),
+			(6, 'Module 6', 6, 9999),
+			(7, 'Module 7', 7, 9999),
+			(8, 'Module 8', 8, 9999);
 		INSERT INTO module_activities(input, module_id, activity_id)
 			VALUES 
 			(107, 1, 1),

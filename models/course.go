@@ -3,11 +3,11 @@ package models
 import "time"
 
 type Course struct {
-	Id          int       `json:"id"`
-	Name        string    `json:"name"`
-	Institution string    `json:"institution"`
-	CreditHours int       `json:"creditHours"`
-	Length      int       `json:"length"`
+	ID          int       `json:"id"`
+	Name        string    `json:"name" binding:"required"`
+	Institution string    `json:"institution" binding:"required"`
+	CreditHours int       `json:"creditHours" binding:"required"`
+	Length      int       `json:"length" binding:"required"`
 	Goal        string    `json:"goal"`
 	CreatedAt   time.Time `json:"-" gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
 	UpdatedAt   time.Time `json:"-" gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
@@ -15,6 +15,6 @@ type Course struct {
 }
 
 type CourseIdentifier struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
