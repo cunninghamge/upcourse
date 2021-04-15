@@ -13,8 +13,9 @@ func GetRoutes() *gin.Engine {
 	router.Use(cors.Default())
 
 	router.GET("/courses", handlers.GetCourses)
-	router.POST("/courses", handlers.CreateCourse)
 	router.GET("/courses/:id", handlers.GetCourse)
+	router.POST("/courses", handlers.CreateCourse)
+	router.PATCH("/courses/:id", handlers.UpdateCourse)
 	router.POST("/modules", handlers.CreateModule)
 	router.GET("/modules/:id", handlers.GetModule)
 	router.GET("/activities", handlers.GetActivities)
