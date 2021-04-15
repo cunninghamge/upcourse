@@ -65,9 +65,6 @@ func set_triggers(db *gorm.DB) {
 
 func seed(db *gorm.DB) {
 	db.Exec(`
-	ALTER SEQUENCE modules_id_seq RESTART WITH 1;
-	ALTER SEQUENCE module_activities_id_seq RESTART WITH 1;
-	ALTER SEQUENCE activities_id_seq RESTART WITH 1;
 	INSERT INTO activities(id, name, description, metric, multiplier, custom)
 	VALUES (1, 'Reading (understand)', '130 wpm; 10 pages per hour', '# of pages', 6, FALSE),
 		(2, 'Reading (study guide)', '65 wpm; 5 pages per hour', '# of pages', 12, FALSE),
@@ -83,6 +80,7 @@ func seed(db *gorm.DB) {
 		(12, 'Exams', 'Average 1.5 minutes per question', '# of questions', 1.5, FALSE),
 		(13, 'Self Assessments', 'Average 1 minute per question', '# of questions', 1, FALSE),
 		(14, 'Miscellaneous', 'any additional assignments not listed', '', 1, FALSE);
+		ALTER SEQUENCE activities_id_seq RESTART WITH 15;
 
 		INSERT INTO courses(id, name, institution, credit_hours, length)
 			VALUES (9999, 'Foundations of Nursing', 'Colorado Nursing College', 3, 8);
@@ -95,6 +93,7 @@ func seed(db *gorm.DB) {
 			(6, 'Module 6', 6, 9999),
 			(7, 'Module 7', 7, 9999),
 			(8, 'Module 8', 8, 9999);
+		ALTER SEQUENCE modules_id_seq RESTART WITH 9;
 		INSERT INTO module_activities(input, module_id, activity_id)
 			VALUES 
 			(107, 1, 1),
@@ -150,5 +149,6 @@ func seed(db *gorm.DB) {
 			( 240, 7, 11),
 			( 3, 8, 3),
 			( 100, 8, 13);
+			ALTER SEQUENCE module_activities_id_seq RESTART WITH 54;
 		`)
 }
