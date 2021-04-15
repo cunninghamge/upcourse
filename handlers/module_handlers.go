@@ -23,3 +23,33 @@ func GetModule(c *gin.Context) {
 		"data":    module,
 	})
 }
+
+func CreateModule(c *gin.Context) {
+	var input models.Module
+
+	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  bindErr.Error(),
+		})
+		return
+	}
+
+	err := db.Conn.Create(&input).Error
+	if err != nil {
+		RenderPostError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  http.StatusCreated,
+		"message": "Module created successfully",
+	})
+}
+
+func RenderPostError(c *gin.Context, err error) {
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"status": http.StatusServiceUnavailable,
+		"error":  "Unable to create record",
+	})
+}
