@@ -88,8 +88,8 @@ func CreateCourse(c *gin.Context) {
 
 	err := db.Conn.Create(&input).Error
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status": http.StatusServiceUnavailable,
 			"error":  "Unable to create record",
 		})
 		return

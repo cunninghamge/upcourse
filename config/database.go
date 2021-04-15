@@ -24,7 +24,6 @@ func Connect() *gorm.DB {
 	default:
 		return DBConnectDefault()
 	}
-
 }
 
 func DBConnectRelease() *gorm.DB {
