@@ -12,14 +12,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGETCourse(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	config.Connect()
-
 	t.Run("returns the name of a course", func(t *testing.T) {
 		router := routes.GetRoutes()
 		request, _ := http.NewRequest("GET", fmt.Sprintf("/courses/%d", 9999), nil)
@@ -30,8 +26,8 @@ func TestGETCourse(t *testing.T) {
 		assert.Equal(t, 200, response.Code)
 
 		body, _ := ioutil.ReadAll(response.Body)
-		nestedCourse := MarshaledResponse{}
-		err := json.Unmarshal([]byte(body), &nestedCourse)
+		marshaledCourse := MarshaledCourse{}
+		err := json.Unmarshal([]byte(body), &marshaledCourse)
 		if err != nil {
 			t.Errorf("Error marshaling JSON response\nError: %v", err)
 		}
@@ -40,7 +36,7 @@ func TestGETCourse(t *testing.T) {
 		db := config.Conn
 		db.Preload("Modules.ModuleActivities.Activity").First(&course, 9999)
 
-		if reflect.DeepEqual(nestedCourse.Data.Course, models.Course{}) {
+		if reflect.DeepEqual(marshaledCourse.Data.Course, models.Course{}) {
 			t.Errorf("response does not contain an id property")
 		}
 
@@ -65,9 +61,29 @@ func TestGETCourse(t *testing.T) {
 		assertResponseValue(t, firstResponseActivity.Metric, firstDBActivity.Metric, "Activity Metric")
 		assertResponseValue(t, firstResponseActivity.Multiplier, firstDBActivity.Multiplier, "Activity Multiplier")
 	})
+
+	t.Run("returns a message if the course is not found", func(t *testing.T) {
+		router := routes.GetRoutes()
+		request, _ := http.NewRequest("GET", fmt.Sprintf("/courses/%d", 999999), nil)
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, 404, response.Code)
+
+		body, _ := ioutil.ReadAll(response.Body)
+		marshaledResponse := MarshaledError{}
+		err := json.Unmarshal([]byte(body), &marshaledResponse)
+
+		if err != nil {
+			t.Errorf("Error marshaling JSON response\nError: %v", err)
+		}
+
+		assertResponseValue(t, marshaledResponse.Errors, "Record not found", "Response message")
+	})
 }
 
-type MarshaledResponse struct {
+type MarshaledCourse struct {
 	Data struct {
 		Course         models.Course
 		ActivityTotals []models.ActivityTotals

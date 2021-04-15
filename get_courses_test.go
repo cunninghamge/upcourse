@@ -11,14 +11,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGETCourses(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	config.Connect()
-
 	t.Run("returns a list of courses", func(t *testing.T) {
 		router := routes.GetRoutes()
 		request, _ := http.NewRequest("GET", "/courses", nil)
