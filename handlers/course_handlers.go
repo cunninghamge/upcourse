@@ -100,3 +100,42 @@ func CreateCourse(c *gin.Context) {
 		"message": "Course created successfully",
 	})
 }
+
+func UpdateCourse(c *gin.Context) {
+	var input models.UpdatableCourse
+
+	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  bindErr.Error(),
+		})
+		return
+	}
+
+	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
+	if err != nil {
+		RenderError(c, err)
+		return
+	}
+
+	course := models.Course{
+		Name:        input.Name,
+		Institution: input.Institution,
+		CreditHours: input.CreditHours,
+		Goal:        input.Goal,
+	}
+
+	err = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Course updated successfully",
+	})
+}

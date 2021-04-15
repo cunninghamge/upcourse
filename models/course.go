@@ -14,6 +14,15 @@ type Course struct {
 	Modules     []Module  `json:"modules"`
 }
 
+type UpdatableCourse struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Institution string `json:"institution"`
+	CreditHours int    `json:"creditHours"`
+	Length      int    `json:"length"`
+	Goal        string `json:"goal"`
+}
+
 type CourseIdentifier struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
