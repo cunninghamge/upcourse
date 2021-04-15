@@ -74,3 +74,29 @@ func GetCourses(c *gin.Context) {
 		"data":    courseList,
 	})
 }
+
+func CreateCourse(c *gin.Context) {
+	var input models.Course
+
+	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  bindErr.Error(),
+		})
+		return
+	}
+
+	err := db.Conn.Create(&input).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  "Unable to create record",
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  http.StatusCreated,
+		"message": "Course created successfully",
+	})
+}
