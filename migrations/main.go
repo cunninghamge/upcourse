@@ -32,9 +32,9 @@ func migrate(mode string) {
 	case "release":
 		gormDB = config.DBConnectRelease()
 	case "test":
-		gormDB = config.DBConnectTest()
+		gormDB = config.DBConnect("course_chart_test")
 	default:
-		gormDB = config.DBConnectDefault()
+		gormDB = config.DBConnect("course_chart")
 	}
 	// run automigrate
 	gormDB.AutoMigrate(&models.Course{}, &models.Module{}, &models.ModuleActivity{}, &models.Activity{})
