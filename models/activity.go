@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Activity struct {
-	Id          int       `json:"id"`
+	ID          int       `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Metric      string    `json:"metric"`
@@ -14,7 +14,7 @@ type Activity struct {
 }
 
 type ActivityTotals struct {
-	Id         int     `json:"activityId"`
+	ID         int     `json:"activityId"`
 	Name       string  `json:"activityName"`
 	ModuleId   int     `json:"moduleId"`
 	ModuleName string  `json:"moduleName"`

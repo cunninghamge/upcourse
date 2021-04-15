@@ -45,7 +45,7 @@ func TestGETCourses(t *testing.T) {
 
 		assertResponseValue(t, courseList.Message, "Courses found", "Response message")
 		firstCourse := courseList.Data[0]
-		assertResponseValue(t, firstCourse.Id, courses[0].Id, "Id")
+		assertResponseValue(t, firstCourse.ID, courses[0].ID, "Id")
 		assertResponseValue(t, firstCourse.Name, courses[0].Name, "Name")
 	})
 }

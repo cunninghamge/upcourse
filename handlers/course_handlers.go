@@ -63,7 +63,7 @@ func GetCourses(c *gin.Context) {
 
 	for _, course := range courses {
 		courseList = append(courseList, models.CourseIdentifier{
-			Id:   course.Id,
+			ID:   course.ID,
 			Name: course.Name,
 		})
 	}

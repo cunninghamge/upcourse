@@ -45,7 +45,7 @@ func TestGETModule(t *testing.T) {
 		}
 
 		assertResponseValue(t, nestedModule.Message, "Module found", "Response message")
-		assertResponseValue(t, nestedModule.Data.Id, module.Id, "Id")
+		assertResponseValue(t, nestedModule.Data.ID, module.ID, "Id")
 		assertResponseValue(t, nestedModule.Data.Name, module.Name, "Name")
 		assertResponseValue(t, nestedModule.Data.Number, module.Number, "Number")
 		assertResponseValue(t, nestedModule.Data.CourseId, module.CourseId, "CourseId")
@@ -55,7 +55,7 @@ func TestGETModule(t *testing.T) {
 		assertResponseValue(t, firstResponseModActivity.Notes, firstDBModActivity.Notes, "Module Activity Notes")
 		firstResponseActivity := firstResponseModActivity.Activity
 		firstDBActivity := firstDBModActivity.Activity
-		assertResponseValue(t, firstResponseActivity.Id, firstDBActivity.Id, "Activity Id")
+		assertResponseValue(t, firstResponseActivity.ID, firstDBActivity.ID, "Activity Id")
 		assertResponseValue(t, firstResponseActivity.Description, firstDBActivity.Description, "Activity Description")
 		assertResponseValue(t, firstResponseActivity.Metric, firstDBActivity.Metric, "Activity Metric")
 		assertResponseValue(t, firstResponseActivity.Multiplier, firstDBActivity.Multiplier, "Activity Multiplier")

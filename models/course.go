@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Course struct {
-	Id          int       `json:"id"`
+	ID          int       `json:"id"`
 	Name        string    `json:"name" binding:"required"`
 	Institution string    `json:"institution" binding:"required"`
 	CreditHours int       `json:"creditHours" binding:"required"`
@@ -15,6 +15,6 @@ type Course struct {
 }
 
 type CourseIdentifier struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }

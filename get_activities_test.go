@@ -43,7 +43,7 @@ func TestGetActivities(t *testing.T) {
 		}
 
 		assertResponseValue(t, activityList.Message, "Activities found", "Response message")
-		assertResponseValue(t, activityList.Data[0].Id, activities[0].Id, "Id")
+		assertResponseValue(t, activityList.Data[0].ID, activities[0].ID, "Id")
 		assertResponseValue(t, activityList.Data[0].Name, activities[0].Name, "Name")
 		assertResponseValue(t, activityList.Data[0].Description, activities[0].Description, "Description")
 		assertResponseValue(t, activityList.Data[0].Metric, activities[0].Metric, "Metric")
