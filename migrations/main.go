@@ -65,6 +65,9 @@ func set_triggers(db *gorm.DB) {
 
 func seed(db *gorm.DB) {
 	db.Exec(`
+	ALTER SEQUENCE modules_id_seq RESTART WITH 1;
+	ALTER SEQUENCE module_activities_id_seq RESTART WITH 1;
+	ALTER SEQUENCE activities_id_seq RESTART WITH 1;
 	INSERT INTO activities(id, name, description, metric, multiplier, custom)
 	VALUES (1, 'Reading (understand)', '130 wpm; 10 pages per hour', '# of pages', 6, FALSE),
 		(2, 'Reading (study guide)', '65 wpm; 5 pages per hour', '# of pages', 12, FALSE),
