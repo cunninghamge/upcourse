@@ -15,5 +15,6 @@ func GetRoutes() *gin.Engine {
 	router.GET("/courses", handlers.GetCourses)
 	router.GET("/courses/:id", handlers.GetCourse)
 	router.GET("/modules/:id", handlers.GetModule)
+	router.GET("/activities", handlers.GetActivities)
 	return router
 }
