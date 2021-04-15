@@ -22,7 +22,7 @@ func TestGETCourse(t *testing.T) {
 
 	t.Run("returns the name of a course", func(t *testing.T) {
 		router := routes.GetRoutes()
-		request, _ := http.NewRequest("GET", fmt.Sprintf("/courses/%d", 1), nil)
+		request, _ := http.NewRequest("GET", fmt.Sprintf("/courses/%d", 9999), nil)
 		response := httptest.NewRecorder()
 
 		router.ServeHTTP(response, request)
@@ -38,7 +38,7 @@ func TestGETCourse(t *testing.T) {
 
 		var course models.Course
 		db := config.Conn
-		db.Preload("Modules.ModuleActivities.Activity").First(&course, 1)
+		db.Preload("Modules.ModuleActivities.Activity").First(&course, 9999)
 
 		if reflect.DeepEqual(nestedCourse.Data.Course, models.Course{}) {
 			t.Errorf("response does not contain an id property")
