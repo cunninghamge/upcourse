@@ -75,9 +75,3 @@ type MarshaledResponse struct {
 	Message string
 	Status  int
 }
-
-func assertResponseValue(t *testing.T, got, want interface{}, field string) {
-	if got != want {
-		t.Errorf("got %v want %v for field %q", got, want, field)
-	}
-}

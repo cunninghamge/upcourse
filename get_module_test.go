@@ -12,14 +12,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGETModule(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	config.Connect()
-
 	t.Run("returns a module", func(t *testing.T) {
 		router := routes.GetRoutes()
 		request, _ := http.NewRequest("GET", fmt.Sprintf("/modules/%d", 1), nil)
@@ -30,8 +26,8 @@ func TestGETModule(t *testing.T) {
 		assert.Equal(t, 200, response.Code)
 
 		body, _ := ioutil.ReadAll(response.Body)
-		nestedModule := MarshaledModule{}
-		err := json.Unmarshal([]byte(body), &nestedModule)
+		marshaledResponse := MarshaledModule{}
+		err := json.Unmarshal([]byte(body), &marshaledResponse)
 		if err != nil {
 			t.Errorf("Error marshaling JSON response\nError: %v", err)
 		}
@@ -40,7 +36,7 @@ func TestGETModule(t *testing.T) {
 		db := config.Conn
 		db.Preload("ModuleActivities.Activity").First(&module, 1)
 
-		if reflect.DeepEqual(nestedModule.Data, models.Module{}) {
+		if reflect.DeepEqual(marshaledResponse.Data, models.Module{}) {
 			t.Errorf("response does not contain an id property")
 		}
 
@@ -60,6 +56,26 @@ func TestGETModule(t *testing.T) {
 		assertResponseValue(t, firstResponseActivity.Metric, firstDBActivity.Metric, "Activity Metric")
 		assertResponseValue(t, firstResponseActivity.Multiplier, firstDBActivity.Multiplier, "Activity Multiplier")
 	})
+
+	t.Run("returns a message if the module is not found", func(t *testing.T) {
+		router := routes.GetRoutes()
+		request, _ := http.NewRequest("GET", fmt.Sprintf("/modules/%d", 999999), nil)
+		response := httptest.NewRecorder()
+
+		router.ServeHTTP(response, request)
+
+		assert.Equal(t, 404, response.Code)
+
+		body, _ := ioutil.ReadAll(response.Body)
+		marshaledResponse := MarshaledError{}
+		err := json.Unmarshal([]byte(body), &marshaledResponse)
+
+		if err != nil {
+			t.Errorf("Error marshaling JSON response\nError: %v", err)
+		}
+
+		assertResponseValue(t, marshaledResponse.Errors, "Record not found", "Response message")
+	})
 }
 
 type MarshaledModule struct {
@@ -67,9 +83,3 @@ type MarshaledModule struct {
 	Message string
 	Status  int
 }
-
-// func assertResponseValue(t *testing.T, got, want interface{}, field string) {
-// 	if got != want {
-// 		t.Errorf("got %v want %v for field %q", got, want, field)
-// 	}
-// }
