@@ -1,23 +1,20 @@
-package main
+package testing
 
 import (
 	"bytes"
 	"course-chart/config"
 	"course-chart/models"
 	"course-chart/routes"
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPOSTModules(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	config.Connect()
+	newSimpleCourse()
+	defer teardown()
 
 	t.Run("it posts a new module with associated activiies", func(t *testing.T) {
 		var moduleCount int64
@@ -28,7 +25,7 @@ func TestPOSTModules(t *testing.T) {
 		newModule := `{
 			"name": "Module 9",
 			"number": 9,
-			"courseId": 9999,
+			"courseId": 1,
 			"moduleActivities":[
 				{
 					"input": 30,
@@ -48,25 +45,13 @@ func TestPOSTModules(t *testing.T) {
 			]
 		}`
 
-		router := routes.GetRoutes()
-		request, _ := http.NewRequest("POST", "/modules", bytes.NewBufferString(newModule))
-		response := httptest.NewRecorder()
-
-		request.Header.Set("Content-Type", "application/json")
-
-		router.ServeHTTP(response, request)
+		response := newPostModuleRequest(newModule)
 
 		assert.Equal(t, 201, response.Code)
 
-		body, _ := ioutil.ReadAll(response.Body)
-		postModuleResponse := MarshaledPostModuleResponse{}
-		err := json.Unmarshal([]byte(body), &postModuleResponse)
+		parsedResponse := UnmarshalSuccess(t, response.Body)
 
-		if err != nil {
-			t.Errorf("Error marshaling JSON response\nError: %v", err)
-		}
-
-		assertResponseValue(t, postModuleResponse.Message, "Module created successfully", "Message")
+		assertResponseValue(t, parsedResponse.Message, "Module created successfully", "Message")
 
 		var newModuleCount int64
 		config.Conn.Model(models.Module{}).Count(&newModuleCount)
@@ -75,16 +60,23 @@ func TestPOSTModules(t *testing.T) {
 		config.Conn.Model(models.ModuleActivity{}).Count(&newActivityCount)
 
 		if newModuleCount != (moduleCount + 1) {
-			t.Errorf("did not create a new module record")
+			t.Errorf("module count did not change")
 		}
 
 		if newActivityCount != (activityCount + 3) {
-			t.Errorf("did not create a new module record")
+			t.Errorf("activity count did not change")
 		}
 	})
 }
 
-type MarshaledPostModuleResponse struct {
-	Message string
-	Status  int
+func newPostModuleRequest(json string) *httptest.ResponseRecorder {
+	router := routes.GetRoutes()
+	request, _ := http.NewRequest("POST", "/modules", bytes.NewBufferString(json))
+	response := httptest.NewRecorder()
+
+	request.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(response, request)
+
+	return response
 }

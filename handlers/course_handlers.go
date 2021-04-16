@@ -10,10 +10,10 @@ import (
 )
 
 func RenderError(c *gin.Context, err error) {
-	log.Printf("Error retrieving resource from database.\nReason: %v", err)
+	log.Printf("Error retrieving record from database.\nReason: %v", err)
 	c.JSON(http.StatusNotFound, gin.H{
 		"status": http.StatusNotFound,
-		"errors": "Resource not found",
+		"errors": "Record not found",
 	})
 }
 

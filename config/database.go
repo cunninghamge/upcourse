@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -15,15 +16,20 @@ var Conn *gorm.DB
 
 func Connect() *gorm.DB {
 	mode := gin.Mode()
+	var gormDB *gorm.DB
 
 	switch mode {
 	case "release":
-		return DBConnectRelease()
+		gormDB = DBConnectRelease()
 	case "test":
-		return DBConnectTest()
+		gormDB = DBConnect("course_chart_test")
 	default:
-		return DBConnectDefault()
+		gormDB = DBConnect("course_chart")
 	}
+
+	log.Printf("Connected to database")
+	Conn = gormDB
+	return gormDB
 }
 
 func DBConnectRelease() *gorm.DB {
@@ -37,17 +43,14 @@ func DBConnectRelease() *gorm.DB {
 		Conn: sqlDB,
 	}), &gorm.Config{})
 
-	Conn = gormDB
-
 	return gormDB
 }
 
-func DBConnectDefault() *gorm.DB {
+func DBConnect(dbname string) *gorm.DB {
 	const (
-		host   = "localhost"
-		port   = 5432
-		user   = "postgres"
-		dbname = "course_chart"
+		host = "localhost"
+		port = 5432
+		user = "postgres"
 	)
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -62,34 +65,6 @@ func DBConnectDefault() *gorm.DB {
 	gormDB, _ := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
-
-	Conn = gormDB
-
-	return gormDB
-}
-
-func DBConnectTest() *gorm.DB {
-	const (
-		host   = "localhost"
-		port   = 5432
-		user   = "postgres"
-		dbname = "course_chart_test"
-	)
-
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"dbname=%s sslmode=disable",
-		host, port, user, dbname)
-
-	sqlDB, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		log.Fatalf("Error opening database: %q", err)
-	}
-
-	gormDB, _ := gorm.Open(postgres.New(postgres.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
-
-	Conn = gormDB
 
 	return gormDB
 }
