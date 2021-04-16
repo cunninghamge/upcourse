@@ -140,3 +140,22 @@ type ErrorResponse struct {
 	Status int
 	Errors string
 }
+
+func UnmarshalSuccess(t *testing.T, response io.Reader) SuccessResponse {
+	t.Helper()
+
+	body, _ := ioutil.ReadAll(response)
+	successResponse := SuccessResponse{}
+	err := json.Unmarshal([]byte(body), &successResponse)
+
+	if err != nil {
+		t.Errorf("Error marshaling JSON response\nError: %v", err)
+	}
+
+	return successResponse
+}
+
+type SuccessResponse struct {
+	Status  int
+	Message string
+}
