@@ -29,6 +29,8 @@ func TestGETCourses(t *testing.T) {
 		firstCourse := parsedResponse.Data[0]
 		assertResponseValue(t, firstCourse.ID, mockCourses[0].ID, "Id")
 		assertResponseValue(t, firstCourse.Name, mockCourses[0].Name, "Name")
+		firstModule := firstCourse.Modules[0]
+		assertResponseValue(t, firstModule.Name, mockCourses[0].Modules[0].Name, "Module Name")
 	})
 }
 
@@ -53,7 +55,7 @@ func unmarshalGETCourses(t *testing.T, response io.Reader) getCoursesResponse {
 		t.Errorf("Error marshaling JSON response\nError: %v", err)
 	}
 
-	if reflect.DeepEqual(responseCourses.Data[0], models.CourseIdentifier{}) {
+	if reflect.DeepEqual(responseCourses.Data[0], models.Course{}) {
 		t.Errorf("response does not contain an id property")
 	}
 
