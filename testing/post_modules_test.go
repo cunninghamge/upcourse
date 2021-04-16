@@ -14,6 +14,7 @@ import (
 
 func TestPOSTModules(t *testing.T) {
 	newSimpleCourse()
+	defer teardown()
 
 	t.Run("it posts a new module with associated activiies", func(t *testing.T) {
 		var moduleCount int64

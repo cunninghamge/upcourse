@@ -37,7 +37,7 @@ func teardown() {
 }
 
 func newSimpleCourse() *models.Course {
-	course := models.Course{ID: 1}
+	course := models.Course{ID: 1, Name: "Foundations of Nursing"}
 	config.Conn.Create(&course)
 	return &course
 }

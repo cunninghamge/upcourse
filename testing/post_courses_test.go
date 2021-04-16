@@ -13,6 +13,8 @@ import (
 )
 
 func TestPostCourses(t *testing.T) {
+	defer teardown()
+
 	t.Run("it posts a new course", func(t *testing.T) {
 		var courseCount int64
 		config.Conn.Model(models.Course{}).Count(&courseCount)
