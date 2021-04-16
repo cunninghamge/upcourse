@@ -41,9 +41,12 @@ func migrate(mode string) {
 
 	// run seeds
 	err := gormDB.First(&models.Activity{}, 1).Error
-	if err != nil && mode != "default" {
+	if err != nil {
 		set_triggers(gormDB)
-		seed(gormDB)
+		seed_activities(gormDB)
+		if mode != "test" {
+			seed_full_course(gormDB)
+		}
 	}
 }
 
@@ -63,7 +66,7 @@ func set_triggers(db *gorm.DB) {
 	`)
 }
 
-func seed(db *gorm.DB) {
+func seed_activities(db *gorm.DB) {
 	db.Exec(`
 	INSERT INTO activities(id, name, description, metric, multiplier, custom)
 	VALUES (1, 'Reading (understand)', '130 wpm; 10 pages per hour', '# of pages', 6, FALSE),
@@ -80,8 +83,11 @@ func seed(db *gorm.DB) {
 		(12, 'Exams', 'Average 1.5 minutes per question', '# of questions', 1.5, FALSE),
 		(13, 'Self Assessments', 'Average 1 minute per question', '# of questions', 1, FALSE),
 		(14, 'Miscellaneous', 'any additional assignments not listed', '', 1, FALSE);
-		ALTER SEQUENCE activities_id_seq RESTART WITH 15;
+		ALTER SEQUENCE activities_id_seq RESTART WITH 15;`)
+}
 
+func seed_full_course(db *gorm.DB) {
+	db.Exec(`
 		INSERT INTO courses(id, name, institution, credit_hours, length)
 			VALUES (1, 'Foundations of Nursing', 'Colorado Nursing College', 3, 8);
 		INSERT INTO modules(id, name, number, course_id)
