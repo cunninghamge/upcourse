@@ -117,6 +117,12 @@ func newMockModule() models.Module {
 	return module
 }
 
+func coreActivities() []models.Activity {
+	var activities []models.Activity
+	config.Conn.Find(&activities).Where("custom = false")
+	return activities
+}
+
 func UnmarshalError(t *testing.T, response io.Reader) ErrorResponse {
 	t.Helper()
 	body, _ := ioutil.ReadAll(response)
