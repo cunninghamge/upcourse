@@ -36,7 +36,13 @@ func teardown() {
 	config.Conn.Where("custom=true").Delete(&models.Activity{})
 }
 
-func newMockCourse() *models.Course {
+func newSimpleCourse() *models.Course {
+	course := models.Course{ID: 1}
+	config.Conn.Create(&course)
+	return &course
+}
+
+func newFullCourse() *models.Course {
 	course := models.Course{
 		Name:        "Test Course",
 		Institution: randomdata.LastName() + " University",
@@ -72,7 +78,7 @@ func newMockCourse() *models.Course {
 	return &course
 }
 
-func newMockCourseList() []models.CourseIdentifier {
+func newCourseList() []models.CourseIdentifier {
 	var courseList []models.Course
 	for i := 0; i < 3; i++ {
 		courseList = append(courseList, models.Course{
@@ -91,9 +97,8 @@ func newMockCourseList() []models.CourseIdentifier {
 	return courses
 }
 
-func newMockModule() models.Module {
-	course := models.Course{}
-	config.Conn.Create(&course)
+func newModule() models.Module {
+	course := newSimpleCourse()
 
 	module := models.Module{
 		Name:     "Test Module",

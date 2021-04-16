@@ -16,7 +16,7 @@ import (
 )
 
 func TestGETModule(t *testing.T) {
-	mockModule := newMockModule()
+	mockModule := newModule()
 	defer teardown()
 
 	t.Run("returns a module", func(t *testing.T) {

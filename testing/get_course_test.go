@@ -16,7 +16,7 @@ import (
 )
 
 func TestGETCourse(t *testing.T) {
-	mockCourse := newMockCourse()
+	mockCourse := newFullCourse()
 	defer teardown()
 
 	t.Run("returns the name of a course", func(t *testing.T) {
