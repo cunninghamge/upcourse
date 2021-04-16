@@ -91,6 +91,32 @@ func newMockCourseList() []models.CourseIdentifier {
 	return courses
 }
 
+func newMockModule() models.Module {
+	course := models.Course{}
+	config.Conn.Create(&course)
+
+	module := models.Module{
+		Name:     "Test Module",
+		Number:   1,
+		CourseId: course.ID,
+	}
+	config.Conn.Create(&module)
+
+	var moduleActivities []models.ModuleActivity
+	for i := 1; i < 5; i++ {
+		moduleActivities = append(moduleActivities, models.ModuleActivity{
+			Input:      randomdata.Number(200),
+			Notes:      "notes",
+			ActivityId: randomdata.Number(13) + 1,
+			ModuleId:   module.ID,
+		})
+	}
+	config.Conn.Create(&moduleActivities)
+
+	config.Conn.Preload("ModuleActivities.Activity").First(&module)
+	return module
+}
+
 func UnmarshalError(t *testing.T, response io.Reader) ErrorResponse {
 	t.Helper()
 	body, _ := ioutil.ReadAll(response)
