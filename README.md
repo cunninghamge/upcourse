@@ -54,7 +54,7 @@
     Once the server is running you can send requests to `localhost:8080`<br>
     ex: `http://localhost:8080`
   5. To run tests and view the test coverage report:<br>
-    `go test -cover` 
+    `go test ./... -v -coverpkg=./...` 
 
 
 ## Learning Goals
