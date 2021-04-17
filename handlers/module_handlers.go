@@ -101,3 +101,34 @@ func UpdateModule(c *gin.Context) {
 		"message": "Module updated successfully",
 	})
 }
+
+func DeleteModule(c *gin.Context) {
+	err := db.Conn.First(&models.Module{}, c.Param("id")).Error
+	if err != nil {
+		RenderError(c, err)
+		return
+	}
+
+	err = db.Conn.Where("module_id = ?", c.Param("id")).Delete(&models.ModuleActivity{}).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  err,
+		})
+		return
+	}
+
+	err = db.Conn.Delete(&models.Module{}, c.Param("id")).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Module deleted successfully",
+	})
+}
