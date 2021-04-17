@@ -112,8 +112,9 @@ func newModule() models.Module {
 	config.Conn.Create(&module)
 
 	var moduleActivities []models.ModuleActivity
-	for i := 1; i < 5; i++ {
+	for i := 0; i < 4; i++ {
 		moduleActivities = append(moduleActivities, models.ModuleActivity{
+			ID:         i + 1,
 			Input:      randomdata.Number(200),
 			Notes:      "notes",
 			ActivityId: randomdata.Number(13) + 1,
