@@ -11,3 +11,10 @@ type Module struct {
 	UpdatedAt        time.Time        `json:"-" gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
 	ModuleActivities []ModuleActivity `json:"moduleActivities,omitempty"`
 }
+
+type UpdatableModule struct {
+	ID               int              `json:"id"`
+	Name             string           `json:"name"`
+	Number           int              `json:"number"`
+	ModuleActivities []ModuleActivity `json:"moduleActivities"`
+}
