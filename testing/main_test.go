@@ -78,23 +78,27 @@ func newFullCourse() *models.Course {
 	return &course
 }
 
-func newCourseList() []models.CourseIdentifier {
+func newCourseList() []models.Course {
 	var courseList []models.Course
 	for i := 0; i < 3; i++ {
 		courseList = append(courseList, models.Course{
 			Name: "Test Course " + strconv.Itoa(i),
+			Modules: []models.Module{
+				{
+					Name: "Module 1",
+				},
+				{
+					Name: "Module 2",
+				},
+				{
+					Name: "Module 3",
+				},
+			},
 		})
 	}
 	config.Conn.Create(&courseList)
 
-	var courses []models.CourseIdentifier
-	for _, course := range courseList {
-		courses = append(courses, models.CourseIdentifier{
-			ID:   course.ID,
-			Name: course.Name,
-		})
-	}
-	return courses
+	return courseList
 }
 
 func newModule() models.Module {

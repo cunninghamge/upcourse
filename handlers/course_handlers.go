@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func RenderError(c *gin.Context, err error) {
@@ -52,26 +53,19 @@ func GetCourse(c *gin.Context) {
 
 func GetCourses(c *gin.Context) {
 	var courses []models.Course
-	err := db.Conn.Find(&courses).Error
+	err := db.Conn.Preload("Modules", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id, name, course_id")
+	}).Select("courses.id, courses.name").Find(&courses).Error
 
 	if err != nil {
 		RenderError(c, err)
 		return
 	}
 
-	var courseList []models.CourseIdentifier
-
-	for _, course := range courses {
-		courseList = append(courseList, models.CourseIdentifier{
-			ID:   course.ID,
-			Name: course.Name,
-		})
-	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": "Courses found",
-		"data":    courseList,
+		"data":    courses,
 	})
 }
 
