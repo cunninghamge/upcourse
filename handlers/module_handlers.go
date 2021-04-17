@@ -109,15 +109,6 @@ func DeleteModule(c *gin.Context) {
 		return
 	}
 
-	err = db.Conn.Where("module_id = ?", c.Param("id")).Delete(&models.ModuleActivity{}).Error
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
-			"error":  err,
-		})
-		return
-	}
-
 	err = db.Conn.Delete(&models.Module{}, c.Param("id")).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
