@@ -53,3 +53,51 @@ func RenderPostError(c *gin.Context, err error) {
 		"error":  "Unable to create record",
 	})
 }
+
+func UpdateModule(c *gin.Context) {
+	err := db.Conn.First(&models.Module{}, c.Param("id")).Error
+	if err != nil {
+		RenderError(c, err)
+		return
+	}
+
+	var input models.UpdatableModule
+	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  bindErr.Error(),
+		})
+		return
+	}
+
+	module := models.Module{
+		Name:             input.Name,
+		Number:           input.Number,
+		ModuleActivities: input.ModuleActivities,
+	}
+
+	err = db.Conn.Model(&models.Module{}).Where("id = ?", c.Param("id")).Updates(&module).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  err,
+		})
+		return
+	}
+
+	for _, modActivity := range module.ModuleActivities {
+		err = db.Conn.Model(&models.ModuleActivity{}).Where("id = ?", modActivity.ID).Updates(&modActivity).Error
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": http.StatusBadRequest,
+				"error":  err,
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Module updated successfully",
+	})
+}
