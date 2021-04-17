@@ -141,31 +141,6 @@ func DeleteCourse(c *gin.Context) {
 		return
 	}
 
-	var moduleIds []int
-	err = db.Conn.Model(&models.Module{}).
-		Where("course_id = ?", c.Param("id")).
-		Select("id").
-		Scan(&moduleIds).Error
-	if err != nil {
-		RenderError(c, err)
-		return
-	}
-
-	err = db.Conn.Model(&models.ModuleActivity{}).
-		Where("module_id IN ?", moduleIds).
-		Delete(&models.ModuleActivity{}).Error
-	if err != nil {
-		RenderError(c, err)
-		return
-	}
-
-	err = db.Conn.Model(&models.Module{}).
-		Delete(&models.Module{}, moduleIds).Error
-	if err != nil {
-		RenderError(c, err)
-		return
-	}
-
 	err = db.Conn.Model(&models.Course{}).
 		Delete(&models.Course{}, c.Param("id")).Error
 	if err != nil {
