@@ -16,6 +16,7 @@ func GetRoutes() *gin.Engine {
 	router.GET("/courses/:id", handlers.GetCourse)
 	router.POST("/courses", handlers.CreateCourse)
 	router.PATCH("/courses/:id", handlers.UpdateCourse)
+	router.DELETE("/courses/:id", handlers.DeleteCourse)
 	router.POST("/modules", handlers.CreateModule)
 	router.GET("/modules/:id", handlers.GetModule)
 	router.PATCH("/modules/:id", handlers.UpdateModule)
