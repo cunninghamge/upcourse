@@ -26,6 +26,7 @@ func seed_full_course(db *gorm.DB) {
 	db.Exec(`
 		INSERT INTO courses(id, name, institution, credit_hours, length)
 			VALUES (1, 'Foundations of Nursing', 'Colorado Nursing College', 3, 8);
+		ALTER SEQUENCE courses_id_seq RESTART WITH 2;
 		INSERT INTO modules(id, name, number, course_id)
 			VALUES (1, 'Module 1', 1, 1),
 			(2, 'Module 2', 2, 1),
@@ -35,6 +36,7 @@ func seed_full_course(db *gorm.DB) {
 			(6, 'Module 6', 6, 1),
 			(7, 'Module 7', 7, 1),
 			(8, 'Module 8', 8, 1);
+		ALTER SEQUENCE modules_id_seq RESTART WITH 9;
 		INSERT INTO module_activities(input, module_id, activity_id)
 			VALUES 
 			(107, 1, 1),
@@ -90,5 +92,6 @@ func seed_full_course(db *gorm.DB) {
 			( 240, 7, 11),
 			( 3, 8, 3),
 			( 100, 8, 13);
+		ALTER SEQUENCE module_activities_id_seq RESTART WITH 54;
 		`)
 }
