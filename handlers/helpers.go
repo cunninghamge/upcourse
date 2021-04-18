@@ -50,3 +50,16 @@ func renderError(c *gin.Context, err error) {
 		"error":  err,
 	})
 }
+
+func renderErrors(c *gin.Context, errs []error) {
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"status": http.StatusServiceUnavailable,
+		"errors": func(errs []error) []string {
+			strErrors := make([]string, len(errs))
+			for i, err := range errs {
+				strErrors[i] = err.Error()
+			}
+			return strErrors
+		}(errs),
+	})
+}
