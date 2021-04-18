@@ -59,6 +59,12 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
+	errs := validateFields(input)
+	if len(errs) > 0 {
+		renderErrors(c, errs)
+		return
+	}
+
 	err := db.Conn.Create(&input).Error
 	if err != nil {
 		renderError(c, err)
@@ -75,17 +81,10 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	var input models.UpdatableCourse
-	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
+	var course models.Course
+	if bindErr := c.ShouldBindJSON(&course); bindErr != nil {
 		renderBindError(c, bindErr)
 		return
-	}
-
-	course := models.Course{
-		Name:        input.Name,
-		Institution: input.Institution,
-		CreditHours: input.CreditHours,
-		Goal:        input.Goal,
 	}
 
 	err = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course).Error
