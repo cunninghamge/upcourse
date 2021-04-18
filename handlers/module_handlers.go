@@ -27,6 +27,12 @@ func CreateModule(c *gin.Context) {
 		return
 	}
 
+	errs := validateFields(input)
+	if len(errs) > 0 {
+		renderErrors(c, errs)
+		return
+	}
+
 	err := db.Conn.Create(&input).Error
 	if err != nil {
 		renderError(c, err)
@@ -43,16 +49,10 @@ func UpdateModule(c *gin.Context) {
 		return
 	}
 
-	var input models.UpdatableModule
-	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
+	var module models.Module
+	if bindErr := c.ShouldBindJSON(&module); bindErr != nil {
 		renderBindError(c, bindErr)
 		return
-	}
-
-	module := models.Module{
-		Name:             input.Name,
-		Number:           input.Number,
-		ModuleActivities: input.ModuleActivities,
 	}
 
 	err = db.Conn.Model(&models.Module{}).Where("id = ?", c.Param("id")).Updates(&module).Error
