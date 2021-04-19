@@ -45,10 +45,14 @@ func renderBindError(c *gin.Context, bindErr error) {
 }
 
 func renderError(c *gin.Context, err error) {
-	c.JSON(http.StatusServiceUnavailable, gin.H{
-		"status": http.StatusServiceUnavailable,
-		"error":  err.Error(),
-	})
+	if err.Error() == "record not found" {
+		renderNotFound(c, err)
+	} else {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status": http.StatusServiceUnavailable,
+			"error":  err.Error(),
+		})
+	}
 }
 
 func renderErrors(c *gin.Context, errs []error) {
