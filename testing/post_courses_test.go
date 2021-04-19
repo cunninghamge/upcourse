@@ -5,8 +5,10 @@ import (
 	"course-chart/config"
 	"course-chart/models"
 	"course-chart/routes"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,6 +42,35 @@ func TestPostCourses(t *testing.T) {
 
 		if newCount != (courseCount + 1) {
 			t.Errorf("course count did not change")
+		}
+	})
+
+	t.Run("it returns an error if a required field is missing", func(t *testing.T) {
+		var courseCount int64
+		config.Conn.Model(models.Course{}).Count(&courseCount)
+
+		newCourse := `{
+			"creditHours": 3,
+			"length": 16,
+			"goal": "8-10 hours"
+			}`
+
+		response := newPostCourseRequest(newCourse)
+		log.Print(response.Body.String())
+		assert.Equal(t, 400, response.Code)
+
+		parsedResponse := UnmarshalErrors(t, response.Body)
+
+		expected := []string{"Name is required", "Institution is required"}
+		if !reflect.DeepEqual(parsedResponse.Errors, expected) {
+			t.Errorf("got %v, wanted %v for field Error messages", parsedResponse.Errors, expected)
+		}
+
+		var newCount int64
+		config.Conn.Model(models.Course{}).Count(&newCount)
+
+		if newCount != courseCount {
+			t.Errorf("course count changed but should not have")
 		}
 	})
 }

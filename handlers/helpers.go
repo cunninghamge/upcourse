@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func renderSuccess(c *gin.Context, message string) {
+func RenderSuccess(c *gin.Context, message string) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": message,
@@ -52,8 +52,8 @@ func renderError(c *gin.Context, err error) {
 }
 
 func renderErrors(c *gin.Context, errs []error) {
-	c.JSON(http.StatusServiceUnavailable, gin.H{
-		"status": http.StatusServiceUnavailable,
+	c.JSON(http.StatusBadRequest, gin.H{
+		"status": http.StatusBadRequest,
 		"errors": func(errs []error) []string {
 			strErrors := make([]string, len(errs))
 			for i, err := range errs {
