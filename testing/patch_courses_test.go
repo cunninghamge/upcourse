@@ -67,9 +67,22 @@ func TestPATCHCourse(t *testing.T) {
 			}`
 		response := newPatchCourseRequest(newCourseInfo, course.ID)
 
-		assert.Equal(t, 404, response.Code)
+		assert.Equal(t, 503, response.Code)
 
 		config.Connect()
+	})
+
+	t.Run("it returns a 404 if course not found", func(t *testing.T) {
+		newCourseInfo := `{
+			"institution": "Tampa Bay Nurses United University",
+			"creditHours": 3,
+			"length": 16,
+			"goal": "8-10 hours"
+			}`
+
+		response := newPatchCourseRequest(newCourseInfo, course.ID+20)
+
+		assert.Equal(t, 404, response.Code)
 	})
 
 	t.Run("it returns an error if no body is sent", func(t *testing.T) {

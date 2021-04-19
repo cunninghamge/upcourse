@@ -77,7 +77,7 @@ func CreateCourse(c *gin.Context) {
 func UpdateCourse(c *gin.Context) {
 	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
@@ -87,19 +87,17 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course)
+	err = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course).Error
+	if err != nil {
+		renderError(c, err)
+		return
+	}
 
 	renderSuccess(c, "Course updated successfully")
 }
 
 func DeleteCourse(c *gin.Context) {
-	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
-	if err != nil {
-		renderNotFound(c, err)
-		return
-	}
-
-	err = db.Conn.Model(&models.Course{}).
+	err := db.Conn.Model(&models.Course{}).
 		Delete(&models.Course{}, c.Param("id")).Error
 	if err != nil {
 		renderError(c, err)
