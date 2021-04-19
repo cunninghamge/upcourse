@@ -34,7 +34,7 @@ func TestGETCourses(t *testing.T) {
 		assertResponseValue(t, firstModule.Name, mockCourses[0].Modules[0].Name, "Module Name")
 	})
 
-	t.Run("returns a not found error if database is unavailable", func(t *testing.T) {
+	t.Run("returns an error if database is unavailable", func(t *testing.T) {
 		db, _ := config.Conn.DB()
 		db.Close()
 		response := newGetCoursesRequest()

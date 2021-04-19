@@ -11,7 +11,7 @@ func GetActivities(c *gin.Context) {
 	var activities []models.Activity
 	err := db.Conn.Find(&activities).Where("activities.custom = FALSE").Error
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
