@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RenderSuccess(c *gin.Context, message string) {
+func renderSuccess(c *gin.Context, message string) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": message,
