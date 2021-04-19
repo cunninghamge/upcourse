@@ -73,6 +73,30 @@ func TestPostCourses(t *testing.T) {
 			t.Errorf("course count changed but should not have")
 		}
 	})
+
+	t.Run("it returns an error if database is unavailable", func(t *testing.T) {
+		db, _ := config.Conn.DB()
+		db.Close()
+
+		newCourse := `{
+			"name": "Nursing 101",
+			"institution": "Tampa Bay Nurses United University",
+			"creditHours": 3,
+			"length": 16,
+			"goal": "8-10 hours"
+			}`
+		response := newPostCourseRequest(newCourse)
+
+		assert.Equal(t, 503, response.Code)
+
+		config.Connect()
+	})
+
+	t.Run("it returns an error if no body is sent", func(t *testing.T) {
+		response := newPostCourseRequest("")
+
+		assert.Equal(t, 400, response.Code)
+	})
 }
 
 func newPostCourseRequest(json string) *httptest.ResponseRecorder {
