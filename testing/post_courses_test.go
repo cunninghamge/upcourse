@@ -5,7 +5,6 @@ import (
 	"course-chart/config"
 	"course-chart/models"
 	"course-chart/routes"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -56,7 +55,6 @@ func TestPostCourses(t *testing.T) {
 			}`
 
 		response := newPostCourseRequest(newCourse)
-		log.Print(response.Body.String())
 		assert.Equal(t, 400, response.Code)
 
 		parsedResponse := UnmarshalErrors(t, response.Body)

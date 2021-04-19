@@ -21,7 +21,6 @@ func GetModule(c *gin.Context) {
 
 func CreateModule(c *gin.Context) {
 	var input models.Module
-
 	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
 		renderBindError(c, bindErr)
 		return
