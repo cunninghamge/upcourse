@@ -54,6 +54,29 @@ func TestPATCHCourse(t *testing.T) {
 			t.Errorf("updated a field that shouldn't have been updated")
 		}
 	})
+
+	t.Run("it returns an error if database is unavailable", func(t *testing.T) {
+		db, _ := config.Conn.DB()
+		db.Close()
+
+		newCourseInfo := `{
+			"institution": "Tampa Bay Nurses United University",
+			"creditHours": 3,
+			"length": 16,
+			"goal": "8-10 hours"
+			}`
+		response := newPatchCourseRequest(newCourseInfo, course.ID)
+
+		assert.Equal(t, 404, response.Code)
+
+		config.Connect()
+	})
+
+	t.Run("it returns an error if no body is sent", func(t *testing.T) {
+		response := newPatchCourseRequest("", course.ID)
+
+		assert.Equal(t, 400, response.Code)
+	})
 }
 
 func newPatchCourseRequest(json string, courseId int) *httptest.ResponseRecorder {

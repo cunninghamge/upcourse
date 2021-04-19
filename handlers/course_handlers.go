@@ -87,11 +87,7 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	err = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course).Error
-	if err != nil {
-		renderError(c, err)
-		return
-	}
+	db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course)
 
 	renderSuccess(c, "Course updated successfully")
 }
