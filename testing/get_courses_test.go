@@ -1,6 +1,7 @@
 package testing
 
 import (
+	"course-chart/config"
 	"course-chart/models"
 	"course-chart/routes"
 	"encoding/json"
@@ -15,10 +16,10 @@ import (
 )
 
 func TestGETCourses(t *testing.T) {
-	mockCourses := newCourseList()
-	defer teardown()
-
 	t.Run("returns a list of courses", func(t *testing.T) {
+		mockCourses := newCourseList()
+		defer teardown()
+
 		response := newGetCoursesRequest()
 
 		assert.Equal(t, 200, response.Code)
@@ -31,6 +32,16 @@ func TestGETCourses(t *testing.T) {
 		assertResponseValue(t, firstCourse.Name, mockCourses[0].Name, "Name")
 		firstModule := firstCourse.Modules[0]
 		assertResponseValue(t, firstModule.Name, mockCourses[0].Modules[0].Name, "Module Name")
+	})
+
+	t.Run("returns a not found error if database is unavailable", func(t *testing.T) {
+		db, _ := config.Conn.DB()
+		db.Close()
+		response := newGetCoursesRequest()
+
+		assert.Equal(t, 503, response.Code)
+
+		config.Connect()
 	})
 }
 

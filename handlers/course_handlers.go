@@ -45,7 +45,7 @@ func GetCourses(c *gin.Context) {
 	}).Select("courses.id, courses.name").Find(&courses).Error
 
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
