@@ -44,7 +44,7 @@ func CreateModule(c *gin.Context) {
 func UpdateModule(c *gin.Context) {
 	err := db.Conn.First(&models.Module{}, c.Param("id")).Error
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
