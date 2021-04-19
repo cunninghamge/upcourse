@@ -3,27 +3,18 @@ package handlers
 import (
 	db "course-chart/config"
 	"course-chart/models"
-	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func RenderError(c *gin.Context, err error) {
-	log.Printf("Error retrieving record from database.\nReason: %v", err)
-	c.JSON(http.StatusNotFound, gin.H{
-		"status": http.StatusNotFound,
-		"errors": "Record not found",
-	})
-}
-
 func GetCourse(c *gin.Context) {
 	var course models.Course
-	err := db.Conn.Preload("Modules.ModuleActivities.Activity").First(&course, c.Param("id")).Error
+	err := db.Conn.Preload("Modules.ModuleActivities.Activity").
+		First(&course, c.Param("id")).Error
 
 	if err != nil {
-		RenderError(c, err)
+		renderNotFound(c, err)
 		return
 	}
 
@@ -44,11 +35,7 @@ func GetCourse(c *gin.Context) {
 		ActivityTotals: activityTotals,
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Course found",
-		"data":    completeResponse,
-	})
+	renderFound(c, completeResponse, "Course found")
 }
 
 func GetCourses(c *gin.Context) {
@@ -58,123 +45,70 @@ func GetCourses(c *gin.Context) {
 	}).Select("courses.id, courses.name").Find(&courses).Error
 
 	if err != nil {
-		RenderError(c, err)
+		renderNotFound(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Courses found",
-		"data":    courses,
-	})
+	renderFound(c, courses, "Courses found")
 }
 
 func CreateCourse(c *gin.Context) {
 	var input models.Course
-
 	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
-			"error":  bindErr.Error(),
-		})
+		renderBindError(c, bindErr)
+		return
+	}
+
+	errs := validateFields(input)
+	if len(errs) > 0 {
+		renderErrors(c, errs)
 		return
 	}
 
 	err := db.Conn.Create(&input).Error
 	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"status": http.StatusServiceUnavailable,
-			"error":  "Unable to create record",
-		})
+		renderError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"status":  http.StatusCreated,
-		"message": "Course created successfully",
-	})
+	renderCreated(c, "Course created successfully")
 }
 
 func UpdateCourse(c *gin.Context) {
-	var input models.UpdatableCourse
-
-	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
-			"error":  bindErr.Error(),
-		})
-		return
-	}
-
 	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
 	if err != nil {
-		RenderError(c, err)
+		renderNotFound(c, err)
 		return
 	}
 
-	course := models.Course{
-		Name:        input.Name,
-		Institution: input.Institution,
-		CreditHours: input.CreditHours,
-		Goal:        input.Goal,
+	var course models.Course
+	if bindErr := c.ShouldBindJSON(&course); bindErr != nil {
+		renderBindError(c, bindErr)
+		return
 	}
 
 	err = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course).Error
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
-			"error":  err,
-		})
+		renderError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Course updated successfully",
-	})
+	renderSuccess(c, "Course updated successfully")
 }
 
 func DeleteCourse(c *gin.Context) {
 	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
 	if err != nil {
-		RenderError(c, err)
-		return
-	}
-
-	var moduleIds []int
-	err = db.Conn.Model(&models.Module{}).
-		Where("course_id = ?", c.Param("id")).
-		Select("id").
-		Scan(&moduleIds).Error
-	if err != nil {
-		RenderError(c, err)
-		return
-	}
-
-	err = db.Conn.Model(&models.ModuleActivity{}).
-		Where("module_id IN ?", moduleIds).
-		Delete(&models.ModuleActivity{}).Error
-	if err != nil {
-		RenderError(c, err)
-		return
-	}
-
-	err = db.Conn.Model(&models.Module{}).
-		Delete(&models.Module{}, moduleIds).Error
-	if err != nil {
-		RenderError(c, err)
+		renderNotFound(c, err)
 		return
 	}
 
 	err = db.Conn.Model(&models.Course{}).
 		Delete(&models.Course{}, c.Param("id")).Error
 	if err != nil {
-		RenderError(c, err)
+		renderError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Course deleted successfully",
-	})
+	renderSuccess(c, "Course deleted successfully")
 }
