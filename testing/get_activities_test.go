@@ -33,6 +33,18 @@ func TestGetActivities(t *testing.T) {
 		assertResponseValue(t, parsedResponse.Data[0].Multiplier, activities[0].Multiplier, "Multiplier")
 	})
 
+	t.Run("does not include custom activities", func(t *testing.T) {
+		config.Conn.Create(&models.Activity{Custom: true})
+
+		response := newGetActivitiesRequest()
+
+		assert.Equal(t, 200, response.Code)
+
+		parsedResponse := unmarshalGETActivities(t, response.Body)
+
+		assertResponseValue(t, len(parsedResponse.Data), len(activities), "number of activities")
+	})
+
 	t.Run("returns an error if database is unavailable", func(t *testing.T) {
 		db, _ := config.Conn.DB()
 		db.Close()
