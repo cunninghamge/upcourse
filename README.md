@@ -1,29 +1,47 @@
+[![GitHub go.mod Go version of a Go module](https://img.shields.io/github/go-mod/go-version/CourseChart/course-chart-be.svg)](https://github.com/gomods/athens)
 [![CircleCI](https://circleci.com/gh/CourseChart/course-chart-be.svg?style=svg)](https://circleci.com/gh/circleci/circleci-docs)
 
-# Course Chart BE
+<br />
+<p align="center">
+  <a href="logo.png">
+    <img src="logo.png" alt="Course Chart Logo" width="270" height="190">
+  </a>
+
+<h1 align="center">📊 Course Chart BE</h1>
+</p>
+
+<p align="center">
+  Course Chart is an instructional design tool to assist education professionals in designing and mapping both new and existing courses. Users can build courses and modules around the amount of time students should spend on a variety of different learning activities (such as readings, lectures, and exams). Course Chart then provides graph visualizations to help ensure that work is appropriately distributed and balanced throughout the entire course. The site is intended to serve as a collaboration tool to allow instructional design and subject matter experts to work together to design optimally-balanced courses to meet the needs of both students and instructors. It can also be used to map existing courses as part of the accreditation process.
+</p>
 
 ## Table of Contents
- - [Description](#description)
- - [System Design](#database-schema)
+ - [About](#about)
  - [Database Schema](#database-schema)
  - [API Contract](#api-contract)
  - [Technologies Used](#technologies-used)
  - [Local Setup](#local-setup)
- - [Learning Goals](#learning-goals)
- - [Authors](#authors)
- - [Statistics](#statistics)
+ - [Acknowledgements](#acknowledgements)
 
-## Description
+## About
+  Like many software tools, CourseChart was born from a desire to replace a difficult-to-use spreadsheet with a more interactive and user-friendly solution. Our team worked closely with an instructional design expert to ensure that our product met the needs of professionals in the field.
 
-## System Design
 
 ## Database Schema
+
+![Database Schema](schema.png)
 
 ## API Contract
 
 [API Endpoint Documentation](https://documenter.getpostman.com/view/14310262/TzJpgevK)
 
 ## Technologies Used
+
+* [GoLang](https://golang.org/)
+* [Gin](https://github.com/gin-gonic/gin)
+* [GORM](https://gorm.io/)
+* [PostgreSQL](https://www.postgresql.org/)
+* [CircleCI](https://circleci.com/)
+* [Heroku](https://heroku.com)
 
 ## Local Setup
   To run the project in your local environment, please follow the instructions below:
@@ -59,9 +77,10 @@
     `go test ./testing/... -v -coverprofile cover.out -coverpkg=./...`<br>
     `go tool cover -html=cover.out`<br>
 
-
-## Learning Goals
-
-## Authors
-
-## Statistics
+## Acknowledgements
+* [Gus Cunningham](https://github.com/cunninghamge)
+* [Ely Hess](https://github.com/elyhess) 
+* [Alice Ruppert](https://github.com/srslie)  
+* [Cameron Aaragon](https://github.com/camaragon)
+* [Lucas Merchant](https://github.com/lbmerchant93)
+* [Alia Peterson](https://github.com/alia-peterson)
