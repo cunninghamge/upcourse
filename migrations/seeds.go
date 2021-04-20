@@ -13,17 +13,20 @@ func seed_activities(db *gorm.DB) {
 		(6, 'Learning Objects (case study)', '20 minutes per object', '# of LOs', 20, FALSE),
 		(7, 'Lecture', 'Factor 1.25x the actual lecture runtime', '# of minutes', 1.25, FALSE),
 		(8, 'Videos', 'Factor the full length of video', '# of minutes', 1, FALSE),
-		(9, 'Websites', '10-20 minutes', '', 1, FALSE),
+		(9, 'Websites', '10-20 minutes', '# of minutes', 1, FALSE),
 		(10, 'Discussion Boards', '250 words/60 minutes for initial post or 2 replies', '# of discussion boards', 60, FALSE),
 		(11, 'Quizzes', 'Average 1.5 minutes per question', '# of questions', 1.5, FALSE),
 		(12, 'Exams', 'Average 1.5 minutes per question', '# of questions', 1.5, FALSE),
 		(13, 'Self Assessments', 'Average 1 minute per question', '# of questions', 1, FALSE),
-		(14, 'Miscellaneous', 'any additional assignments not listed', '', 1, FALSE);
+		(14, 'Miscellaneous', 'any additional assignments not listed', '# of minutes', 1, FALSE);
 		ALTER SEQUENCE activities_id_seq RESTART WITH 15;`)
 }
 
 func seed_full_course(db *gorm.DB) {
 	db.Exec(`
+		DELETE FROM module_activities;
+		DELETE FROM modules;
+		DELETE FROM courses;
 		INSERT INTO courses(id, name, institution, credit_hours, length)
 			VALUES (1, 'Foundations of Nursing', 'Colorado Nursing College', 3, 8);
 		ALTER SEQUENCE courses_id_seq RESTART WITH 2;

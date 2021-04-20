@@ -40,13 +40,15 @@ func migrate(mode string) {
 	gormDB.AutoMigrate(&models.Course{}, &models.Module{}, &models.ModuleActivity{}, &models.Activity{})
 	// set ON DELETE constraint to CASCADE
 	set_constraints(gormDB)
-	// run seeds
+	// set triggers and seed activities if none exist
 	err := gormDB.First(&models.Activity{}, 1).Error
 	if err != nil {
 		set_triggers(gormDB)
 		seed_activities(gormDB)
-		if mode != "test" {
-			seed_full_course(gormDB)
-		}
+	}
+	// seed default course
+	err = gormDB.First(&models.Course{}, 1).Error
+	if err != nil {
+		seed_full_course(gormDB)
 	}
 }
