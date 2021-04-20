@@ -21,7 +21,6 @@ func GetModule(c *gin.Context) {
 
 func CreateModule(c *gin.Context) {
 	var input models.Module
-
 	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
 		renderBindError(c, bindErr)
 		return
@@ -45,7 +44,7 @@ func CreateModule(c *gin.Context) {
 func UpdateModule(c *gin.Context) {
 	err := db.Conn.First(&models.Module{}, c.Param("id")).Error
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
@@ -73,13 +72,7 @@ func UpdateModule(c *gin.Context) {
 }
 
 func DeleteModule(c *gin.Context) {
-	err := db.Conn.First(&models.Module{}, c.Param("id")).Error
-	if err != nil {
-		renderNotFound(c, err)
-		return
-	}
-
-	err = db.Conn.Delete(&models.Module{}, c.Param("id")).Error
+	err := db.Conn.Delete(&models.Module{}, c.Param("id")).Error
 	if err != nil {
 		renderError(c, err)
 		return

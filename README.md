@@ -53,8 +53,11 @@
     `go run course-chart`<br>
     Once the server is running you can send requests to `localhost:8080`<br>
     ex: `http://localhost:8080`
-  5. To run tests and view the test coverage report:<br>
-    `go test ./... -v -coverpkg=./...` 
+  5. To run tests:<br>
+    `go test ./...`<br>
+    or, to run tests with a detailed coverage report, run:<br>
+    `go test ./testing/... -v -coverprofile cover.out -coverpkg=./...`<br>
+    `go tool cover -html=cover.out`<br>
 
 
 ## Learning Goals

@@ -151,6 +151,24 @@ type ErrorResponse struct {
 	Errors string
 }
 
+func UnmarshalErrors(t *testing.T, response io.Reader) MultipleErrorResponse {
+	t.Helper()
+	body, _ := ioutil.ReadAll(response)
+
+	responseErrors := MultipleErrorResponse{}
+	err := json.Unmarshal([]byte(body), &responseErrors)
+	if err != nil {
+		t.Errorf("Error marshaling JSON response\nError: %v", err)
+	}
+
+	return responseErrors
+}
+
+type MultipleErrorResponse struct {
+	Status int
+	Errors []string
+}
+
 func UnmarshalSuccess(t *testing.T, response io.Reader) SuccessResponse {
 	t.Helper()
 

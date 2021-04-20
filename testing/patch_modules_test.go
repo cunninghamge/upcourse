@@ -66,6 +66,52 @@ func TestPATCHModule(t *testing.T) {
 			t.Errorf("updated a field that should not have been updated")
 		}
 	})
+
+	t.Run("it returns an error if database is unavailable", func(t *testing.T) {
+		db, _ := config.Conn.DB()
+		db.Close()
+
+		newModuleInfo := `{
+			"name": "new module name",
+			"moduleActivities":[
+				{
+					"id": 1,
+					"input": 30,
+					"notes": "A new note",
+					"activityId": 1
+				}
+			]
+		}`
+		response := newPatchModuleRequest(newModuleInfo, mockModule.ID)
+
+		assert.Equal(t, 503, response.Code)
+
+		config.Connect()
+	})
+
+	t.Run("it returns a 404 if module not found", func(t *testing.T) {
+		newModuleInfo := `{
+			"name": "new module name",
+			"moduleActivities":[
+				{
+					"id": 1,
+					"input": 30,
+					"notes": "A new note",
+					"activityId": 1
+				}
+			]
+		}`
+
+		response := newPatchModuleRequest(newModuleInfo, mockModule.ID+20)
+
+		assert.Equal(t, 404, response.Code)
+	})
+
+	t.Run("it returns an error if no body is sent", func(t *testing.T) {
+		response := newPatchModuleRequest("", mockModule.ID)
+
+		assert.Equal(t, 400, response.Code)
+	})
 }
 
 func newPatchModuleRequest(json string, moduleId int) *httptest.ResponseRecorder {

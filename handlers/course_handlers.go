@@ -45,7 +45,7 @@ func GetCourses(c *gin.Context) {
 	}).Select("courses.id, courses.name").Find(&courses).Error
 
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
@@ -77,7 +77,7 @@ func CreateCourse(c *gin.Context) {
 func UpdateCourse(c *gin.Context) {
 	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
@@ -97,13 +97,7 @@ func UpdateCourse(c *gin.Context) {
 }
 
 func DeleteCourse(c *gin.Context) {
-	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
-	if err != nil {
-		renderNotFound(c, err)
-		return
-	}
-
-	err = db.Conn.Model(&models.Course{}).
+	err := db.Conn.Model(&models.Course{}).
 		Delete(&models.Course{}, c.Param("id")).Error
 	if err != nil {
 		renderError(c, err)
