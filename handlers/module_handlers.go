@@ -72,13 +72,7 @@ func UpdateModule(c *gin.Context) {
 }
 
 func DeleteModule(c *gin.Context) {
-	err := db.Conn.First(&models.Module{}, c.Param("id")).Error
-	if err != nil {
-		renderNotFound(c, err)
-		return
-	}
-
-	err = db.Conn.Delete(&models.Module{}, c.Param("id")).Error
+	err := db.Conn.Delete(&models.Module{}, c.Param("id")).Error
 	if err != nil {
 		renderError(c, err)
 		return

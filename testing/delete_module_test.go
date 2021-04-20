@@ -44,9 +44,17 @@ func TestDELETEmodule(t *testing.T) {
 		if err == nil {
 			t.Errorf("Did not delete associated module activities")
 		}
-
 	})
 
+	t.Run("returns an error if database is unavailable", func(t *testing.T) {
+		db, _ := config.Conn.DB()
+		db.Close()
+		response := newDeleteModuleRequest(mockModule.ID)
+
+		assert.Equal(t, 503, response.Code)
+
+		config.Connect()
+	})
 }
 
 func newDeleteModuleRequest(moduleId int) *httptest.ResponseRecorder {
