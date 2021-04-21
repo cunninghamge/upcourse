@@ -67,6 +67,47 @@ func TestPATCHModule(t *testing.T) {
 		}
 	})
 
+	t.Run("it can add a new module activity to an existing module", func(t *testing.T) {
+		var moduleCount int64
+		config.Conn.Model(models.Module{}).Count(&moduleCount)
+
+		var moduleActivityCount int64
+		config.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&moduleActivityCount)
+
+		newModuleInfo := `{
+			"name": "new module name",
+			"moduleActivities":[
+				{
+					"input": 30,
+					"notes": "A new note",
+					"activityId": 14
+				}
+			]
+		}`
+
+		response := newPatchModuleRequest(newModuleInfo, mockModule.ID)
+
+		assert.Equal(t, 200, response.Code)
+
+		parsedResponse := UnmarshalSuccess(t, response.Body)
+
+		assertResponseValue(t, parsedResponse.Message, "Module updated successfully", "Message")
+
+		var newCount int64
+		config.Conn.Model(models.Course{}).Count(&newCount)
+
+		if newCount != moduleCount {
+			t.Errorf("patch request should not have changed module count but did")
+		}
+
+		var newModActivityCount int64
+		config.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&newModActivityCount)
+
+		if newModActivityCount == moduleActivityCount {
+			t.Errorf("did not create a new module activity")
+		}
+	})
+
 	t.Run("it returns an error if database is unavailable", func(t *testing.T) {
 		db, _ := config.Conn.DB()
 		db.Close()

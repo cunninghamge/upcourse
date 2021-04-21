@@ -3,6 +3,7 @@ package handlers
 import (
 	db "course-chart/config"
 	"course-chart/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -61,10 +62,19 @@ func UpdateModule(c *gin.Context) {
 	}
 
 	for _, modActivity := range module.ModuleActivities {
-		err = db.Conn.Model(&models.ModuleActivity{}).Where("id = ?", modActivity.ID).Updates(&modActivity).Error
-		if err != nil {
-			renderError(c, err)
-			return
+		if modActivity.ID == 0 {
+			modActivity.ModuleId, _ = strconv.Atoi(c.Param("id"))
+			err = db.Conn.Model(&models.ModuleActivity{}).Where("module_id = ? AND activity_id = ?", module.ID, modActivity.ActivityId).FirstOrCreate(&modActivity).Error
+			if err != nil {
+				renderError(c, err)
+				return
+			}
+		} else {
+			err = db.Conn.Model(&models.ModuleActivity{}).Where("id = ?", modActivity.ID).Updates(&modActivity).Error
+			if err != nil {
+				renderError(c, err)
+				return
+			}
 		}
 	}
 
