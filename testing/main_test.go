@@ -117,7 +117,7 @@ func newModule() models.Module {
 			ID:         i + 1,
 			Input:      randomdata.Number(200),
 			Notes:      "notes",
-			ActivityId: randomdata.Number(13) + 1,
+			ActivityId: i + 1,
 			ModuleId:   module.ID,
 		})
 	}
