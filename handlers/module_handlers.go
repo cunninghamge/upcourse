@@ -61,16 +61,25 @@ func UpdateModule(c *gin.Context) {
 		return
 	}
 
+	var existingActivityIds []int
+	err = db.Conn.Model(&models.ModuleActivity{}).Where("module_id = ?", c.Param("id")).Select("activity_id").Scan(&existingActivityIds).Error
+	if err != nil {
+		renderError(c, err)
+		return
+	}
+
 	for _, modActivity := range module.ModuleActivities {
-		if modActivity.ID == 0 {
-			modActivity.ModuleId, _ = strconv.Atoi(c.Param("id"))
-			err = db.Conn.Model(&models.ModuleActivity{}).Where("module_id = ? AND activity_id = ?", module.ID, modActivity.ActivityId).FirstOrCreate(&modActivity).Error
+		modActivity.ModuleId, _ = strconv.Atoi(c.Param("id"))
+		if contains(existingActivityIds, modActivity.ActivityId) == true {
+			err = db.Conn.Model(&models.ModuleActivity{}).
+				Where("module_id = ? AND activity_id = ?", modActivity.ModuleId, modActivity.ActivityId).
+				Updates(&modActivity).Error
 			if err != nil {
 				renderError(c, err)
 				return
 			}
 		} else {
-			err = db.Conn.Model(&models.ModuleActivity{}).Where("id = ?", modActivity.ID).Updates(&modActivity).Error
+			err = db.Conn.Model(&models.ModuleActivity{}).Create(&modActivity).Error
 			if err != nil {
 				renderError(c, err)
 				return

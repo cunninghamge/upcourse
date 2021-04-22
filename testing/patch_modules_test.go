@@ -22,11 +22,13 @@ func TestPATCHModule(t *testing.T) {
 		var moduleCount int64
 		config.Conn.Model(models.Module{}).Count(&moduleCount)
 
+		var moduleActivityCount int64
+		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
+
 		newModuleInfo := `{
 			"name": "new module name",
 			"moduleActivities":[
 				{
-					"id": 1,
 					"input": 30,
 					"notes": "A new note",
 					"activityId": 1
@@ -43,10 +45,17 @@ func TestPATCHModule(t *testing.T) {
 		assertResponseValue(t, parsedResponse.Message, "Module updated successfully", "Message")
 
 		var newCount int64
-		config.Conn.Model(models.Course{}).Count(&newCount)
+		config.Conn.Model(models.Module{}).Count(&newCount)
 
 		if newCount != moduleCount {
 			t.Errorf("patch request should not have changed module count but did")
+		}
+
+		var newModActivityCount int64
+		config.Conn.Model(models.ModuleActivity{}).Count(&newModActivityCount)
+
+		if newModActivityCount != moduleActivityCount {
+			t.Errorf("added a new module activity but should not have")
 		}
 
 		var updatedModule models.Module
@@ -103,7 +112,7 @@ func TestPATCHModule(t *testing.T) {
 		var newModActivityCount int64
 		config.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&newModActivityCount)
 
-		if newModActivityCount == moduleActivityCount {
+		if newModActivityCount != (moduleActivityCount + 1) {
 			t.Errorf("did not create a new module activity")
 		}
 	})

@@ -67,3 +67,12 @@ func renderErrors(c *gin.Context, errs []error) {
 		}(errs),
 	})
 }
+
+func contains(slice []int, id int) bool {
+	for _, num := range slice {
+		if num == id {
+			return true
+		}
+	}
+	return false
+}
