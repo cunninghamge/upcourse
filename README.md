@@ -46,7 +46,7 @@
 
 ## Technologies Used
 
-* [GoLang](https://golang.org/)
+* [Go](https://golang.org/)
 * [Gin](https://github.com/gin-gonic/gin)
 * [GORM](https://gorm.io/)
 * [PostgreSQL](https://www.postgresql.org/)
@@ -88,9 +88,9 @@
     `go tool cover -html=cover.out`<br>
 
 ## Contributors
-* [Gus Cunningham](https://github.com/cunninghamge)
-* [Ely Hess](https://github.com/elyhess) 
-* [Alice Ruppert](https://github.com/srslie)  
-* [Cameron Aaragon](https://github.com/camaragon)
-* [Lucas Merchant](https://github.com/lbmerchant93)
-* [Alia Peterson](https://github.com/alia-peterson)
+* [Gus Cunningham](https://github.com/cunninghamge) <a href="https://www.linkedin.com/in/grayson-cunningham/"> <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="22"></a>
+* [Ely Hess](https://github.com/elyhess) <a href="https://www.linkedin.com/in/ely-hess/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="22"></a>
+* [Alice Ruppert](https://github.com/srslie)  <a href="https://www.linkedin.com/in/aliceruppert/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="22"></a>
+* [Cameron Aragon](https://github.com/camaragon) <a href="https://www.linkedin.com/in/camaragon/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="22"></a>
+* [Lucas Merchant](https://github.com/lbmerchant93) <a href="https://www.linkedin.com/in/lucas-merchant93/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="22"></a>
+* [Alia Peterson](https://github.com/alia-peterson) <a href="https://www.linkedin.com/in/alia-peterson/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" height="22"></a>
