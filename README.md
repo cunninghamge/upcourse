@@ -25,6 +25,16 @@
 ## About
   Like many software tools, CourseChart was born from a desire to replace a difficult-to-use spreadsheet with a more interactive and user-friendly solution. Our team worked closely with an instructional design expert to ensure that our product met the needs of professionals in the field.
 
+  ### Key Challenges
+  - Building an API in a new-to-us language and framework (our backend team is most experienced in Ruby on Rails)
+  - Selecting and managing Go packages
+  - Recent changes to Heroku's database connection protocol 
+  - Lack of native migration functionality made migrations difficult in the production environment
+  ### Key Takeaways
+  - Greater understanding of both benefits and disadvantages of Ruby on Rails
+  - Exposure to and appreciation of a multi-paradigm programming language
+  - Experience working and communicating with teammates with different skillsets and perspectives
+  - Experience working with a client 
 
 ## Database Schema
 
@@ -77,7 +87,7 @@
     `go test ./testing/... -v -coverprofile cover.out -coverpkg=./...`<br>
     `go tool cover -html=cover.out`<br>
 
-## Acknowledgements
+## Contributors
 * [Gus Cunningham](https://github.com/cunninghamge)
 * [Ely Hess](https://github.com/elyhess) 
 * [Alice Ruppert](https://github.com/srslie)  
