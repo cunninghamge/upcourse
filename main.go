@@ -6,8 +6,8 @@ import (
 
 	"github.com/joho/godotenv"
 
-	database "course-chart/config"
-	"course-chart/routes"
+	database "upcourse/config"
+	"upcourse/routes"
 )
 
 func main() {

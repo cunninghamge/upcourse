@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	db "course-chart/config"
-	"course-chart/models"
 	"strconv"
+	db "upcourse/config"
+	"upcourse/models"
 
 	"github.com/gin-gonic/gin"
 )

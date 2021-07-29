@@ -1,9 +1,9 @@
 package testing
 
 import (
-	"course-chart/config"
-	"course-chart/models"
 	"testing"
+	"upcourse/config"
+	"upcourse/models"
 
 	"github.com/gin-gonic/gin"
 )

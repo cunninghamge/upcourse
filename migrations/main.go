@@ -1,8 +1,8 @@
 package main
 
 import (
-	"course-chart/config"
-	"course-chart/models"
+	"upcourse/config"
+	"upcourse/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -32,9 +32,9 @@ func migrate(mode string) {
 	case "release":
 		gormDB = config.DBConnectRelease()
 	case "test":
-		gormDB = config.DBConnect("course_chart_test")
+		gormDB = config.DBConnect("upcourse_test")
 	default:
-		gormDB = config.DBConnect("course_chart")
+		gormDB = config.DBConnect("upcourse")
 	}
 	// run automigrate
 	gormDB.AutoMigrate(&models.Course{}, &models.Module{}, &models.ModuleActivity{}, &models.Activity{})

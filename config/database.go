@@ -22,9 +22,9 @@ func Connect() *gorm.DB {
 	case "release":
 		gormDB = DBConnectRelease()
 	case "test":
-		gormDB = DBConnect("course_chart_test")
+		gormDB = DBConnect("upcourse_test")
 	default:
-		gormDB = DBConnect("course_chart")
+		gormDB = DBConnect("upcourse")
 	}
 
 	log.Printf("Connected to database")

@@ -11,8 +11,8 @@ import (
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-gonic/gin"
 
-	"course-chart/config"
-	"course-chart/models"
+	"upcourse/config"
+	"upcourse/models"
 )
 
 func TestMain(m *testing.M) {

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"course-chart/handlers"
+	"upcourse/handlers"
 
 	"github.com/gin-contrib/cors"
 

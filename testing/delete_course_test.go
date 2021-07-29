@@ -1,13 +1,13 @@
 package testing
 
 import (
-	"course-chart/config"
-	"course-chart/models"
-	"course-chart/routes"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"upcourse/config"
+	"upcourse/models"
+	"upcourse/routes"
 
 	"github.com/stretchr/testify/assert"
 )

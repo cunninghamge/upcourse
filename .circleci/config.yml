@@ -27,11 +27,11 @@ jobs:
       - image: circleci/golang:1.16
         environment:
             PGHOST: localhost
-            PGUSER: course-chart-be
+            PGUSER: upcourse
       - image: postgres:9.5.18
         environment:
           POSTGRES_USER: postgres
-          POSTGRES_DB: course_chart_test
+          POSTGRES_DB: upcourse_test
     steps:
       - checkout
       - run:

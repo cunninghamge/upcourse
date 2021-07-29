@@ -1,9 +1,6 @@
 package testing
 
 import (
-	"course-chart/config"
-	"course-chart/models"
-	"course-chart/routes"
 	"encoding/json"
 	"io"
 	"io/ioutil"
@@ -11,6 +8,9 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"upcourse/config"
+	"upcourse/models"
+	"upcourse/routes"
 
 	"github.com/stretchr/testify/assert"
 )

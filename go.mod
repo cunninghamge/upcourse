@@ -1,4 +1,4 @@
-module course-chart
+module upcourse
 
 go 1.16
 
