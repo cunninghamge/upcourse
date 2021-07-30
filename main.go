@@ -15,7 +15,10 @@ func main() {
 
 	port := ":" + os.Getenv("PORT")
 
-	database.Connect()
+	err := database.Connect()
+	if err != nil {
+		log.Fatalf("Error opening database: %q", err)
+	}
 
 	router := routes.GetRoutes()
 
