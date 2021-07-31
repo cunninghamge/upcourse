@@ -1,8 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Course struct {
+	gorm.Model
 	ID                   int       `json:"id"`
 	Name                 string    `json:"name" validate:"onCreate"`
 	Institution          string    `json:"institution,omitempty" validate:"onCreate"`
