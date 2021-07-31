@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"upcourse/config"
 	"upcourse/models"
 
@@ -10,45 +11,61 @@ import (
 	"gorm.io/gorm"
 )
 
-func main() {
-	godotenv.Load()
-	mode := gin.Mode()
-
-	switch mode {
-	case "release":
-		migrate("release")
-	case "test":
-		migrate("test")
-	default:
-		migrate("test")
-		migrate("default")
-	}
+type Migration struct {
+	db *gorm.DB
 }
 
-func migrate(mode string) {
-	// establish connection
-	var gormDB *gorm.DB
-	switch mode {
-	case "release":
-		gormDB = config.DBConnectRelease()
-	case "test":
-		gormDB = config.DBConnect("upcourse_test")
-	default:
-		gormDB = config.DBConnect("upcourse")
+func (m Migration) execute() error {
+	if err := m.autoMigrate(); err != nil {
+		log.Fatalf("Migration error: %v", err)
 	}
-	// run automigrate
-	gormDB.AutoMigrate(&models.Course{}, &models.Module{}, &models.ModuleActivity{}, &models.Activity{})
-	// set ON DELETE constraint to CASCADE
-	set_constraints(gormDB)
-	// set triggers and seed activities if none exist
-	err := gormDB.First(&models.Activity{}, 1).Error
-	if err != nil {
-		set_triggers(gormDB)
-		seed_activities(gormDB)
+	log.Println("Completed automigration of database models")
+
+	if err := m.createDefaultActivities(); err != nil {
+		log.Fatalf("Error creating default activities: %v", err)
 	}
-	// seed default course
-	err = gormDB.First(&models.Course{}, 1).Error
-	if err != nil {
-		seed_full_course(gormDB)
+	log.Println("Created default activities")
+
+	if gin.Mode() != gin.TestMode {
+		if err := m.createSampleCourse(); err != nil {
+			log.Fatalf("Error creating sample course")
+		}
+		log.Println("Created sample course")
 	}
+	return nil
+}
+
+func (m Migration) autoMigrate() error {
+	return m.db.AutoMigrate(&models.Course{}, &models.Module{}, &models.ModuleActivity{}, &models.Activity{})
+}
+
+func (m Migration) createDefaultActivities() error {
+	for _, activity := range defaultActivities {
+		if err := m.db.FirstOrCreate(&models.Activity{}, activity).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m Migration) createSampleCourse() error {
+	if err := m.db.FirstOrCreate(&models.Course{}, sampleCourse).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func main() {
+	godotenv.Load()
+
+	if err := config.Connect(); err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
+	migration := Migration{config.Conn}
+
+	if err := migration.execute(); err != nil {
+		log.Fatalf("Error completing migration: %v", err)
+	}
+	log.Print("Migration complete")
 }
