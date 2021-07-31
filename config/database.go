@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -10,36 +11,49 @@ import (
 	"gorm.io/gorm"
 )
 
-const baseDSN = "host=localhost port=5432 user=postgres sslmode=disable dbname=upcourse"
-
 var Conn *gorm.DB
 
 func Connect() error {
 	mode := gin.Mode()
-	var dsn string
 
+	var dsn string
 	switch mode {
 	case "release":
 		dsn = os.Getenv("DATABASE_URL") + "?sslmode=require"
-	case "test":
-		dsn = baseDSN + "_test"
 	default:
-		dsn = baseDSN
+		dsn = baseDSN(mode)
 	}
 
-	if _, err := DBConnect(dsn); err != nil {
+	gormDB, err := dbConnect(dsn)
+	if err != nil {
 		return err
 	}
 
+	Conn = gormDB
 	log.Printf("Connected to database")
 	return nil
 }
 
-func DBConnect(dsn string) (*gorm.DB, error) {
-	Conn, err := gorm.Open(postgres.New(postgres.Config{
-		DriverName: "postgres",
-		DSN:        dsn,
-	}), &gorm.Config{})
+func dbConnect(dsn string) (*gorm.DB, error) {
+	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
-	return Conn, err
+	return gormDB, err
+}
+
+func baseDSN(mode string) string {
+	const (
+		host = "localhost"
+		port = 5432
+		user = "postgres"
+	)
+
+	var dbName string
+	switch mode {
+	case "test":
+		dbName = "upcourse_test"
+	default:
+		dbName = "upcourse"
+	}
+
+	return fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable", host, port, user, dbName)
 }
