@@ -1,11 +1,10 @@
 package routes
 
 import (
-	"upcourse/handlers"
-
 	"github.com/gin-contrib/cors"
-
 	"github.com/gin-gonic/gin"
+
+	"upcourse/handlers"
 )
 
 func GetRoutes() *gin.Engine {

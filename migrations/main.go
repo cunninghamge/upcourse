@@ -2,13 +2,14 @@ package main
 
 import (
 	"log"
-	"upcourse/config"
-	"upcourse/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
+
+	"upcourse/config"
+	"upcourse/models"
 )
 
 type Migration struct {
@@ -56,7 +57,9 @@ func (m Migration) createSampleCourse() error {
 }
 
 func main() {
-	godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading environment variables: %v", err)
+	}
 
 	if err := config.Connect(); err != nil {
 		log.Fatalf("Error connecting to database: %v", err)

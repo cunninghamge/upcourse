@@ -58,16 +58,22 @@ func TestGetRoutes(t *testing.T) {
 	router := GetRoutes()
 	routes := router.Routes()
 
-	for _, expectedRoute := range expectedRoutes {
-		routePresent, idx := routePresent(t, expectedRoute, routes)
-		if routePresent {
-			routes[idx] = routes[len(routes)-1]
-			routes = routes[:len(routes)-1]
+	for _, er := range expectedRoutes {
+		routeIndex := -1
+		for i, r := range routes {
+			if er.Method == r.Method && er.Path == r.Path && er.Handler == r.Handler {
+				routeIndex = i
+			}
 		}
-		if !routePresent {
-			t.Errorf("missing route: expected to find route %s %s but did not", expectedRoute.Method, expectedRoute.Path)
+
+		if routeIndex >= 0 {
+			routes[routeIndex] = routes[len(routes)-1]
+			routes = routes[:len(routes)-1]
+		} else {
+			t.Errorf("missing route: expected to find route %s %s but did not", er.Method, er.Path)
 		}
 	}
+
 	if len(routes) > 0 {
 		var extraRoutes []string
 		for _, r := range routes {
@@ -75,13 +81,4 @@ func TestGetRoutes(t *testing.T) {
 		}
 		t.Errorf("unexpected route(s):\n%s", strings.Join(extraRoutes, "\n"))
 	}
-}
-
-func routePresent(t *testing.T, er gin.RouteInfo, routes gin.RoutesInfo) (bool, int) {
-	for i, r := range routes {
-		if er.Method == r.Method && er.Path == r.Path && er.Handler == r.Handler {
-			return true, i
-		}
-	}
-	return false, -1
 }
