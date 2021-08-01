@@ -2,12 +2,9 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Module struct {
-	gorm.Model
 	ID                   int              `json:"id"`
 	Name                 string           `json:"name" validate:"onCreate"`
 	Number               int              `json:"number,omitempty" validate:"onCreate"`

@@ -2,12 +2,9 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type ModuleActivity struct {
-	gorm.Model
 	ID                   int       `json:"id"`
 	Input                int       `json:"input"`
 	Notes                string    `json:"notes"`
