@@ -7,7 +7,7 @@ import (
 	"testing"
 	"upcourse/config"
 	"upcourse/models"
-	"upcourse/routes"
+	"upcourse/server"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -58,7 +58,7 @@ func TestDELETEmodule(t *testing.T) {
 }
 
 func newDeleteModuleRequest(moduleId int) *httptest.ResponseRecorder {
-	router := routes.GetRoutes()
+	router := server.AppRouter()
 	request, _ := http.NewRequest("DELETE", fmt.Sprintf("/modules/%d", moduleId), nil)
 	response := httptest.NewRecorder()
 

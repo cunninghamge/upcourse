@@ -8,7 +8,7 @@ import (
 	"testing"
 	"upcourse/config"
 	"upcourse/models"
-	"upcourse/routes"
+	"upcourse/server"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -98,7 +98,7 @@ func TestPostCourses(t *testing.T) {
 }
 
 func newPostCourseRequest(json string) *httptest.ResponseRecorder {
-	router := routes.GetRoutes()
+	router := server.AppRouter()
 	request, _ := http.NewRequest("POST", "/courses", bytes.NewBufferString(json))
 	response := httptest.NewRecorder()
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"upcourse/config"
 	"upcourse/models"
-	"upcourse/routes"
+	"upcourse/server"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -165,7 +165,7 @@ func TestPATCHModule(t *testing.T) {
 }
 
 func newPatchModuleRequest(json string, moduleId int) *httptest.ResponseRecorder {
-	router := routes.GetRoutes()
+	router := server.AppRouter()
 	request, _ := http.NewRequest("PATCH", fmt.Sprintf("/modules/%d", moduleId), bytes.NewBufferString(json))
 	response := httptest.NewRecorder()
 

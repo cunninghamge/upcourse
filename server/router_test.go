@@ -1,4 +1,4 @@
-package routes
+package server
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestGetRoutes(t *testing.T) {
+func TestAppRouter(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	expectedRoutes := gin.RoutesInfo{
@@ -55,7 +55,7 @@ func TestGetRoutes(t *testing.T) {
 		},
 	}
 
-	router := GetRoutes()
+	router := AppRouter()
 	routes := router.Routes()
 
 	for _, er := range expectedRoutes {

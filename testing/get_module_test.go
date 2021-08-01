@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"testing"
 	"upcourse/models"
-	"upcourse/routes"
+	"upcourse/server"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -55,7 +55,7 @@ func TestGETModule(t *testing.T) {
 }
 
 func newGetModuleRequest(moduleId int) *httptest.ResponseRecorder {
-	router := routes.GetRoutes()
+	router := server.AppRouter()
 	request, _ := http.NewRequest("GET", fmt.Sprintf("/modules/%d", moduleId), nil)
 	response := httptest.NewRecorder()
 

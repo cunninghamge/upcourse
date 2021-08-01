@@ -1,4 +1,4 @@
-package routes
+package server
 
 import (
 	"github.com/gin-contrib/cors"
@@ -7,7 +7,7 @@ import (
 	"upcourse/handlers"
 )
 
-func GetRoutes() *gin.Engine {
+func AppRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
 
