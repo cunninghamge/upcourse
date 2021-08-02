@@ -1,71 +1,22 @@
 package handlers
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"fmt"
+	"reflect"
 )
 
-func renderSuccess(c *gin.Context, message string) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": message,
-	})
-}
+func validateFields(s interface{}) []error {
+	errs := []error{}
 
-func renderFound(c *gin.Context, records interface{}, message string) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": message,
-		"data":    records,
-	})
-}
-
-func renderNotFound(c *gin.Context, err error) {
-	log.Printf("Error retrieving record from database.\nReason: %v", err)
-	c.JSON(http.StatusNotFound, gin.H{
-		"status": http.StatusNotFound,
-		"errors": "Record not found",
-	})
-}
-
-func renderCreated(c *gin.Context, message string) {
-	c.JSON(http.StatusCreated, gin.H{
-		"status":  http.StatusCreated,
-		"message": message,
-	})
-}
-
-func renderBindError(c *gin.Context, bindErr error) {
-	c.JSON(http.StatusBadRequest, gin.H{
-		"status": http.StatusBadRequest,
-		"error":  bindErr.Error(),
-	})
-}
-
-func renderError(c *gin.Context, err error) {
-	if err.Error() == "record not found" {
-		renderNotFound(c, err)
-	} else {
-		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"status": http.StatusServiceUnavailable,
-			"error":  err.Error(),
-		})
+	v := reflect.ValueOf(s)
+	for i := 0; i < v.NumField(); i++ {
+		tag := v.Type().Field(i).Tag.Get("validate")
+		if tag == "onCreate" && v.Field(i).IsZero() {
+			errs = append(errs, fmt.Errorf("%s is required", v.Type().Field(i).Name))
+		}
 	}
-}
 
-func renderErrors(c *gin.Context, errs []error) {
-	c.JSON(http.StatusBadRequest, gin.H{
-		"status": http.StatusBadRequest,
-		"errors": func(errs []error) []string {
-			strErrors := make([]string, len(errs))
-			for i, err := range errs {
-				strErrors[i] = err.Error()
-			}
-			return strErrors
-		}(errs),
-	})
+	return errs
 }
 
 func contains(slice []int, id int) bool {

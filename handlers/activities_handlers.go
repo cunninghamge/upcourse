@@ -15,5 +15,5 @@ func GetActivities(c *gin.Context) {
 		return
 	}
 
-	renderFound(c, activities, "Activities found")
+	renderFoundRecords(c, activities)
 }

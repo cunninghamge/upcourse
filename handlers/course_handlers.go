@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	db "upcourse/config"
 	"upcourse/models"
 
@@ -14,7 +15,7 @@ func GetCourse(c *gin.Context) {
 		First(&course, c.Param("id")).Error
 
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
@@ -27,7 +28,7 @@ func GetCourse(c *gin.Context) {
 		Where("modules.course_id = ?", c.Param("id")).
 		Scan(&activityTotals)
 
-	completeResponse := struct {
+	courseWithStats := struct {
 		Course         models.Course           `json:"course"`
 		ActivityTotals []models.ActivityTotals `json:"activityTotals"`
 	}{
@@ -35,7 +36,7 @@ func GetCourse(c *gin.Context) {
 		ActivityTotals: activityTotals,
 	}
 
-	renderFound(c, completeResponse, "Course found")
+	renderFoundRecords(c, courseWithStats)
 }
 
 func GetCourses(c *gin.Context) {
@@ -49,13 +50,13 @@ func GetCourses(c *gin.Context) {
 		return
 	}
 
-	renderFound(c, courses, "Courses found")
+	renderFoundRecords(c, courses)
 }
 
 func CreateCourse(c *gin.Context) {
 	var input models.Course
-	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
-		renderBindError(c, bindErr)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -71,7 +72,7 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-	renderCreated(c, "Course created successfully")
+	renderSuccess(c, http.StatusCreated)
 }
 
 func UpdateCourse(c *gin.Context) {
@@ -82,8 +83,8 @@ func UpdateCourse(c *gin.Context) {
 	}
 
 	var course models.Course
-	if bindErr := c.ShouldBindJSON(&course); bindErr != nil {
-		renderBindError(c, bindErr)
+	if err := c.ShouldBindJSON(&course); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -93,7 +94,7 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	renderSuccess(c, "Course updated successfully")
+	renderSuccess(c, http.StatusOK)
 }
 
 func DeleteCourse(c *gin.Context) {
@@ -104,5 +105,5 @@ func DeleteCourse(c *gin.Context) {
 		return
 	}
 
-	renderSuccess(c, "Course deleted successfully")
+	renderSuccess(c, http.StatusOK)
 }

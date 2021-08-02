@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"testing"
 
@@ -21,10 +22,10 @@ func TestMain(m *testing.M) {
 }
 
 func teardown() {
-	config.Conn.Unscoped().Where("1=1").Delete(&models.ModuleActivity{})
-	config.Conn.Unscoped().Where("1=1").Delete(&models.Module{})
-	config.Conn.Unscoped().Where("1=1").Delete(&models.Course{})
-	config.Conn.Unscoped().Where("custom=true").Delete(&models.Activity{})
+	config.Conn.Where("1=1").Delete(&models.ModuleActivity{})
+	config.Conn.Where("1=1").Delete(&models.Module{})
+	config.Conn.Where("1=1").Delete(&models.Course{})
+	config.Conn.Where("custom=true").Delete(&models.Activity{})
 }
 
 func assertResponseValue(t *testing.T, got, want interface{}, field string) {
@@ -34,57 +35,21 @@ func assertResponseValue(t *testing.T, got, want interface{}, field string) {
 	}
 }
 
-func unmarshalSuccessResponse(t *testing.T, r io.Reader) SuccessResponse {
-	t.Helper()
-
-	body, _ := ioutil.ReadAll(r)
-	successResponse := SuccessResponse{}
-	err := json.Unmarshal([]byte(body), &successResponse)
-
-	if err != nil {
-		t.Errorf("Error marshaling JSON response\nError: %v", err)
-	}
-
-	return successResponse
-}
-
-type SuccessResponse struct {
-	Status  int
-	Message string
-}
-
-func unmarshalErrorResponse(t *testing.T, r io.Reader) ErrorResponse {
-	t.Helper()
-
-	body, _ := ioutil.ReadAll(r)
-	responseError := ErrorResponse{}
-	err := json.Unmarshal([]byte(body), &responseError)
-	if err != nil {
-		t.Errorf("Error marshaling JSON response\nError: %v", err)
-	}
-
-	return responseError
-}
-
-type ErrorResponse struct {
-	Status int
-	Errors string
-}
-
-func unmarshalMultipleErrorResponse(t *testing.T, r io.Reader) MultipleErrorResponse {
-	t.Helper()
-
-	body, _ := ioutil.ReadAll(r)
-	responseErrors := MultipleErrorResponse{}
-	err := json.Unmarshal([]byte(body), &responseErrors)
-	if err != nil {
-		t.Errorf("Error marshaling JSON response\nError: %v", err)
-	}
-
-	return responseErrors
-}
-
-type MultipleErrorResponse struct {
-	Status int
+type Response struct {
+	Data   interface{}
 	Errors []string
+}
+
+func unmarshalResponse(t *testing.T, r io.Reader) Response {
+	t.Helper()
+
+	body, _ := ioutil.ReadAll(r)
+	response := Response{}
+	err := json.Unmarshal([]byte(body), &response)
+
+	if err != nil {
+		t.Errorf("Error marshaling JSON response\nError: %v", err)
+	}
+
+	return response
 }

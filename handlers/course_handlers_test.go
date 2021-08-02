@@ -45,7 +45,6 @@ func TestGetCourse(t *testing.T) {
 
 		response := getCourseResponse{}
 		json.Unmarshal(w.Body.Bytes(), &response)
-		assertResponseValue(t, response.Message, "Course found", "Response message")
 
 		course := response.Data.Course
 		assertResponseValue(t, course.ID, mockCourse.ID, "Id")
@@ -105,8 +104,6 @@ func TestGetCourses(t *testing.T) {
 
 		response := getCoursesResponse{}
 		json.Unmarshal(w.Body.Bytes(), &response)
-
-		assertResponseValue(t, response.Message, "Courses found", "Response message")
 
 		course := response.Data[0]
 		assertResponseValue(t, course.ID, mockCourses[0].ID, "Id")
@@ -204,7 +201,7 @@ func TestCreateCourse(t *testing.T) {
 			t.Errorf("expected response code to be %d, got %d", 400, w.Code)
 		}
 
-		response := unmarshalMultipleErrorResponse(t, w.Body)
+		response := unmarshalResponse(t, w.Body)
 
 		expected := []string{"Name is required", "Institution is required"}
 		if !reflect.DeepEqual(response.Errors, expected) {

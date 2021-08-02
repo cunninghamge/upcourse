@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"strconv"
 	db "upcourse/config"
 	"upcourse/models"
@@ -13,17 +14,17 @@ func GetModule(c *gin.Context) {
 	err := db.Conn.Preload("ModuleActivities.Activity").First(&module, c.Param("id")).Error
 
 	if err != nil {
-		renderNotFound(c, err)
+		renderError(c, err)
 		return
 	}
 
-	renderFound(c, module, "Module found")
+	renderFoundRecords(c, module)
 }
 
 func CreateModule(c *gin.Context) {
 	var input models.Module
-	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
-		renderBindError(c, bindErr)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -39,7 +40,7 @@ func CreateModule(c *gin.Context) {
 		return
 	}
 
-	renderCreated(c, "Module created successfully")
+	renderSuccess(c, http.StatusCreated)
 }
 
 func UpdateModule(c *gin.Context) {
@@ -50,8 +51,8 @@ func UpdateModule(c *gin.Context) {
 	}
 
 	var module models.Module
-	if bindErr := c.ShouldBindJSON(&module); bindErr != nil {
-		renderBindError(c, bindErr)
+	if err := c.ShouldBindJSON(&module); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -87,7 +88,7 @@ func UpdateModule(c *gin.Context) {
 		}
 	}
 
-	renderSuccess(c, "Module updated successfully")
+	renderSuccess(c, http.StatusOK)
 }
 
 func DeleteModule(c *gin.Context) {
@@ -97,5 +98,5 @@ func DeleteModule(c *gin.Context) {
 		return
 	}
 
-	renderSuccess(c, "Module deleted successfully")
+	renderSuccess(c, http.StatusOK)
 }
