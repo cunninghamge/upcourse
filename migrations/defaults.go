@@ -91,214 +91,284 @@ var defaultActivities = []models.Activity{
 }
 
 var sampleCourse = models.Course{
+	ID:          1,
 	Name:        "Foundations of Nursing",
 	Institution: "Colorado Nursing College",
 	CreditHours: 3,
 	Length:      8,
 	Modules: []models.Module{
 		{
-			Name:   "Module 1",
-			Number: 1,
+			ID:       1,
+			Name:     "Module 1",
+			Number:   1,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   1,
 					Input:      107,
 					ActivityId: 1,
 				}, {
+					ModuleId:   1,
 					Input:      6,
 					ActivityId: 2,
 				}, {
+					ModuleId:   1,
 					Input:      7,
 					ActivityId: 5,
 				}, {
+					ModuleId:   1,
 					Input:      95,
 					ActivityId: 8,
 				}, {
+					ModuleId:   1,
 					Input:      1,
 					ActivityId: 10,
 				}, {
+					ModuleId:   1,
 					Input:      450,
 					ActivityId: 11,
 				}, {
+					ModuleId:   1,
 					Input:      50,
 					ActivityId: 13,
 				},
 			},
 		}, {
-			Name:   "Module 2",
-			Number: 2,
+			ID:       2,
+			Name:     "Module 2",
+			Number:   2,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   2,
 					Input:      53,
 					ActivityId: 1,
 				}, {
+					ModuleId:   2,
 					Input:      5,
 					ActivityId: 2,
 				}, {
+					ModuleId:   2,
 					Input:      5,
 					ActivityId: 5,
 				}, {
+					ModuleId:   2,
 					Input:      71,
 					ActivityId: 8,
 				}, {
+					ModuleId:   2,
 					Input:      1,
 					ActivityId: 10,
 				}, {
+					ModuleId:   2,
 					Input:      100,
 					ActivityId: 11,
 				},
 			},
 		}, {
-			Name:   "Module 3",
-			Number: 3,
+			ID:       3,
+			Name:     "Module 3",
+			Number:   3,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   3,
 					Input:      66,
 					ActivityId: 1,
 				}, {
+					ModuleId:   3,
 					Input:      4,
 					ActivityId: 2,
 				}, {
+					ModuleId:   3,
 					Input:      1,
 					ActivityId: 4,
 				}, {
+					ModuleId:   3,
 					Input:      4,
 					ActivityId: 5,
 				}, {
+					ModuleId:   3,
 					Input:      2,
 					ActivityId: 6,
 				}, {
+					ModuleId:   3,
 					Input:      86,
 					ActivityId: 8,
 				}, {
+					ModuleId:   3,
 					Input:      1,
 					ActivityId: 10,
 				}, {
+					ModuleId:   3,
 					Input:      240,
 					ActivityId: 11,
 				}, {
+					ModuleId:   3,
 					Input:      50,
 					ActivityId: 13,
 				},
 			},
 		}, {
-			Name:   "Module 4",
-			Number: 4,
+			ID:       4,
+			Name:     "Module 4",
+			Number:   4,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   4,
 					Input:      105,
 					ActivityId: 1,
 				}, {
+					ModuleId:   4,
 					Input:      7,
 					ActivityId: 2,
 				}, {
+					ModuleId:   4,
 					Input:      2,
 					ActivityId: 4,
 				}, {
+					ModuleId:   4,
 					Input:      3,
 					ActivityId: 5,
 				}, {
+					ModuleId:   4,
 					Input:      75,
 					ActivityId: 8,
 				}, {
+					ModuleId:   4,
 					Input:      390,
 					ActivityId: 11,
 				}, {
+					ModuleId:   4,
 					Input:      50,
 					ActivityId: 13,
 				},
 			},
 		}, {
-			Name:   "Module 5",
-			Number: 5,
+			ID:       5,
+			Name:     "Module 5",
+			Number:   5,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   5,
 					Input:      52,
 					ActivityId: 1,
 				}, {
+					ModuleId:   5,
 					Input:      5,
 					ActivityId: 2,
 				}, {
+					ModuleId:   5,
 					Input:      1,
 					ActivityId: 4,
 				}, {
+					ModuleId:   5,
 					Input:      5,
 					ActivityId: 5,
 				}, {
+					ModuleId:   5,
 					Input:      1,
 					ActivityId: 6,
 				}, {
+					ModuleId:   5,
 					Input:      62,
 					ActivityId: 8,
 				}, {
+					ModuleId:   5,
 					Input:      1,
 					ActivityId: 10,
 				}, {
+					ModuleId:   5,
 					Input:      300,
 					ActivityId: 11,
 				},
 			},
 		}, {
-			Name:   "Module 6",
-			Number: 6,
+			ID:       6,
+			Name:     "Module 6",
+			Number:   6,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   6,
 					Input:      36,
 					ActivityId: 1,
 				}, {
+					ModuleId:   6,
 					Input:      5,
 					ActivityId: 2,
 				}, {
+					ModuleId:   6,
 					Input:      5,
 					ActivityId: 5,
 				}, {
+					ModuleId:   6,
 					Input:      1,
 					ActivityId: 6,
 				}, {
+					ModuleId:   6,
 					Input:      40,
 					ActivityId: 8,
 				}, {
+					ModuleId:   6,
 					Input:      1,
 					ActivityId: 10,
 				}, {
+					ModuleId:   6,
 					Input:      90,
 					ActivityId: 11,
 				}, {
+					ModuleId:   6,
 					Input:      50,
 					ActivityId: 13,
 				},
 			},
 		}, {
-			Name:   "Module 7",
-			Number: 7,
+			ID:       7,
+			Name:     "Module 7",
+			Number:   7,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   7,
 					Input:      88,
 					ActivityId: 1,
 				}, {
+					ModuleId:   7,
 					Input:      5,
 					ActivityId: 2,
 				}, {
+					ModuleId:   7,
 					Input:      4,
 					ActivityId: 5,
 				}, {
+					ModuleId:   7,
 					Input:      2,
 					ActivityId: 6,
 				}, {
+					ModuleId:   7,
 					Input:      42,
 					ActivityId: 8,
 				}, {
+					ModuleId:   7,
 					Input:      240,
 					ActivityId: 11,
 				},
 			},
 		}, {
-			Name:   "Module 8",
-			Number: 8,
+			ID:       8,
+			Name:     "Module 8",
+			Number:   8,
+			CourseId: 1,
 			ModuleActivities: []models.ModuleActivity{
 				{
+					ModuleId:   8,
 					Input:      3,
 					ActivityId: 3,
 				}, {
+					ModuleId:   8,
 					Input:      100,
 					ActivityId: 13,
 				},

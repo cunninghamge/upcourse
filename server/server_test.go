@@ -3,6 +3,7 @@ package server
 import (
 	"os"
 	"testing"
+
 	"upcourse/config"
 
 	"github.com/gin-gonic/gin"

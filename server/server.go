@@ -3,6 +3,7 @@ package server
 import (
 	"log"
 	"os"
+
 	database "upcourse/config"
 
 	"github.com/gin-gonic/gin"

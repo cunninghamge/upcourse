@@ -12,6 +12,7 @@ import (
 	"upcourse/models"
 )
 
+// TODO: versioning
 type Migration struct {
 	db *gorm.DB
 }
@@ -36,6 +37,7 @@ func (m Migration) execute() error {
 	return nil
 }
 
+// TODO: add unique constraint to moduleActivities on activities & course
 func (m Migration) autoMigrate() error {
 	return m.db.AutoMigrate(&models.Course{}, &models.Module{}, &models.ModuleActivity{}, &models.Activity{})
 }
@@ -50,8 +52,16 @@ func (m Migration) createDefaultActivities() error {
 }
 
 func (m Migration) createSampleCourse() error {
-	if err := m.db.FirstOrCreate(&models.Course{}, sampleCourse).Error; err != nil {
-		return err
+	if err := m.db.First(&models.Course{}, 1).Error; err != nil {
+		m.db.Exec(`DELETE FROM module_activities;
+		DELETE FROM modules;
+		DELETE FROM courses;
+		ALTER SEQUENCE courses_id_seq RESTART WITH 1;
+		ALTER SEQUENCE modules_id_seq RESTART WITH 1;
+		ALTER SEQUENCE module_activities_id_seq RESTART WITH 1;`)
+		if err := m.db.Create(&sampleCourse).Error; err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -23,7 +23,10 @@ func TestMain(m *testing.M) {
 	}()
 
 	gin.SetMode(gin.TestMode)
-	config.Connect()
+	if err := config.Connect(); err != nil {
+		log.Fatal("could not connect to test database")
+	}
+
 	code := m.Run()
 	os.Exit(code)
 }
