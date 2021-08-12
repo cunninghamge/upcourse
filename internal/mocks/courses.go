@@ -9,7 +9,7 @@ import (
 	"upcourse/models"
 )
 
-func NewFullCourse() *models.Course {
+func FullCourse() *models.Course {
 	course := models.Course{
 		Name:        "Test Course",
 		Institution: randomdata.LastName() + " University",
@@ -42,5 +42,35 @@ func NewFullCourse() *models.Course {
 	config.Conn.Create(&moduleActivities)
 
 	config.Conn.Preload("Modules.ModuleActivities.Activity").First(&course)
+
 	return &course
+}
+
+func SimpleCourse() *models.Course {
+	course := models.Course{ID: 1, Name: "Foundations of Nursing"}
+	config.Conn.Create(&course)
+	return &course
+}
+
+func CourseList() []models.Course {
+	var courseList []models.Course
+	for i := 0; i < 3; i++ {
+		courseList = append(courseList, models.Course{
+			Name: "Test Course " + strconv.Itoa(i),
+			Modules: []models.Module{
+				{
+					Name: "Module 1",
+				},
+				{
+					Name: "Module 2",
+				},
+				{
+					Name: "Module 3",
+				},
+			},
+		})
+	}
+	config.Conn.Create(&courseList)
+
+	return courseList
 }
