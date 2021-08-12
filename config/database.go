@@ -24,7 +24,7 @@ func Connect() error {
 		dsn = baseDSN(mode)
 	}
 
-	gormDB, err := dbConnect(dsn)
+	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return err
 	}
@@ -32,12 +32,6 @@ func Connect() error {
 	Conn = gormDB
 	log.Printf("Connected to database")
 	return nil
-}
-
-func dbConnect(dsn string) (*gorm.DB, error) {
-	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	return gormDB, err
 }
 
 func baseDSN(mode string) string {

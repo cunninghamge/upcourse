@@ -12,24 +12,23 @@ import (
 
 func GetCourse(c *gin.Context) {
 	var course models.Course
-	err := db.Conn.Preload("Modules.ModuleActivities.Activity").
-		First(&course, c.Param("id")).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.Preload("Modules.ModuleActivities.Activity").
+		First(&course, c.Param("id"))
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
-	serializedCourse := SerializeCourse(course)
-	renderFoundRecords(c, serializedCourse)
+	renderFoundRecords(c, SerializeCourse(course))
 }
 
 func GetCourses(c *gin.Context) {
 	var courses []models.Course
-	err := db.Conn.Preload("Modules", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id, name, course_id")
-	}).Select("courses.id, courses.name").Find(&courses).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.Preload("Modules", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id, name, number, course_id")
+	}).Select("courses.id, courses.name").Find(&courses)
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
@@ -53,9 +52,9 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-	err := db.Conn.Create(&input).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.Create(&input)
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
@@ -63,9 +62,9 @@ func CreateCourse(c *gin.Context) {
 }
 
 func UpdateCourse(c *gin.Context) {
-	err := db.Conn.First(&models.Course{}, c.Param("id")).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.First(&models.Course{}, c.Param("id"))
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
@@ -75,9 +74,9 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	err = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course).Error
-	if err != nil {
-		renderError(c, err)
+	tx = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course)
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
@@ -85,10 +84,10 @@ func UpdateCourse(c *gin.Context) {
 }
 
 func DeleteCourse(c *gin.Context) {
-	err := db.Conn.Model(&models.Course{}).
-		Delete(&models.Course{}, c.Param("id")).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.Model(&models.Course{}).
+		Delete(&models.Course{}, c.Param("id"))
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 

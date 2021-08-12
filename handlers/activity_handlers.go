@@ -9,9 +9,9 @@ import (
 
 func GetActivities(c *gin.Context) {
 	var activities []models.Activity
-	err := db.Conn.Where("activities.custom = FALSE").Find(&activities).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.Where("activities.custom = FALSE").Find(&activities)
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
