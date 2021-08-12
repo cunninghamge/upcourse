@@ -1,7 +1,6 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -14,57 +13,41 @@ import (
 
 var Conn *gorm.DB
 
-func Connect() *gorm.DB {
+func Connect() error {
 	mode := gin.Mode()
-	var gormDB *gorm.DB
 
+	var dsn string
 	switch mode {
 	case "release":
-		gormDB = DBConnectRelease()
-	case "test":
-		gormDB = DBConnect("upcourse_test")
+		dsn = os.Getenv("DATABASE_URL") + "?sslmode=require"
 	default:
-		gormDB = DBConnect("upcourse")
+		dsn = baseDSN(mode)
 	}
 
-	log.Printf("Connected to database")
-	Conn = gormDB
-	return gormDB
-}
-
-func DBConnectRelease() *gorm.DB {
-	sqlDB, err := sql.Open("postgres", os.Getenv("DATABASE_URL")+"?sslmode=require")
-
+	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Error opening database: %q", err)
+		return err
 	}
 
-	gormDB, _ := gorm.Open(postgres.New(postgres.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
-
-	return gormDB
+	Conn = gormDB
+	log.Printf("Connected to database")
+	return nil
 }
 
-func DBConnect(dbname string) *gorm.DB {
+func baseDSN(mode string) string {
 	const (
 		host = "localhost"
 		port = 5432
 		user = "postgres"
 	)
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"dbname=%s sslmode=disable",
-		host, port, user, dbname)
-
-	sqlDB, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		log.Fatalf("Error opening database: %q", err)
+	var dbName string
+	switch mode {
+	case "test":
+		dbName = "upcourse_test"
+	default:
+		dbName = "upcourse"
 	}
 
-	gormDB, _ := gorm.Open(postgres.New(postgres.Config{
-		Conn: sqlDB,
-	}), &gorm.Config{})
-
-	return gormDB
+	return fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable", host, port, user, dbName)
 }

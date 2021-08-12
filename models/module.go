@@ -1,12 +1,14 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Module struct {
-	ID                   int              `json:"id"`
+	ID                   int              `json:"-"`
 	Name                 string           `json:"name" validate:"onCreate"`
 	Number               int              `json:"number,omitempty" validate:"onCreate"`
-	CourseId             int              `json:"courseId"`
+	CourseId             int              `json:"-"`
+	ModuleActivities     []ModuleActivity `json:"moduleActivities"`
 	CreatedAt, UpdatedAt time.Time        `json:"-" gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
-	ModuleActivities     []ModuleActivity `json:"moduleActivities,omitempty"`
 }

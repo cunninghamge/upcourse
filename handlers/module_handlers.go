@@ -1,29 +1,30 @@
 package handlers
 
 import (
+	"net/http"
 	"strconv"
-	db "upcourse/config"
-	"upcourse/models"
 
 	"github.com/gin-gonic/gin"
+
+	db "upcourse/config"
+	"upcourse/models"
 )
 
 func GetModule(c *gin.Context) {
 	var module models.Module
-	err := db.Conn.Preload("ModuleActivities.Activity").First(&module, c.Param("id")).Error
-
-	if err != nil {
-		renderNotFound(c, err)
+	tx := db.Conn.Preload("ModuleActivities.Activity").First(&module, c.Param("id"))
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
-	renderFound(c, module, "Module found")
+	renderFoundRecords(c, SerializeModule(module))
 }
 
 func CreateModule(c *gin.Context) {
 	var input models.Module
-	if bindErr := c.ShouldBindJSON(&input); bindErr != nil {
-		renderBindError(c, bindErr)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -33,69 +34,62 @@ func CreateModule(c *gin.Context) {
 		return
 	}
 
-	err := db.Conn.Create(&input).Error
+	courseId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		renderError(c, err)
 		return
 	}
+	input.CourseId = courseId
 
-	renderCreated(c, "Module created successfully")
+	tx := db.Conn.Create(&input)
+	if tx.Error != nil {
+		renderError(c, tx.Error)
+		return
+	}
+
+	renderSuccess(c, http.StatusCreated)
 }
 
 func UpdateModule(c *gin.Context) {
-	err := db.Conn.First(&models.Module{}, c.Param("id")).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.First(&models.Module{}, c.Param("id"))
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
 	var module models.Module
-	if bindErr := c.ShouldBindJSON(&module); bindErr != nil {
-		renderBindError(c, bindErr)
-		return
-	}
-
-	err = db.Conn.Model(&models.Module{}).Where("id = ?", c.Param("id")).Updates(&module).Error
-	if err != nil {
+	if err := c.ShouldBindJSON(&module); err != nil {
 		renderError(c, err)
 		return
 	}
 
-	var existingActivityIds []int
-	err = db.Conn.Model(&models.ModuleActivity{}).Where("module_id = ?", c.Param("id")).Select("activity_id").Scan(&existingActivityIds).Error
-	if err != nil {
-		renderError(c, err)
+	tx = db.Conn.Model(&models.Module{}).Where("id = ?", c.Param("id")).Updates(&module)
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
-	for _, modActivity := range module.ModuleActivities {
-		modActivity.ModuleId, _ = strconv.Atoi(c.Param("id"))
-		if contains(existingActivityIds, modActivity.ActivityId) == true {
-			err = db.Conn.Model(&models.ModuleActivity{}).
-				Where("module_id = ? AND activity_id = ?", modActivity.ModuleId, modActivity.ActivityId).
-				Updates(&modActivity).Error
-			if err != nil {
-				renderError(c, err)
-				return
-			}
-		} else {
-			err = db.Conn.Model(&models.ModuleActivity{}).Create(&modActivity).Error
-			if err != nil {
-				renderError(c, err)
-				return
-			}
+	moduleId, _ := strconv.Atoi(c.Param("id"))
+	for _, ma := range module.ModuleActivities {
+		ma.ModuleId = moduleId
+		tx = db.Conn.Where(models.ModuleActivity{ModuleId: moduleId, ActivityId: ma.ActivityId}).
+			FirstOrCreate(&models.ModuleActivity{}).
+			Updates(&ma)
+		if tx.Error != nil {
+			renderError(c, tx.Error)
+			return
 		}
 	}
 
-	renderSuccess(c, "Module updated successfully")
+	renderSuccess(c, http.StatusOK)
 }
 
 func DeleteModule(c *gin.Context) {
-	err := db.Conn.Delete(&models.Module{}, c.Param("id")).Error
-	if err != nil {
-		renderError(c, err)
+	tx := db.Conn.Delete(&models.Module{}, c.Param("id"))
+	if tx.Error != nil {
+		renderError(c, tx.Error)
 		return
 	}
 
-	renderSuccess(c, "Module deleted successfully")
+	renderSuccess(c, http.StatusOK)
 }
