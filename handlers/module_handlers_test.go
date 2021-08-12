@@ -51,20 +51,6 @@ func TestGetModule(t *testing.T) {
 		if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
 			t.Errorf("error unmarshaling json response: %v", err)
 		}
-
-		data := response.Data
-		assertResponseValue(t, data.Type, "module", "module type")
-		assertResponseValue(t, data.ID, mockModule.ID, "Id")
-
-		firstModuleActivity := data.Relationships["moduleActivities"][0]
-		firstMockModActivity := mockModule.ModuleActivities[0]
-		assertResponseValue(t, firstModuleActivity.Type, "moduleActivity", "moduleActivity type")
-		assertResponseValue(t, firstModuleActivity.ID, firstMockModActivity.ID, "first module ID")
-
-		firstActivity := firstModuleActivity.Relationships["activity"]
-		firstMockActivity := firstMockModActivity.Activity
-		assertResponseValue(t, firstActivity.Type, "activity", "activity type")
-		assertResponseValue(t, firstActivity.ID, firstMockActivity.ID, "first activity ID")
 	})
 
 	t.Run("returns a message if the module is not found", func(t *testing.T) {

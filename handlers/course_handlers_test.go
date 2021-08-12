@@ -54,25 +54,6 @@ func TestGetCourse(t *testing.T) {
 		if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
 			t.Errorf("error unmarshaling json response: %v", err)
 		}
-
-		data := response.Data
-		assertResponseValue(t, data.Type, "course", "course type")
-		assertResponseValue(t, data.ID, mockCourse.ID, "Id")
-
-		firstModule := data.Relationships["modules"][0]
-		firstMockModule := mockCourse.Modules[0]
-		assertResponseValue(t, firstModule.Type, "module", "module type")
-		assertResponseValue(t, firstModule.ID, firstMockModule.ID, "first module ID")
-
-		firstModuleActivity := firstModule.Relationships["moduleActivities"][0]
-		firstMockModActivity := firstMockModule.ModuleActivities[0]
-		assertResponseValue(t, firstModuleActivity.Type, "moduleActivity", "moduleActivity type")
-		assertResponseValue(t, firstModuleActivity.ID, firstMockModActivity.ID, "first module ID")
-
-		firstActivity := firstModuleActivity.Relationships["activity"]
-		firstMockActivity := firstMockModActivity.Activity
-		assertResponseValue(t, firstActivity.Type, "activity", "activity type")
-		assertResponseValue(t, firstActivity.ID, firstMockActivity.ID, "first activity ID")
 	})
 
 	t.Run("returns an error if the course is not found", func(t *testing.T) {
@@ -138,15 +119,9 @@ func TestGetCourses(t *testing.T) {
 			t.Errorf("error unmarshaling json response: %v", err)
 		}
 
-		course := response.Data[0]
-		assertResponseValue(t, course.Type, "course", "course type")
-		assertResponseValue(t, course.ID, mockCourses[0].ID, "Id")
-
-		firstModule := course.Relationships["modules"][0]
-		firstMockModule := mockCourses[0].Modules[0]
-		assertResponseValue(t, firstModule.Type, "module", "module type")
-		assertResponseValue(t, firstModule.ID, firstMockModule.ID, "first module ID")
-		assertResponseValue(t, firstModule.Relationships, nil, "module relationships")
+		if len(response.Data) != len(mockCourses) {
+			t.Errorf("got %d expected %d for length of results", len(response.Data), len(mockCourses))
+		}
 	})
 
 	t.Run("retuns an array even if only one course is found", func(t *testing.T) {

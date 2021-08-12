@@ -31,3 +31,16 @@ func Module() models.Module {
 	config.Conn.Preload("ModuleActivities.Activity").First(&module)
 	return module
 }
+
+func SimpleModule() models.Module {
+	course := SimpleCourse()
+
+	module := models.Module{
+		Name:     "Test Module",
+		Number:   1,
+		CourseId: course.ID,
+	}
+	config.Conn.Create(&module)
+
+	return module
+}
