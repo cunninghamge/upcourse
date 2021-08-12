@@ -34,7 +34,7 @@ func FullCourse() *models.Course {
 			moduleActivities = append(moduleActivities, models.ModuleActivity{
 				Input:      randomdata.Number(200),
 				Notes:      "notes",
-				ActivityId: randomdata.Number(13) + 1,
+				ActivityId: i,
 				ModuleId:   module.ID,
 			})
 		}
