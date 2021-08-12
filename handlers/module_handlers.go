@@ -3,10 +3,11 @@ package handlers
 import (
 	"net/http"
 	"strconv"
-	db "upcourse/config"
-	"upcourse/models"
 
 	"github.com/gin-gonic/gin"
+
+	db "upcourse/config"
+	"upcourse/models"
 )
 
 func GetModule(c *gin.Context) {
@@ -18,7 +19,8 @@ func GetModule(c *gin.Context) {
 		return
 	}
 
-	renderFoundRecords(c, module)
+	serializedModule := SerializeModule(module)
+	renderFoundRecords(c, serializedModule)
 }
 
 func CreateModule(c *gin.Context) {
@@ -62,30 +64,10 @@ func UpdateModule(c *gin.Context) {
 		return
 	}
 
-	var existingActivityIds []int
-	err = db.Conn.Model(&models.ModuleActivity{}).Where("module_id = ?", c.Param("id")).Select("activity_id").Scan(&existingActivityIds).Error
-	if err != nil {
+	module.ID, _ = strconv.Atoi(c.Param("id"))
+	if err := module.UpdateModuleActivities(); err != nil {
 		renderError(c, err)
 		return
-	}
-
-	for _, modActivity := range module.ModuleActivities {
-		modActivity.ModuleId, _ = strconv.Atoi(c.Param("id"))
-		if contains(existingActivityIds, modActivity.ActivityId) == true {
-			err = db.Conn.Model(&models.ModuleActivity{}).
-				Where("module_id = ? AND activity_id = ?", modActivity.ModuleId, modActivity.ActivityId).
-				Updates(&modActivity).Error
-			if err != nil {
-				renderError(c, err)
-				return
-			}
-		} else {
-			err = db.Conn.Model(&models.ModuleActivity{}).Create(&modActivity).Error
-			if err != nil {
-				renderError(c, err)
-				return
-			}
-		}
 	}
 
 	renderSuccess(c, http.StatusOK)

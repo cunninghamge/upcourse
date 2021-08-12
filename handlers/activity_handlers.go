@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"github.com/gin-gonic/gin"
+
 	db "upcourse/config"
 	"upcourse/models"
-
-	"github.com/gin-gonic/gin"
 )
 
 func GetActivities(c *gin.Context) {
@@ -15,5 +15,9 @@ func GetActivities(c *gin.Context) {
 		return
 	}
 
-	renderFoundRecords(c, activities)
+	var serializedActivities []SerializedResource
+	for _, a := range activities {
+		serializedActivities = append(serializedActivities, SerializeActivity(a))
+	}
+	renderFoundRecords(c, serializedActivities)
 }

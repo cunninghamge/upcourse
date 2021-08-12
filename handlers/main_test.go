@@ -15,6 +15,13 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("recovered from error: %v", err)
+			teardown()
+		}
+	}()
+
 	gin.SetMode(gin.TestMode)
 	config.Connect()
 	code := m.Run()

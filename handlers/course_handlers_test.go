@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"reflect"
@@ -12,23 +13,8 @@ import (
 	"upcourse/models"
 )
 
-type getCourseResponse struct {
-	Data struct {
-		Course         models.Course
-		ActivityTotals []models.ActivityTotals
-	}
-	Message string
-	Status  int
-}
-
-type getCoursesResponse struct {
-	Data    []models.Course
-	Message string
-	Status  int
-}
-
 func TestGetCourse(t *testing.T) {
-	mockCourse := mocks.NewFullCourse()
+	mockCourse := mocks.FullCourse()
 	defer teardown()
 
 	t.Run("returns a course and its modules and moduleActivities", func(t *testing.T) {
@@ -43,32 +29,50 @@ func TestGetCourse(t *testing.T) {
 			t.Errorf("expected response code to be 200, got %d", w.Code)
 		}
 
-		response := getCourseResponse{}
-		json.Unmarshal(w.Body.Bytes(), &response)
+		var response struct {
+			Data struct {
+				Type          string
+				ID            int
+				Attributes    models.Course
+				Relationships map[string][]struct {
+					Type          string
+					ID            int
+					Attributes    models.Module
+					Relationships map[string][]struct {
+						Type          string
+						ID            int
+						Attributes    models.ModuleActivity
+						Relationships map[string]struct {
+							Type       string
+							ID         int
+							Attributes models.Activity
+						}
+					}
+				}
+			}
+		}
+		if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+			t.Errorf("error unmarshaling json response: %v", err)
+		}
 
-		course := response.Data.Course
-		assertResponseValue(t, course.ID, mockCourse.ID, "Id")
-		assertResponseValue(t, course.Name, mockCourse.Name, "Name")
-		assertResponseValue(t, course.CreditHours, mockCourse.CreditHours, "CreditHours")
-		assertResponseValue(t, course.Length, mockCourse.Length, "Length")
+		data := response.Data
+		assertResponseValue(t, data.Type, "course", "course type")
+		assertResponseValue(t, data.ID, mockCourse.ID, "Id")
 
-		firstResponseModule := course.Modules[0]
+		firstModule := data.Relationships["modules"][0]
 		firstMockModule := mockCourse.Modules[0]
-		assertResponseValue(t, firstResponseModule.ID, firstMockModule.ID, "Module Id")
-		assertResponseValue(t, firstResponseModule.Name, firstMockModule.Name, "Module Name")
-		assertResponseValue(t, firstResponseModule.Number, firstMockModule.Number, "Module Number")
+		assertResponseValue(t, firstModule.Type, "module", "module type")
+		assertResponseValue(t, firstModule.ID, firstMockModule.ID, "first module ID")
 
-		firstResponseModActivity := firstResponseModule.ModuleActivities[0]
+		firstModuleActivity := firstModule.Relationships["moduleActivities"][0]
 		firstMockModActivity := firstMockModule.ModuleActivities[0]
-		assertResponseValue(t, firstResponseModActivity.Input, firstMockModActivity.Input, "Module Activity Input")
-		assertResponseValue(t, firstResponseModActivity.Notes, firstMockModActivity.Notes, "Module Activity Notes")
+		assertResponseValue(t, firstModuleActivity.Type, "moduleActivity", "moduleActivity type")
+		assertResponseValue(t, firstModuleActivity.ID, firstMockModActivity.ID, "first module ID")
 
-		firstResponseActivity := firstResponseModActivity.Activity
+		firstActivity := firstModuleActivity.Relationships["activity"]
 		firstMockActivity := firstMockModActivity.Activity
-		assertResponseValue(t, firstResponseActivity.ID, firstMockActivity.ID, "Activity Id")
-		assertResponseValue(t, firstResponseActivity.Description, firstMockActivity.Description, "Activity Description")
-		assertResponseValue(t, firstResponseActivity.Metric, firstMockActivity.Metric, "Activity Metric")
-		assertResponseValue(t, firstResponseActivity.Multiplier, firstMockActivity.Multiplier, "Activity Multiplier")
+		assertResponseValue(t, firstActivity.Type, "activity", "activity type")
+		assertResponseValue(t, firstActivity.ID, firstMockActivity.ID, "first activity ID")
 	})
 
 	t.Run("returns an error if the course is not found", func(t *testing.T) {
@@ -83,14 +87,34 @@ func TestGetCourse(t *testing.T) {
 			t.Errorf("expected response code to be 404, got %d", w.Code)
 		}
 
-		response := unmarshalErrorResponse(t, w.Body)
-		assertResponseValue(t, response.Errors, "Record not found", "Response message")
+		response := unmarshalResponse(t, w.Body)
+		assertResponseValue(t, response.Errors[0], "record not found", "error message")
+	})
+
+	t.Run("returns database errors if they occur", func(t *testing.T) {
+		err := "some database error"
+		config.Conn.Error = errors.New(err)
+		defer func() {
+			config.Conn.Error = nil
+		}()
+
+		w := httptest.NewRecorder()
+		ctx := mocks.NewMockContext(w, map[string]string{
+			"id": fmt.Sprint(mockCourse.ID + 1),
+		})
+
+		GetCourse(ctx)
+
+		response := unmarshalResponse(t, w.Body)
+		if response.Errors[0] != err {
+			t.Errorf("got %s want %s for error message", response.Errors[0], err)
+		}
 	})
 }
 
 func TestGetCourses(t *testing.T) {
 	t.Run("returns a list of courses", func(t *testing.T) {
-		mockCourses := mocks.NewCourseList()
+		mockCourses := mocks.CourseList()
 		defer teardown()
 
 		w := httptest.NewRecorder()
@@ -102,19 +126,31 @@ func TestGetCourses(t *testing.T) {
 			t.Errorf("expected response code to be 200, got %d", w.Code)
 		}
 
-		response := getCoursesResponse{}
-		json.Unmarshal(w.Body.Bytes(), &response)
+		var response struct {
+			Data []struct {
+				Type          string
+				ID            int
+				Attributes    models.Course
+				Relationships map[string][]SerializedResource
+			}
+		}
+		if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+			t.Errorf("error unmarshaling json response: %v", err)
+		}
 
 		course := response.Data[0]
+		assertResponseValue(t, course.Type, "course", "course type")
 		assertResponseValue(t, course.ID, mockCourses[0].ID, "Id")
-		assertResponseValue(t, course.Name, mockCourses[0].Name, "Name")
 
-		firstModule := course.Modules[0]
-		assertResponseValue(t, firstModule.Name, mockCourses[0].Modules[0].Name, "Module Name")
+		firstModule := course.Relationships["modules"][0]
+		firstMockModule := mockCourses[0].Modules[0]
+		assertResponseValue(t, firstModule.Type, "module", "module type")
+		assertResponseValue(t, firstModule.ID, firstMockModule.ID, "first module ID")
+		assertResponseValue(t, firstModule.Relationships, nil, "module relationships")
 	})
 
 	t.Run("retuns an array even if only one course is found", func(t *testing.T) {
-		mocks.NewSimpleCourse()
+		mocks.SimpleCourse()
 		defer teardown()
 
 		w := httptest.NewRecorder()
@@ -126,8 +162,13 @@ func TestGetCourses(t *testing.T) {
 			t.Errorf("expected response code to be 200, got %d", w.Code)
 		}
 
-		response := getCoursesResponse{}
-		json.Unmarshal(w.Body.Bytes(), &response)
+		var response struct {
+			Data []SerializedResource
+		}
+		if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+			t.Errorf("error unmarshaling json response: %v", err)
+		}
+
 		assertResponseValue(t, len(response.Data), 1, "Number of results")
 	})
 
@@ -141,9 +182,32 @@ func TestGetCourses(t *testing.T) {
 			t.Errorf("expected response code to be 200, got %d", w.Code)
 		}
 
-		response := getCoursesResponse{}
-		json.Unmarshal(w.Body.Bytes(), &response)
+		var response struct {
+			Data []SerializedResource
+		}
+		if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+			t.Errorf("error unmarshaling json response: %v", err)
+		}
+
 		assertResponseValue(t, len(response.Data), 0, "Number of results")
+	})
+
+	t.Run("returns database errors if they occur", func(t *testing.T) {
+		err := "some database error"
+		config.Conn.Error = errors.New(err)
+		defer func() {
+			config.Conn.Error = nil
+		}()
+
+		w := httptest.NewRecorder()
+		ctx := mocks.NewMockContext(w, map[string]string{})
+
+		GetCourses(ctx)
+
+		response := unmarshalResponse(t, w.Body)
+		if response.Errors[0] != err {
+			t.Errorf("got %s want %s for error message", response.Errors[0], err)
+		}
 	})
 }
 
@@ -171,8 +235,10 @@ func TestCreateCourse(t *testing.T) {
 			t.Errorf("expected response code to be 201, got %d", w.Code)
 		}
 
-		response := unmarshalSuccessResponse(t, w.Body)
-		assertResponseValue(t, response.Message, "Course created successfully", "Message")
+		response := unmarshalResponse(t, w.Body)
+		if len(response.Errors) != 0 {
+			t.Errorf("got unexpected errors: %s", response.Errors)
+		}
 
 		var newCount int64
 		config.Conn.Model(models.Course{}).Count(&newCount)
@@ -226,10 +292,36 @@ func TestCreateCourse(t *testing.T) {
 			t.Errorf("expected response code to be %d, got %d", 400, w.Code)
 		}
 	})
+
+	t.Run("returns database errors if they occur", func(t *testing.T) {
+		err := "some database error"
+		config.Conn.Error = errors.New(err)
+		defer func() {
+			config.Conn.Error = nil
+		}()
+
+		w := httptest.NewRecorder()
+		ctx := mocks.NewMockContext(w, map[string]string{})
+		newCourseInfo := `{
+			"name": "Nursing 101",
+			"institution": "Tampa Bay Nurses United University",
+			"creditHours": 3,
+			"length": 16,
+			"goal": "8-10 hours"
+		}`
+		mocks.SetRequestBody(ctx, newCourseInfo)
+
+		CreateCourse(ctx)
+
+		response := unmarshalResponse(t, w.Body)
+		if response.Errors[0] != err {
+			t.Errorf("got %s want %s for error message", response.Errors[0], err)
+		}
+	})
 }
 
 func TestUpdateCourse(t *testing.T) {
-	mockCourse := mocks.NewSimpleCourse()
+	mockCourse := mocks.SimpleCourse()
 	defer teardown()
 
 	t.Run("it updates an existing course", func(t *testing.T) {
@@ -254,8 +346,10 @@ func TestUpdateCourse(t *testing.T) {
 			t.Errorf("expected response code to be %d, got %d", 200, w.Code)
 		}
 
-		response := unmarshalSuccessResponse(t, w.Body)
-		assertResponseValue(t, response.Message, "Course updated successfully", "Message")
+		response := unmarshalResponse(t, w.Body)
+		if len(response.Errors) != 0 {
+			t.Errorf("got unexpected errors: %s", response.Errors)
+		}
 
 		var newCount int64
 		config.Conn.Model(models.Course{}).Count(&newCount)
@@ -311,7 +405,7 @@ func TestUpdateCourse(t *testing.T) {
 
 func TestDeleteCourse(t *testing.T) {
 	t.Run("deletes the course and dependent records", func(t *testing.T) {
-		mockCourse := mocks.NewFullCourse()
+		mockCourse := mocks.FullCourse()
 		defer teardown()
 
 		var courseCount int64
@@ -343,7 +437,7 @@ func TestDeleteCourse(t *testing.T) {
 	})
 
 	t.Run("returns a successful http response", func(t *testing.T) {
-		mockCourse := mocks.NewFullCourse()
+		mockCourse := mocks.FullCourse()
 		defer teardown()
 
 		w := httptest.NewRecorder()
@@ -357,7 +451,32 @@ func TestDeleteCourse(t *testing.T) {
 			t.Errorf("expected response code to be 200, got %d", w.Code)
 		}
 
-		response := unmarshalSuccessResponse(t, w.Body)
-		assertResponseValue(t, response.Message, "Course deleted successfully", "Message")
+		response := unmarshalResponse(t, w.Body)
+		if len(response.Errors) != 0 {
+			t.Errorf("got unexpected errors: %s", response.Errors)
+		}
+	})
+
+	t.Run("returns database errors if they occur", func(t *testing.T) {
+		err := "some database error"
+		config.Conn.Error = errors.New(err)
+		defer func() {
+			config.Conn.Error = nil
+		}()
+
+		mockCourse := mocks.FullCourse()
+		defer teardown()
+
+		w := httptest.NewRecorder()
+		ctx := mocks.NewMockContext(w, map[string]string{
+			"id": fmt.Sprint(mockCourse.ID),
+		})
+
+		DeleteCourse(ctx)
+
+		response := unmarshalResponse(t, w.Body)
+		if response.Errors[0] != err {
+			t.Errorf("got %s want %s for error message", response.Errors[0], err)
+		}
 	})
 }
