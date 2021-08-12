@@ -64,10 +64,16 @@ func UpdateModule(c *gin.Context) {
 		return
 	}
 
-	module.ID, _ = strconv.Atoi(c.Param("id"))
-	if err := module.UpdateModuleActivities(); err != nil {
-		renderError(c, err)
-		return
+	moduleId, _ := strconv.Atoi(c.Param("id"))
+	for _, ma := range module.ModuleActivities {
+		ma.ModuleId = moduleId
+		err := db.Conn.Where(models.ModuleActivity{ModuleId: moduleId, ActivityId: ma.ActivityId}).
+			FirstOrCreate(&models.ModuleActivity{}).
+			Updates(&ma).Error
+		if err != nil {
+			renderError(c, err)
+			return
+		}
 	}
 
 	renderSuccess(c, http.StatusOK)
