@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// TODO: figure out how to set moduleActivities to -
 type Module struct {
 	ID                   int              `json:"-"`
 	Name                 string           `json:"name" validate:"onCreate"`
