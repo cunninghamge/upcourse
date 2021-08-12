@@ -23,6 +23,11 @@ func (m Migration) execute() error {
 	}
 	log.Println("Completed automigration of database models")
 
+	if err := m.createIndexes(); err != nil {
+		log.Fatalf("Migration error: %v", err)
+	}
+	log.Println("Completed database indexes")
+
 	if err := m.createDefaultActivities(); err != nil {
 		log.Fatalf("Error creating default activities: %v", err)
 	}
@@ -37,7 +42,6 @@ func (m Migration) execute() error {
 	return nil
 }
 
-// TODO: add unique constraint to moduleActivities on activities & course
 func (m Migration) autoMigrate() error {
 	return m.db.AutoMigrate(&models.Course{}, &models.Module{}, &models.ModuleActivity{}, &models.Activity{})
 }
@@ -53,16 +57,22 @@ func (m Migration) createDefaultActivities() error {
 
 func (m Migration) createSampleCourse() error {
 	if err := m.db.First(&models.Course{}, 1).Error; err != nil {
-		m.db.Exec(`DELETE FROM module_activities;
-		DELETE FROM modules;
-		DELETE FROM courses;
-		ALTER SEQUENCE courses_id_seq RESTART WITH 1;
-		ALTER SEQUENCE modules_id_seq RESTART WITH 1;
-		ALTER SEQUENCE module_activities_id_seq RESTART WITH 1;`)
+		m.db.Exec(`DELETE FROM courses WHERE id = 1;`)
 		if err := m.db.Create(&sampleCourse).Error; err != nil {
 			return err
 		}
 	}
+	return nil
+}
+
+func (m Migration) createIndexes() error {
+	if !m.db.Migrator().HasIndex(&models.ModuleActivity{}, "index_module_activities_on_activities_modules") {
+		err := m.db.Exec(`CREATE UNIQUE INDEX index_module_activities_on_activities_modules ON module_activities (module_id, activity_id);`).Error
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
