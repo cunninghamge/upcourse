@@ -39,17 +39,15 @@ func SerializeModule(m models.Module) SerializedResource {
 	}
 
 	if len(m.ModuleActivities) > 0 {
-		sr.Relationships = func() map[string][]SerializedResource {
-			return map[string][]SerializedResource{
-				"moduleActivities": func(modActivities []models.ModuleActivity) []SerializedResource {
-					var r []SerializedResource
-					for _, ma := range modActivities {
-						r = append(r, SerializeModuleActivity(ma))
-					}
-					return r
-				}(m.ModuleActivities),
-			}
-		}()
+		sr.Relationships = map[string][]SerializedResource{
+			"moduleActivities": func(modActivities []models.ModuleActivity) []SerializedResource {
+				var r []SerializedResource
+				for _, ma := range modActivities {
+					r = append(r, SerializeModuleActivity(ma))
+				}
+				return r
+			}(m.ModuleActivities),
+		}
 	}
 
 	return sr

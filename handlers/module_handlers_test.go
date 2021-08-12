@@ -105,7 +105,7 @@ func TestGetModule(t *testing.T) {
 }
 
 func TestCreateModule(t *testing.T) {
-	mocks.SimpleCourse()
+	course := mocks.SimpleCourse()
 	defer teardown()
 
 	t.Run("it posts a new module with associated module activities", func(t *testing.T) {
@@ -115,11 +115,12 @@ func TestCreateModule(t *testing.T) {
 		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 
 		w := httptest.NewRecorder()
-		ctx := mocks.NewMockContext(w, nil)
+		ctx := mocks.NewMockContext(w, map[string]string{
+			"id": fmt.Sprint(course.ID),
+		})
 		newModuleInfo := `{
 			"name": "Module 9",
 			"number": 9,
-			"courseId": 1,
 			"moduleActivities":[
 				{
 					"input": 30,
@@ -171,10 +172,11 @@ func TestCreateModule(t *testing.T) {
 		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 
 		w := httptest.NewRecorder()
-		ctx := mocks.NewMockContext(w, map[string]string{})
+		ctx := mocks.NewMockContext(w, map[string]string{
+			"id": fmt.Sprint(course.ID),
+		})
 		newModuleInfo := `{
 			"number": 9,
-			"courseId": 1,
 			"moduleActivities":[
 				{
 					"input": 30,
@@ -240,11 +242,12 @@ func TestCreateModule(t *testing.T) {
 		}()
 
 		w := httptest.NewRecorder()
-		ctx := mocks.NewMockContext(w, nil)
+		ctx := mocks.NewMockContext(w, map[string]string{
+			"id": fmt.Sprint(course.ID),
+		})
 		newModuleInfo := `{
 			"name": "Module 9",
 			"number": 9,
-			"courseId": 1,
 			"moduleActivities":[
 				{
 					"input": 180,
@@ -260,6 +263,54 @@ func TestCreateModule(t *testing.T) {
 		response := unmarshalResponse(t, w.Body)
 		if response.Errors[0] != err {
 			t.Errorf("got %s want %s for error message", response.Errors[0], err)
+		}
+	})
+
+	t.Run("it returns an error if an invalid course id is sent", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		ctx := mocks.NewMockContext(w, map[string]string{
+			"id": "-",
+		})
+		newModuleInfo := `{
+			"name": "Module 9",
+			"number": 9,
+			"moduleActivities":[
+				{
+					"input": 180,
+					"notes": "",
+					"activityId": 11
+				}
+			]
+		}`
+		mocks.SetRequestBody(ctx, newModuleInfo)
+
+		CreateModule(ctx)
+
+		if w.Code != 400 {
+			t.Errorf("expected response code to be %d, got %d", 400, w.Code)
+		}
+	})
+
+	t.Run("it returns an error if an no course id is sent", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		ctx := mocks.NewMockContext(w, nil)
+		newModuleInfo := `{
+			"name": "Module 9",
+			"number": 9,
+			"moduleActivities":[
+				{
+					"input": 180,
+					"notes": "",
+					"activityId": 11
+				}
+			]
+		}`
+		mocks.SetRequestBody(ctx, newModuleInfo)
+
+		CreateModule(ctx)
+
+		if w.Code != 400 {
+			t.Errorf("expected response code to be %d, got %d", 400, w.Code)
 		}
 	})
 }

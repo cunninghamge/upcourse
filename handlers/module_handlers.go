@@ -36,7 +36,14 @@ func CreateModule(c *gin.Context) {
 		return
 	}
 
-	err := db.Conn.Create(&input).Error
+	courseId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		renderError(c, err)
+		return
+	}
+	input.CourseId = courseId
+
+	err = db.Conn.Create(&input).Error
 	if err != nil {
 		renderError(c, err)
 		return

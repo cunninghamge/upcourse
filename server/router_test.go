@@ -34,7 +34,7 @@ func TestAppRouter(t *testing.T) {
 			Handler: "upcourse/handlers.DeleteCourse",
 		}, {
 			Method:  "POST",
-			Path:    "/modules",
+			Path:    "/courses/:id/modules",
 			Handler: "upcourse/handlers.CreateModule",
 		}, {
 			Method:  "GET",

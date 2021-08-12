@@ -16,7 +16,7 @@ func AppRouter() *gin.Engine {
 	router.POST("/courses", handlers.CreateCourse)
 	router.PATCH("/courses/:id", handlers.UpdateCourse)
 	router.DELETE("/courses/:id", handlers.DeleteCourse)
-	router.POST("/modules", handlers.CreateModule)
+	router.POST("/courses/:id/modules", handlers.CreateModule)
 	router.GET("/modules/:id", handlers.GetModule)
 	router.PATCH("/modules/:id", handlers.UpdateModule)
 	router.DELETE("/modules/:id", handlers.DeleteModule)
