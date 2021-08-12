@@ -20,10 +20,6 @@ func TestConnect(t *testing.T) {
 			mode:      gin.TestMode,
 			wantError: false,
 		},
-		"debug mode": {
-			mode:      gin.DebugMode,
-			wantError: false,
-		},
 	}
 
 	for name, tc := range testCases {
@@ -45,9 +41,6 @@ func TestConnect(t *testing.T) {
 			}
 		})
 	}
-
-	gin.SetMode(gin.TestMode)
-	Connect() //nolint
 }
 
 func pingDB() error {
