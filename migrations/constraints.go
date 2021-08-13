@@ -57,6 +57,10 @@ func (m GormMigration) setTriggers() error {
 	END;
 	$$ language 'plpgsql';
 	
+	DROP TRIGGER IF EXISTS updated_course_updated_at ON courses;
+	DROP TRIGGER IF EXISTS updated_activity_updated_at ON activities;
+	DROP TRIGGER IF EXISTS updated_module_activity_updated_at ON module_activities;
+	DROP TRIGGER IF EXISTS updated_module_updated_at ON modules;
 	CREATE TRIGGER update_course_updated_at BEFORE UPDATE ON courses FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 	CREATE TRIGGER update_module_updated_at BEFORE UPDATE ON modules FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 	CREATE TRIGGER update_activity_updated_at BEFORE UPDATE ON activities FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
