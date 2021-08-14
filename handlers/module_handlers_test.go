@@ -426,7 +426,7 @@ func TestDeleteModule(t *testing.T) {
 		defer testHelpers.Teardown()
 
 		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, "", DeleteCourse)
+		w := testHelpers.NewRequest(params, "", DeleteModule)
 
 		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
 

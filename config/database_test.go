@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,25 @@ func TestConnect(t *testing.T) {
 				t.Error("expected an error connecting to database but didn't get one")
 			} else if !tc.wantError && err != nil {
 				t.Errorf("error connecting to database, got err: %v", err)
+			}
+		})
+	}
+}
+
+func TestBaseDSN(t *testing.T) {
+	testCases := map[string]string{
+		gin.DebugMode: "upcourse",
+		gin.TestMode:  "upcourse_test",
+	}
+
+	for mode, dbName := range testCases {
+		t.Run(mode, func(t *testing.T) {
+			dsn := baseDSN(mode)
+
+			expected := fmt.Sprintf("host=localhost port=5432 user=postgres dbname=%s sslmode=disable", dbName)
+
+			if dsn != expected {
+				t.Errorf("got %s want %s for dsn", dsn, expected)
 			}
 		})
 	}

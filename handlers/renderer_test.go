@@ -8,6 +8,7 @@ import (
 
 	testHelpers "upcourse/internal/helpers"
 	"upcourse/internal/mocks"
+	"upcourse/models"
 )
 
 func TestRenderFoundRecords(t *testing.T) {
@@ -33,6 +34,15 @@ func TestRenderFoundRecords(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("it returns jsonapi errors", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		ctx := mocks.NewMockContext(w, nil)
+
+		renderFoundRecords(ctx, models.Course{})
+
+		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
+	})
 }
 
 func TestRenderError(t *testing.T) {
