@@ -19,11 +19,11 @@ func GetCourse(c *gin.Context) {
 		return
 	}
 
-	renderFoundRecords(c, SerializeCourse(course))
+	renderFoundRecords(c, &course)
 }
 
 func GetCourses(c *gin.Context) {
-	var courses []models.Course
+	var courses []*models.Course
 	tx := db.Conn.Preload("Modules", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id, name, number, course_id")
 	}).Select("courses.id, courses.name").Find(&courses)
@@ -32,11 +32,7 @@ func GetCourses(c *gin.Context) {
 		return
 	}
 
-	var serializedCourses []SerializedResource
-	for _, c := range courses {
-		serializedCourses = append(serializedCourses, SerializeCourse(c))
-	}
-	renderFoundRecords(c, serializedCourses)
+	renderFoundRecords(c, courses)
 }
 
 func CreateCourse(c *gin.Context) {
@@ -58,29 +54,23 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-	renderSuccess(c, http.StatusCreated)
+	c.JSON(http.StatusCreated, nil)
 }
 
 func UpdateCourse(c *gin.Context) {
-	tx := db.Conn.First(&models.Course{}, c.Param("id"))
-	if tx.Error != nil {
-		renderError(c, tx.Error)
-		return
-	}
-
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
 		renderError(c, err)
 		return
 	}
 
-	tx = db.Conn.Model(&models.Course{}).Where("id = ?", c.Param("id")).Updates(&course)
+	tx := db.Conn.Model(&models.Course{}).First(&models.Course{}, c.Param("id")).Updates(&course)
 	if tx.Error != nil {
 		renderError(c, tx.Error)
 		return
 	}
 
-	renderSuccess(c, http.StatusOK)
+	c.JSON(http.StatusOK, nil)
 }
 
 func DeleteCourse(c *gin.Context) {
@@ -91,5 +81,5 @@ func DeleteCourse(c *gin.Context) {
 		return
 	}
 
-	renderSuccess(c, http.StatusOK)
+	c.JSON(http.StatusOK, nil)
 }

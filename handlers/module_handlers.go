@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -18,7 +19,7 @@ func GetModule(c *gin.Context) {
 		return
 	}
 
-	renderFoundRecords(c, SerializeModule(module))
+	renderFoundRecords(c, &module)
 }
 
 func CreateModule(c *gin.Context) {
@@ -36,7 +37,7 @@ func CreateModule(c *gin.Context) {
 
 	courseId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		renderError(c, err)
+		renderError(c, errors.New(ErrBadRequest))
 		return
 	}
 	input.CourseId = courseId
@@ -47,23 +48,17 @@ func CreateModule(c *gin.Context) {
 		return
 	}
 
-	renderSuccess(c, http.StatusCreated)
+	c.JSON(http.StatusCreated, nil)
 }
 
 func UpdateModule(c *gin.Context) {
-	tx := db.Conn.First(&models.Module{}, c.Param("id"))
-	if tx.Error != nil {
-		renderError(c, tx.Error)
-		return
-	}
-
 	var module models.Module
 	if err := c.ShouldBindJSON(&module); err != nil {
 		renderError(c, err)
 		return
 	}
 
-	tx = db.Conn.Model(&models.Module{}).Where("id = ?", c.Param("id")).Updates(&module)
+	tx := db.Conn.Model(&models.Module{}).First(&models.Module{}, c.Param("id")).Updates(&module)
 	if tx.Error != nil {
 		renderError(c, tx.Error)
 		return
@@ -81,7 +76,7 @@ func UpdateModule(c *gin.Context) {
 		}
 	}
 
-	renderSuccess(c, http.StatusOK)
+	c.JSON(http.StatusOK, nil)
 }
 
 func DeleteModule(c *gin.Context) {
@@ -91,5 +86,5 @@ func DeleteModule(c *gin.Context) {
 		return
 	}
 
-	renderSuccess(c, http.StatusOK)
+	c.JSON(http.StatusOK, nil)
 }
