@@ -4,31 +4,11 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
+	testHelpers "upcourse/internal/helpers"
 	"upcourse/internal/mocks"
 )
-
-func TestRenderSuccess(t *testing.T) {
-	testCases := map[string]int{
-		"StatusOK":      http.StatusOK,
-		"StatusCreated": http.StatusCreated,
-	}
-
-	for name, code := range testCases {
-		t.Run(name, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			ctx := mocks.NewMockContext(w, nil)
-
-			renderSuccess(ctx, code)
-
-			if w.Code != code {
-				t.Errorf("got %d want %d", w.Code, code)
-			}
-		})
-	}
-}
 
 func TestRenderFoundRecords(t *testing.T) {
 	testCases := map[string]interface{}{
@@ -45,20 +25,11 @@ func TestRenderFoundRecords(t *testing.T) {
 
 			renderFoundRecords(ctx, model)
 
-			if w.Code != http.StatusOK {
-				t.Errorf("got %d want %d", w.Code, http.StatusOK)
-			}
+			testHelpers.AssertStatusCode(t, w.Code, http.StatusOK)
 
-			response := unmarshalResponse(t, w.Body)
-
-			data := reflect.ValueOf(response.Data)
-			if data.Kind() != reflect.Map && data.Kind() != reflect.Slice {
-				t.Errorf("failed to return a record, got %s", data)
-			}
-
-			errors := response.Errors
-			if len(errors) > 0 {
-				t.Errorf("unexpected errors: %s", errors)
+			errs := testHelpers.UnmarshalErrors(t, w)
+			if len(errs) != 0 {
+				t.Errorf("got unexpected errors: %s", errs)
 			}
 		})
 	}
@@ -66,8 +37,9 @@ func TestRenderFoundRecords(t *testing.T) {
 
 func TestRenderError(t *testing.T) {
 	testCases := map[string]int{
-		"record not found": http.StatusNotFound,
-		"other error":      http.StatusBadRequest,
+		ErrNotFound:             http.StatusNotFound,
+		ErrBadRequest:           http.StatusBadRequest,
+		testHelpers.DatabaseErr: http.StatusInternalServerError,
 	}
 
 	for name, code := range testCases {
@@ -77,20 +49,11 @@ func TestRenderError(t *testing.T) {
 
 			renderError(ctx, errors.New(name))
 
-			if w.Code != code {
-				t.Errorf("got %d want %d", w.Code, code)
-			}
+			testHelpers.AssertStatusCode(t, w.Code, code)
 
-			response := unmarshalResponse(t, w.Body)
-
-			errors := response.Errors
-			if errors[0] != name {
+			errs := testHelpers.UnmarshalErrors(t, w)
+			if errs[0] != name {
 				t.Errorf("failed to return errors")
-			}
-
-			data := reflect.ValueOf(response.Data)
-			if data.Kind() == reflect.Map {
-				t.Errorf("unexpected data: %s", data)
 			}
 		})
 	}
@@ -110,15 +73,8 @@ func TestRenderErrors(t *testing.T) {
 		t.Errorf("got %d want %d", w.Code, http.StatusBadRequest)
 	}
 
-	response := unmarshalResponse(t, w.Body)
-
-	errors := response.Errors
-	if errors[0] != "first error" || errors[1] != "second error" {
+	errs := testHelpers.UnmarshalErrors(t, w)
+	if errs[0] != "first error" || errs[1] != "second error" {
 		t.Errorf("failed to return errors")
-	}
-
-	data := reflect.ValueOf(response.Data)
-	if data.Kind() == reflect.Map && data.Kind() == reflect.Slice {
-		t.Errorf("unexpected data: %s", data)
 	}
 }

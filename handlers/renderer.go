@@ -4,24 +4,32 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/jsonapi"
 )
 
-func renderSuccess(c *gin.Context, code int) {
-	c.JSON(code, gin.H{})
-}
+const (
+	ErrNotFound   = "record not found"
+	ErrBadRequest = "invalid request"
+)
 
 func renderFoundRecords(c *gin.Context, records interface{}) {
-	c.JSON(http.StatusOK, gin.H{
-		"data": records,
-	})
+	payload, err := jsonapi.Marshal(records)
+	if err != nil {
+		renderError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, payload)
 }
 
 func renderError(c *gin.Context, err error) {
 	var code int
-	if err.Error() == "record not found" {
+	if err.Error() == ErrNotFound {
 		code = http.StatusNotFound
-	} else {
+	} else if err.Error() == ErrBadRequest {
 		code = http.StatusBadRequest
+	} else {
+		code = http.StatusInternalServerError
 	}
 
 	c.JSON(code, gin.H{
