@@ -14,43 +14,43 @@ func TestAppRouter(t *testing.T) {
 	expectedRoutes := gin.RoutesInfo{
 		{
 			Method:  "GET",
-			Path:    "/courses",
+			Path:    "/v1/courses",
 			Handler: "upcourse/handlers.GetCourses",
 		}, {
 			Method:  "GET",
-			Path:    "/courses/:id",
+			Path:    "/v1/courses/:id",
 			Handler: "upcourse/handlers.GetCourse",
 		}, {
 			Method:  "POST",
-			Path:    "/courses",
+			Path:    "/v1/courses",
 			Handler: "upcourse/handlers.CreateCourse",
 		}, {
 			Method:  "PATCH",
-			Path:    "/courses/:id",
+			Path:    "/v1/courses/:id",
 			Handler: "upcourse/handlers.UpdateCourse",
 		}, {
 			Method:  "DELETE",
-			Path:    "/courses/:id",
+			Path:    "/v1/courses/:id",
 			Handler: "upcourse/handlers.DeleteCourse",
 		}, {
 			Method:  "POST",
-			Path:    "/courses/:id/modules",
+			Path:    "/v1/courses/:id/modules",
 			Handler: "upcourse/handlers.CreateModule",
 		}, {
 			Method:  "GET",
-			Path:    "/modules/:id",
+			Path:    "/v1/modules/:id",
 			Handler: "upcourse/handlers.GetModule",
 		}, {
 			Method:  "PATCH",
-			Path:    "/modules/:id",
+			Path:    "/v1/modules/:id",
 			Handler: "upcourse/handlers.UpdateModule",
 		}, {
 			Method:  "DELETE",
-			Path:    "/modules/:id",
+			Path:    "/v1/modules/:id",
 			Handler: "upcourse/handlers.DeleteModule",
 		}, {
 			Method:  "GET",
-			Path:    "/activities",
+			Path:    "/v1/activities",
 			Handler: "upcourse/handlers.GetActivities",
 		},
 	}
