@@ -11,16 +11,19 @@ func AppRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
 
-	router.GET("/courses", handlers.GetCourses)
-	router.GET("/courses/:id", handlers.GetCourse)
-	router.POST("/courses", handlers.CreateCourse)
-	router.PATCH("/courses/:id", handlers.UpdateCourse)
-	router.DELETE("/courses/:id", handlers.DeleteCourse)
-	router.POST("/courses/:id/modules", handlers.CreateModule)
-	router.GET("/modules/:id", handlers.GetModule)
-	router.PATCH("/modules/:id", handlers.UpdateModule)
-	router.DELETE("/modules/:id", handlers.DeleteModule)
-	router.GET("/activities", handlers.GetActivities)
+	v1 := router.Group("/v1")
+	{
+		v1.GET("/courses", handlers.GetCourses)
+		v1.GET("/courses/:id", handlers.GetCourse)
+		v1.POST("/courses", handlers.CreateCourse)
+		v1.PATCH("/courses/:id", handlers.UpdateCourse)
+		v1.DELETE("/courses/:id", handlers.DeleteCourse)
+		v1.POST("/courses/:id/modules", handlers.CreateModule)
+		v1.GET("/modules/:id", handlers.GetModule)
+		v1.PATCH("/modules/:id", handlers.UpdateModule)
+		v1.DELETE("/modules/:id", handlers.DeleteModule)
+		v1.GET("/activities", handlers.GetActivities)
+	}
 
 	return router
 }
