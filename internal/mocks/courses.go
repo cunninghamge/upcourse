@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/Pallinder/go-randomdata"
 
@@ -43,6 +44,19 @@ func FullCourse() *models.Course {
 
 	config.Conn.Preload("Modules.ModuleActivities.Activity").First(&course)
 
+	course.CreatedAt = time.Time{}
+	course.UpdatedAt = time.Time{}
+	for _, m := range course.Modules {
+		m.CreatedAt = time.Time{}
+		m.UpdatedAt = time.Time{}
+		for _, ma := range m.ModuleActivities {
+			ma.CreatedAt = time.Time{}
+			ma.UpdatedAt = time.Time{}
+			ma.Activity.CreatedAt = time.Time{}
+			ma.Activity.UpdatedAt = time.Time{}
+		}
+	}
+
 	return &course
 }
 
@@ -52,12 +66,12 @@ func SimpleCourse() *models.Course {
 	return &course
 }
 
-func CourseList() []models.Course {
-	var courseList []models.Course
+func CourseList() []*models.Course {
+	var courseList []*models.Course
 	for i := 0; i < 3; i++ {
-		courseList = append(courseList, models.Course{
+		courseList = append(courseList, &models.Course{
 			Name: "Test Course " + strconv.Itoa(i),
-			Modules: []models.Module{
+			Modules: []*models.Module{
 				{
 					Name: "Module 1",
 				},

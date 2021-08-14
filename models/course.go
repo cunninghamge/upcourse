@@ -5,12 +5,12 @@ import (
 )
 
 type Course struct {
-	ID                   int       `json:"-"`
-	Name                 string    `json:"name" validate:"onCreate"`
-	Institution          string    `json:"institution,omitempty" validate:"onCreate"`
-	CreditHours          int       `json:"creditHours,omitempty" validate:"onCreate"`
-	Length               int       `json:"length,omitempty" validate:"onCreate"`
-	Goal                 string    `json:"goal,omitempty"`
-	CreatedAt, UpdatedAt time.Time `json:"-" gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
-	Modules              []Module  `json:"-"`
+	ID                   int       `jsonapi:"primary,course"`
+	Name                 string    `jsonapi:"attr,name" validate:"onCreate"`
+	Institution          string    `jsonapi:"attr,institution,omitempty" validate:"onCreate"`
+	CreditHours          int       `jsonapi:"attr,credit_hours,omitempty" validate:"onCreate"`
+	Length               int       `jsonapi:"attr,length,omitempty" validate:"onCreate"`
+	Goal                 string    `jsonapi:"attr,goal,omitempty"`
+	CreatedAt, UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	Modules              []*Module `jsonapi:"relation,modules"`
 }

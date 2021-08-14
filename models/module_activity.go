@@ -5,11 +5,11 @@ import (
 )
 
 type ModuleActivity struct {
-	ID                   int       `json:"-"`
-	Input                int       `json:"input"`
-	Notes                string    `json:"notes"`
-	ModuleId             int       `json:"-"`
-	ActivityId           int       `json:"activityId"`
-	Activity             Activity  `json:"-"`
-	CreatedAt, UpdatedAt time.Time `json:"-" gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	ID                   int    `jsonapi:"primary,module_activity"`
+	Input                int    `jsonapi:"attr,input"`
+	Notes                string `jsonapi:"attr,notes"`
+	ModuleId             int
+	ActivityId           int
+	CreatedAt, UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	Activity             *Activity `jsonapi:"relation,activity"`
 }

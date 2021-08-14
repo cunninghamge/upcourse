@@ -5,10 +5,10 @@ import (
 )
 
 type Module struct {
-	ID                   int              `json:"-"`
-	Name                 string           `json:"name" validate:"onCreate"`
-	Number               int              `json:"number,omitempty" validate:"onCreate"`
-	CourseId             int              `json:"-"`
-	ModuleActivities     []ModuleActivity `json:"moduleActivities"`
-	CreatedAt, UpdatedAt time.Time        `json:"-" gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	ID                   int    `jsonapi:"primary,module"`
+	Name                 string `jsonapi:"attr,name,omitempty" validate:"onCreate"`
+	Number               int    `jsonapi:"attr,number,omitempty" validate:"onCreate"`
+	CourseId             int
+	CreatedAt, UpdatedAt time.Time         `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	ModuleActivities     []*ModuleActivity `jsonapi:"relation,module_activities,omitempty"`
 }

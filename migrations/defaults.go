@@ -96,13 +96,13 @@ var sampleCourse = models.Course{
 	Institution: "Colorado Nursing College",
 	CreditHours: 3,
 	Length:      8,
-	Modules: []models.Module{
+	Modules: []*models.Module{
 		{
 			ID:       1,
 			Name:     "Module 1",
 			Number:   1,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   1,
 					Input:      107,
@@ -138,7 +138,7 @@ var sampleCourse = models.Course{
 			Name:     "Module 2",
 			Number:   2,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   2,
 					Input:      53,
@@ -170,7 +170,7 @@ var sampleCourse = models.Course{
 			Name:     "Module 3",
 			Number:   3,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   3,
 					Input:      66,
@@ -214,7 +214,7 @@ var sampleCourse = models.Course{
 			Name:     "Module 4",
 			Number:   4,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   4,
 					Input:      105,
@@ -250,7 +250,7 @@ var sampleCourse = models.Course{
 			Name:     "Module 5",
 			Number:   5,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   5,
 					Input:      52,
@@ -290,7 +290,7 @@ var sampleCourse = models.Course{
 			Name:     "Module 6",
 			Number:   6,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   6,
 					Input:      36,
@@ -330,7 +330,7 @@ var sampleCourse = models.Course{
 			Name:     "Module 7",
 			Number:   7,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   7,
 					Input:      88,
@@ -362,7 +362,7 @@ var sampleCourse = models.Course{
 			Name:     "Module 8",
 			Number:   8,
 			CourseId: 1,
-			ModuleActivities: []models.ModuleActivity{
+			ModuleActivities: []*models.ModuleActivity{
 				{
 					ModuleId:   8,
 					Input:      3,

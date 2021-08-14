@@ -5,8 +5,8 @@ import (
 	"upcourse/models"
 )
 
-func DefaultActivities() []models.Activity {
-	var activities []models.Activity
-	config.Conn.Find(&activities).Where("custom = false")
+func DefaultActivities() []*models.Activity {
+	var activities []*models.Activity
+	config.Conn.Select("id, name, description, metric, multiplier").Where("custom = false").Find(&activities)
 	return activities
 }

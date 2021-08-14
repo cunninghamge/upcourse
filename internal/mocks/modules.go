@@ -7,7 +7,7 @@ import (
 	"upcourse/models"
 )
 
-func Module() models.Module {
+func Module() *models.Module {
 	course := SimpleCourse()
 
 	module := models.Module{
@@ -29,10 +29,10 @@ func Module() models.Module {
 	config.Conn.Create(&moduleActivities)
 
 	config.Conn.Preload("ModuleActivities.Activity").First(&module)
-	return module
+	return &module
 }
 
-func SimpleModule() models.Module {
+func SimpleModule() *models.Module {
 	course := SimpleCourse()
 
 	module := models.Module{
@@ -42,5 +42,5 @@ func SimpleModule() models.Module {
 	}
 	config.Conn.Create(&module)
 
-	return module
+	return &module
 }
