@@ -108,7 +108,6 @@ func TestCreateModule(t *testing.T) {
 				},
 				{
 					"input": 8,
-					"notes": null,
 					"activityId": 2
 				},
 				{
@@ -148,7 +147,7 @@ func TestCreateModule(t *testing.T) {
 		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 
 		newModuleInfo := `{
-			"number": 9,
+			"name": "Module 9",
 			"moduleActivities":[
 				{
 					"input": 30,
@@ -157,7 +156,6 @@ func TestCreateModule(t *testing.T) {
 				},
 				{
 					"input": 8,
-					"notes": null,
 					"activityId": 2
 				},
 				{
@@ -174,7 +172,7 @@ func TestCreateModule(t *testing.T) {
 
 		errs := testHelpers.UnmarshalErrors(t, w)
 
-		testHelpers.AssertError(t, errs[0], "Name is required")
+		testHelpers.AssertError(t, errs[0], "number is required")
 
 		var newModuleCount int64
 		config.Conn.Model(models.Module{}).Count(&newModuleCount)
@@ -372,14 +370,19 @@ func TestUpdateModule(t *testing.T) {
 		testHelpers.ForceError()
 		defer testHelpers.ClearError()
 
-		newCourseInfo := `{
-			"institution": "Tampa Bay Nurses United University",
-			"creditHours": 3,
-			"length": 16,
-			"goal": "8-10 hours"
+		newModuleInfo := `{
+			"name": "new module name",
+			"moduleActivities":[
+				{
+					"id": 1,
+					"input": 30,
+					"notes": "A new note",
+					"activityId": 1
+				}
+			]
 		}`
 		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, newCourseInfo, UpdateModule)
+		w := testHelpers.NewRequest(params, newModuleInfo, UpdateModule)
 
 		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
 
@@ -387,6 +390,23 @@ func TestUpdateModule(t *testing.T) {
 		if response[0] != testHelpers.DatabaseErr {
 			t.Errorf("got %s want %s for error message", response[0], testHelpers.DatabaseErr)
 		}
+	})
+
+	t.Run("returns an error for an invalid activity id", func(t *testing.T) {
+		newModuleInfo := `{
+			"name": "new module name",
+			"moduleActivities":[
+				{
+					"id": 1,
+					"input": 30,
+					"activityId": 20
+				}
+			]
+		}`
+		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
+		w := testHelpers.NewRequest(params, newModuleInfo, UpdateModule)
+
+		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
 	})
 }
 
