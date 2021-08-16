@@ -1,0 +1,24 @@
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "id": "course-creation-payload",
+  "title": "course",
+  "type" : "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "institution": {
+      "type": "string"
+    },
+    "creditHours": {
+      "type": "number"
+    },
+    "length": {
+      "type": "number"
+    },
+    "goal": {
+      "type": "string"
+    }
+  },
+  "required": ["name", "institution", "creditHours", "length", "goal"]
+}

@@ -228,8 +228,8 @@ func TestCreateCourse(t *testing.T) {
 
 		errs := testHelpers.UnmarshalErrors(t, w)
 
-		testHelpers.AssertError(t, errs[0], "Name is required")
-		testHelpers.AssertError(t, errs[1], "Institution is required")
+		testHelpers.AssertError(t, errs[0], "name is required")
+		testHelpers.AssertError(t, errs[1], "institution is required")
 
 		var newCount int64
 		config.Conn.Model(models.Course{}).Count(&newCount)
