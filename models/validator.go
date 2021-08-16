@@ -7,7 +7,6 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-// TODO testing
 func Validate(c *gin.Context, location string) ([]byte, []error) {
 	var errs []error
 
@@ -21,9 +20,9 @@ func Validate(c *gin.Context, location string) ([]byte, []error) {
 		errs = append(errs, err)
 		return nil, errs
 	}
+
 	jsonLoader := gojsonschema.NewBytesLoader(jsonData)
 	schemaLoader := gojsonschema.NewReferenceLoader("file://" + location)
-
 	result, err := gojsonschema.Validate(schemaLoader, jsonLoader)
 	if err != nil {
 		errs = append(errs, err)
