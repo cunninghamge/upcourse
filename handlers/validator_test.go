@@ -27,6 +27,7 @@ func TestValidate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	testCases := map[string]struct {
+		model      interface{}
 		file       string
 		json       string
 		wantErr    bool
@@ -34,7 +35,8 @@ func TestValidate(t *testing.T) {
 		readCloser io.ReadCloser
 	}{
 		"validates a course successfully": {
-			file: "./../handlers/schemas/course_schema.json",
+			file:  "./../handlers/schemas/course_schema.json",
+			model: &Course{},
 			json: `{
 				"name": "Nursing 101",
 				"institution": "Tampa Bay Nurses United University",
@@ -45,7 +47,8 @@ func TestValidate(t *testing.T) {
 			wantErr: false,
 		},
 		"validates a module successfully": {
-			file: "./../handlers/schemas/module_schema.json",
+			file:  "./../handlers/schemas/module_schema.json",
+			model: &Module{},
 			json: `{
 				"name": "Module 9",
 				"number": 9,
@@ -65,13 +68,15 @@ func TestValidate(t *testing.T) {
 		},
 		"returns an error if the request is empty": {
 			file:    "./../handlers/schemas/module_schema.json",
+			model:   &Course{},
 			wantErr: true,
 			errors: []error{
 				errors.New("invalid request"),
 			},
 		},
 		"returns errors for an invalid course": {
-			file: "./../handlers/schemas/course_schema.json",
+			file:  "./../handlers/schemas/course_schema.json",
+			model: &Course{},
 			json: `{
 				"creditHours": 3,
 				"length": 16,
@@ -84,7 +89,8 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		"returns an error for an invalid schema": {
-			file: "schema.json",
+			file:  "schema.json",
+			model: &Course{},
 			json: `{
 				"name": "Nursing 101",
 				"institution": "Tampa Bay Nurses United University",
@@ -98,7 +104,8 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		"returns json reading errors": {
-			file: "./../handlers/schemas/course_schema.json",
+			file:  "./../handlers/schemas/course_schema.json",
+			model: &Course{},
 			json: `{
 				"name": "Nursing 101",
 				"institution": "Tampa Bay Nurses United University",
@@ -131,21 +138,15 @@ func TestValidate(t *testing.T) {
 				}
 			}
 
-			result, errs := Validate(ctx, tc.file)
+			errs := Validate(ctx, tc.model, tc.file)
 
 			if tc.wantErr {
-				if result != nil {
-					t.Errorf("got %v want nil for result", result)
-				}
 				for i := 0; i < len(errs); i++ {
 					if errs[i].Error() != tc.errors[i].Error() {
 						t.Errorf("got %v want %v for errors[%d]", errs[i], tc.errors[i], i)
 					}
 				}
 			} else {
-				if string(result) != tc.json {
-					t.Errorf("got %s want %s for validated json", result, tc.json)
-				}
 				if errs != nil {
 					for _, e := range errs {
 						t.Errorf("unexpected error: %v", e)
