@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +10,8 @@ import (
 	db "upcourse/config"
 	"upcourse/models"
 )
+
+const courseSchema = "./schemas/course_schema.json"
 
 func GetCourse(c *gin.Context) {
 	var course models.Course
@@ -36,19 +39,19 @@ func GetCourses(c *gin.Context) {
 }
 
 func CreateCourse(c *gin.Context) {
-	var input models.Course
-	if err := c.ShouldBindJSON(&input); err != nil {
-		renderError(c, err)
-		return
-	}
-
-	errs := validateFields(input)
-	if len(errs) > 0 {
+	jsonData, errs := models.Validate(c, courseSchema)
+	if errs != nil {
 		renderErrors(c, errs)
 		return
 	}
 
-	tx := db.Conn.Create(&input)
+	var course models.Course
+	if err := json.Unmarshal(jsonData, &course); err != nil {
+		renderError(c, err)
+		return
+	}
+
+	tx := db.Conn.Create(&course)
 	if tx.Error != nil {
 		renderError(c, tx.Error)
 		return

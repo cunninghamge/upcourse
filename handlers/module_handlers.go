@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -10,6 +11,8 @@ import (
 	db "upcourse/config"
 	"upcourse/models"
 )
+
+const moduleSchema = "./schemas/module_schema.json"
 
 func GetModule(c *gin.Context) {
 	var module models.Module
@@ -23,15 +26,15 @@ func GetModule(c *gin.Context) {
 }
 
 func CreateModule(c *gin.Context) {
-	var input models.Module
-	if err := c.ShouldBindJSON(&input); err != nil {
-		renderError(c, err)
+	jsonData, errs := models.Validate(c, moduleSchema)
+	if errs != nil {
+		renderErrors(c, errs)
 		return
 	}
 
-	errs := validateFields(input)
-	if len(errs) > 0 {
-		renderErrors(c, errs)
+	var module models.Module
+	if err := json.Unmarshal(jsonData, &module); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -40,9 +43,9 @@ func CreateModule(c *gin.Context) {
 		renderError(c, errors.New(ErrBadRequest))
 		return
 	}
-	input.CourseId = courseId
+	module.CourseId = courseId
 
-	tx := db.Conn.Create(&input)
+	tx := db.Conn.Create(&module)
 	if tx.Error != nil {
 		renderError(c, tx.Error)
 		return
