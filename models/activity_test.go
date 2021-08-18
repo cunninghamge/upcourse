@@ -9,16 +9,11 @@ import (
 func defaultActivities() []*Activity {
 	var activities []*Activity
 	db.Conn.Select("id, name, description, metric, multiplier").Where("custom=false").Find(&activities)
-
 	return activities
 }
 
 func TestGetActivities(t *testing.T) {
 	defaultActivities := defaultActivities()
-
-	t.Run("returns a list of the default activities", func(t *testing.T) {
-		activities, err := GetActivities()
-
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}

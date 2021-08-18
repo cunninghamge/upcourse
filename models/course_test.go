@@ -8,7 +8,6 @@ import (
 
 	"github.com/Pallinder/go-randomdata"
 )
-
 func mockBasicCourse() *Course {
 	course := Course{Name: "Models Test Basic Course"}
 	db.Conn.Create(&course)
@@ -46,10 +45,9 @@ func mockCourseList() []*Course {
 func TestGetCourse(t *testing.T) {
 	mockCourse := mockFullCourse()
 	defer teardown()
+)
 
-	t.Run("finds a course by id", func(t *testing.T) {
-		id := strconv.Itoa(mockCourse.ID)
-		course, err := GetCourse(id)
+func TestGetCourse(t *testing.T) {
 
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)

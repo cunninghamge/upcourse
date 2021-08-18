@@ -9,10 +9,10 @@ import (
 	"github.com/Pallinder/go-randomdata"
 )
 
+<<<<<<< HEAD
 func mockFullModule(params ...int) *Module {
 	if len(params) == 0 {
 		params = []int{mockBasicCourse().ID, 1}
-	}
 
 	module := Module{
 		Name:     "Models Test Full Module",
@@ -34,19 +34,23 @@ func mockFullModule(params ...int) *Module {
 func TestGetModule(t *testing.T) {
 	mockModule := mockFullModule()
 	defer teardown()
+=======
+func TestGetModule(t *testing.T) {
+	mockModule := MockModule()
+	defer Teardown()
 
-	t.Run("finds a module by id", func(t *testing.T) {
-		id := strconv.Itoa(mockModule.ID)
-		module, err := GetModule(id)
-
+<<<<<<< HEAD
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
 
+=======
+>>>>>>> 9ec5438 (add tests for new model functions)
 		if !reflect.DeepEqual(*module, *mockModule) {
 			t.Errorf("got %v want %v for module", module, mockModule)
 		}
 
+<<<<<<< HEAD
 		foundModuleValues := reflect.ValueOf(*module)
 		mockModuleValues := reflect.ValueOf(*mockModule)
 		fieldNames := []string{
@@ -65,6 +69,10 @@ func TestGetModule(t *testing.T) {
 		foundActivity := module.ModuleActivities[0].Activity
 		if foundActivity == nil {
 			t.Errorf("activity not included in response but should have been")
+=======
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+>>>>>>> 9ec5438 (add tests for new model functions)
 		}
 	})
 
@@ -84,8 +92,13 @@ func TestGetModule(t *testing.T) {
 }
 
 func TestCreateModule(t *testing.T) {
+<<<<<<< HEAD
 	course := mockBasicCourse()
 	defer teardown()
+=======
+	course := MockSimpleCourse()
+	defer Teardown()
+>>>>>>> 9ec5438 (add tests for new model functions)
 
 	t.Run("creates a module", func(t *testing.T) {
 		name := "Successful creation"
@@ -145,8 +158,13 @@ func TestCreateModule(t *testing.T) {
 }
 
 func TestUpdateModule(t *testing.T) {
+<<<<<<< HEAD
 	mockModule := mockFullModule()
 	defer teardown()
+=======
+	mockModule := MockModule()
+	defer Teardown()
+>>>>>>> 9ec5438 (add tests for new model functions)
 
 	t.Run("updates a module", func(t *testing.T) {
 		name := "New Module name"
@@ -206,7 +224,11 @@ func TestUpdateModule(t *testing.T) {
 
 func TestDeleteModule(t *testing.T) {
 	t.Run("deletes a module", func(t *testing.T) {
+<<<<<<< HEAD
 		mockModule := mockFullModule()
+=======
+		mockModule := MockModule()
+>>>>>>> 9ec5438 (add tests for new model functions)
 
 		err := DeleteModule(strconv.Itoa(mockModule.ID))
 
@@ -220,9 +242,14 @@ func TestDeleteModule(t *testing.T) {
 	})
 
 	t.Run("returns an error if module can't be deleted", func(t *testing.T) {
+<<<<<<< HEAD
 		mockModule := mockFullModule()
 		defer teardown()
 		forceError()
+=======
+		mockModule := MockModule()
+		db.Conn.Error = errors.New("some database error")
+>>>>>>> 9ec5438 (add tests for new model functions)
 
 		err := DeleteModule(strconv.Itoa(mockModule.ID))
 
