@@ -25,7 +25,25 @@ func TestMain(m *testing.M) {
 		log.Fatal("could not connect to test database")
 	}
 
+	for i := 0; i < 3; i++ {
+		courseList = append(courseList, &models.Course{
+			Name: "Test Course " + strconv.Itoa(i),
+			Modules: []*models.Module{
+				{Number: 1},
+				{Number: 2},
+				{Number: 3},
+			},
+		})
+	}
+	db.Conn.Create(&courseList).Preload("Modules.ModuleActivities.Activity").Find(&courseList)
+	courseId = courseList[0].ID
+	courseIdToDelete = courseList[1].ID
+	moduleId = courseList[0].Modules[0].ID
+
 	code := m.Run()
+
+	db.Conn.Where("1=1").Delete(&models.Course{})
+
 	os.Exit(code)
 }
 

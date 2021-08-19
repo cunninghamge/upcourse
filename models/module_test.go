@@ -83,17 +83,11 @@ func TestGetModule(t *testing.T) {
 }
 
 func TestCreateModule(t *testing.T) {
-<<<<<<< HEAD
-<<<<<<< HEAD
 	course := mockBasicCourse()
 	defer teardown()
-=======
 	course := MockSimpleCourse()
-=======
 	course := mockCourse()
->>>>>>> 1242ae7 (make model mock generator functions internal)
 	defer Teardown()
->>>>>>> 9ec5438 (add tests for new model functions)
 
 	t.Run("creates a module", func(t *testing.T) {
 		name := "Successful creation"
