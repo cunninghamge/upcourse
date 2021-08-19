@@ -8,6 +8,7 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
+// TODO move to handlers?
 func Validate(c *gin.Context, model interface{}, location string) []error {
 	var errs []error
 

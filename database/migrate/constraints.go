@@ -20,6 +20,8 @@ func setConstraints() error {
 	return nil
 }
 
+// TODO add unique index for module number within a course
+// TODO allow users to change module numbers as a way of changing order?
 func createIndexes() error {
 	return db.Conn.Exec(`CREATE UNIQUE INDEX index_module_activities_on_activities_modules ON module_activities (module_id, activity_id);`).Error
 }

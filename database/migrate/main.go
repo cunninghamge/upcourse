@@ -16,6 +16,7 @@ func main() {
 // [x] extract as much as possible to migration.go
 // [x] extract seeds to separate executable
 // [x] change seeds to use first or create
-// [ ] update circle & heroku config to run seeds
+// [x] update circle & heroku config to run seeds
 // [ ] write tests based on what the state of the database should be
 // [ ] try using gorm.Model
+// [ ] delete gorm_migrations table from heroku
