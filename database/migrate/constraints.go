@@ -1,28 +1,31 @@
 package main
 
-import "upcourse/models"
+import (
+	db "upcourse/database"
+	"upcourse/models"
+)
 
-func (m GormMigration) setConstraints() error {
-	if !m.db.Migrator().HasIndex(&models.ModuleActivity{}, "index_module_activities_on_activities_modules") {
-		if err := m.createIndexes(); err != nil {
+func setConstraints() error {
+	if !db.Conn.Migrator().HasIndex(&models.ModuleActivity{}, "index_module_activities_on_activities_modules") {
+		if err := createIndexes(); err != nil {
 			return err
 		}
-		if err := m.setOnDelete(); err != nil {
+		if err := setOnDelete(); err != nil {
 			return err
 		}
-		if err := m.setTriggers(); err != nil {
+		if err := setTriggers(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (m GormMigration) createIndexes() error {
-	return m.db.Exec(`CREATE UNIQUE INDEX index_module_activities_on_activities_modules ON module_activities (module_id, activity_id);`).Error
+func createIndexes() error {
+	return db.Conn.Exec(`CREATE UNIQUE INDEX index_module_activities_on_activities_modules ON module_activities (module_id, activity_id);`).Error
 }
 
-func (m GormMigration) setOnDelete() error {
-	return m.db.Exec(`
+func setOnDelete() error {
+	return db.Conn.Exec(`
 		BEGIN;
 		ALTER TABLE module_activities
 		DROP CONSTRAINT fk_modules_module_activities;
@@ -48,8 +51,8 @@ func (m GormMigration) setOnDelete() error {
 	`).Error
 }
 
-func (m GormMigration) setTriggers() error {
-	return m.db.Exec(`CREATE OR REPLACE FUNCTION update_updated_at_column()
+func setTriggers() error {
+	return db.Conn.Exec(`CREATE OR REPLACE FUNCTION update_updated_at_column()
 	RETURNS TRIGGER AS $$
 	BEGIN
 		NEW.updated_at = now();
