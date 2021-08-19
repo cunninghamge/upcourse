@@ -9,7 +9,6 @@ import (
 	"github.com/Pallinder/go-randomdata"
 )
 
-<<<<<<< HEAD
 func mockFullModule(params ...int) *Module {
 	if len(params) == 0 {
 		params = []int{mockBasicCourse().ID, 1}
@@ -36,21 +35,17 @@ func TestGetModule(t *testing.T) {
 	defer teardown()
 =======
 func TestGetModule(t *testing.T) {
-	mockModule := MockModule()
+	mockModule := newMockModule()
 	defer Teardown()
 
-<<<<<<< HEAD
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
 
-=======
->>>>>>> 9ec5438 (add tests for new model functions)
 		if !reflect.DeepEqual(*module, *mockModule) {
 			t.Errorf("got %v want %v for module", module, mockModule)
 		}
 
-<<<<<<< HEAD
 		foundModuleValues := reflect.ValueOf(*module)
 		mockModuleValues := reflect.ValueOf(*mockModule)
 		fieldNames := []string{
@@ -69,10 +64,6 @@ func TestGetModule(t *testing.T) {
 		foundActivity := module.ModuleActivities[0].Activity
 		if foundActivity == nil {
 			t.Errorf("activity not included in response but should have been")
-=======
-		if err != nil {
-			t.Errorf("unexpected error: %v", err)
->>>>>>> 9ec5438 (add tests for new model functions)
 		}
 	})
 
@@ -93,10 +84,14 @@ func TestGetModule(t *testing.T) {
 
 func TestCreateModule(t *testing.T) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	course := mockBasicCourse()
 	defer teardown()
 =======
 	course := MockSimpleCourse()
+=======
+	course := mockCourse()
+>>>>>>> 1242ae7 (make model mock generator functions internal)
 	defer Teardown()
 >>>>>>> 9ec5438 (add tests for new model functions)
 
@@ -159,10 +154,14 @@ func TestCreateModule(t *testing.T) {
 
 func TestUpdateModule(t *testing.T) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	mockModule := mockFullModule()
 	defer teardown()
 =======
 	mockModule := MockModule()
+=======
+	mockModule := newMockModule()
+>>>>>>> 1242ae7 (make model mock generator functions internal)
 	defer Teardown()
 >>>>>>> 9ec5438 (add tests for new model functions)
 
@@ -225,10 +224,14 @@ func TestUpdateModule(t *testing.T) {
 func TestDeleteModule(t *testing.T) {
 	t.Run("deletes a module", func(t *testing.T) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		mockModule := mockFullModule()
 =======
 		mockModule := MockModule()
 >>>>>>> 9ec5438 (add tests for new model functions)
+=======
+		mockModule := newMockModule()
+>>>>>>> 1242ae7 (make model mock generator functions internal)
 
 		err := DeleteModule(strconv.Itoa(mockModule.ID))
 
@@ -243,11 +246,15 @@ func TestDeleteModule(t *testing.T) {
 
 	t.Run("returns an error if module can't be deleted", func(t *testing.T) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		mockModule := mockFullModule()
 		defer teardown()
 		forceError()
 =======
 		mockModule := MockModule()
+=======
+		mockModule := newMockModule()
+>>>>>>> 1242ae7 (make model mock generator functions internal)
 		db.Conn.Error = errors.New("some database error")
 >>>>>>> 9ec5438 (add tests for new model functions)
 
