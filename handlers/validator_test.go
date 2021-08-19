@@ -119,6 +119,21 @@ func TestValidate(t *testing.T) {
 				testErr,
 			},
 		},
+		"returns unmarshaling errors": {
+			file:  "./../handlers/schemas/course_schema.json",
+			model: nil,
+			json: `{
+				"name": "Nursing 101",
+				"institution": "Tampa Bay Nurses United University",
+				"creditHours": 3,
+				"length": 16,
+				"goal": "8-10 hours"
+			}`,
+			wantErr: true,
+			errors: []error{
+				errors.New("json: Unmarshal(nil)"),
+			},
+		},
 	}
 
 	for name, tc := range testCases {
