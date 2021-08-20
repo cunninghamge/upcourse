@@ -4,8 +4,8 @@ import "log"
 
 func main() {
 	if err := seed(); err != nil {
-		log.Panicf("Error completing migration: %v", err)
+		log.Panicf("Error seeding database: %v", err)
 	}
 
-	log.Print("Migration complete")
+	log.Print("Seeding complete")
 }
