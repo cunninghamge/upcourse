@@ -43,7 +43,7 @@ jobs:
       - run:
           name: database migrations
           command: go run ./database/migrate
-        - run:
+      - run:
           name: seed database
           command: go run ./database/seed
       - run:
