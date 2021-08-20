@@ -1,2 +1,5 @@
 .env
 cover.out
+
+database/migrate/*_test.go
+database/seed/*_test.go
