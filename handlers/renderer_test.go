@@ -20,6 +20,9 @@ func defaultActivities() []*models.Activity {
 }
 
 func TestRenderFoundRecords(t *testing.T) {
+	courses := mockCourseList()
+	defer Teardown()
+
 	testCases := map[string]struct {
 		records interface{}
 		model   interface{}

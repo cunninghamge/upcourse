@@ -92,7 +92,7 @@ func TestIndexes(t *testing.T) {
 		}
 	})
 
-	t.Run("index_modules_on_courses_number", func(t *testing.T) {
+	t.Run("index_modules_on_courses_number works as expected", func(t *testing.T) {
 		courseId := mockCourse().ID
 		defer db.Conn.Where("1=1").Delete(&models.Course{})
 
@@ -154,7 +154,7 @@ func TestTimestamps(t *testing.T) {
 	}
 }
 
-func mockCourse() models.Course {
+func mockCourse() *models.Course {
 	var course models.Course
 	db.Conn.Create(&models.Course{
 		Name:        "Mock Course",
@@ -162,10 +162,14 @@ func mockCourse() models.Course {
 		CreditHours: 3,
 		Length:      8,
 		Goal:        "8-10 hours",
-		Modules:     []*models.Module{{Number: 1}},
-	}).Preload(preloaderStr).First(&course)
+	}).First(&course)
+	db.Conn.Create(&models.Module{
+		Number:   1,
+		CourseId: course.ID,
+	})
+	db.Conn.Preload(preloaderStr).First(&course)
 
-	return course
+	return &course
 }
 
 func toSnakeCase(str string) string {

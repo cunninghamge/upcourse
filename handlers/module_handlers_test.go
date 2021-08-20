@@ -32,7 +32,7 @@ func TestModules(t *testing.T) {
 		},
 		"CreateModule": {
 			funcToTest: CreateModule,
-			params:     map[string]string{"id": fmt.Sprint(courseId)},
+			params:     map[string]string{"id": fmt.Sprint(course.ID)},
 			body: `{
 				"name": "Module 9",
 				"number": 9,
