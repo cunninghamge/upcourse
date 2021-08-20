@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 	db "upcourse/database"
 	"upcourse/models"
 )
@@ -30,7 +31,11 @@ func TestAutoMigration(t *testing.T) {
 			v := reflect.ValueOf(model)
 			for i := 0; i < v.NumField(); i++ {
 				colName := v.Type().Field(i).Name
-				if !strings.Contains(preloaderStr, colName) && !db.Conn.Migrator().HasColumn(model, colName) {
+				if strings.Contains(preloaderStr, colName) || colName == "Model" {
+					continue
+				}
+
+				if !db.Conn.Migrator().HasColumn(model, colName) {
 					t.Errorf("table %s missing column %s", tableName, colName)
 				}
 			}
@@ -55,14 +60,20 @@ func TestAutoMigration(t *testing.T) {
 }
 
 func TestIndexes(t *testing.T) {
-	t.Run("index exists", func(t *testing.T) {
-		idxName := "index_module_activities_on_activities_modules"
-		if !db.Conn.Migrator().HasIndex(&models.ModuleActivity{}, idxName) {
-			t.Errorf("missing index %s", idxName)
-		}
-	})
+	indexes := map[string]interface{}{
+		"index_module_activities_on_activities_modules": models.ModuleActivity{},
+		"index_modules_on_courses_number":               models.Module{},
+	}
 
-	t.Run("index works as expected", func(t *testing.T) {
+	for name, model := range indexes {
+		t.Run(name+" exists", func(t *testing.T) {
+			if !db.Conn.Migrator().HasIndex(model, name) {
+				t.Errorf("missing index %s", name)
+			}
+		})
+	}
+
+	t.Run("index_module_activities_on_activities_modules works as expected", func(t *testing.T) {
 		module := mockCourse().Modules[0]
 		invalidInsertion := []models.ModuleActivity{
 			{Input: 15, ModuleId: module.ID, ActivityId: 1},
@@ -78,24 +89,20 @@ func TestIndexes(t *testing.T) {
 			t.Errorf("got %v want %s for error message", err, expectedErr)
 		}
 	})
-}
 
-func TestTriggers(t *testing.T) {
-	tableNames := []string{
-		"courses",
-		"modules",
-		"module_activities",
-		"activities",
-	}
+	t.Run("index_modules_on_courses_number", func(t *testing.T) {
+		courseId := mockCourse().ID
+		invalidInsertion := models.Module{CourseId: courseId, Number: 1}
 
-	for _, name := range tableNames {
-		var trigger string
-		db.Conn.Raw(`SELECT action_statement FROM information_schema.triggers WHERE event_object_table=?`, name).Scan(&trigger)
-		expTrigger := "EXECUTE FUNCTION update_updated_at_column()"
-		if trigger != expTrigger {
-			t.Errorf("expected %s got %s for update trigger on %s table", expTrigger, trigger, name)
+		err := db.Conn.Create(&invalidInsertion).Error
+		if err == nil {
+			t.Errorf("expected an error inserting invalid module but didn't get one")
 		}
-	}
+		expectedErr := "duplicate key value violates unique constraint \"index_modules_on_courses_number\""
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Errorf("got %v want %s for error message", err, expectedErr)
+		}
+	})
 }
 
 func TestForeignKeyConstraints(t *testing.T) {
@@ -122,6 +129,24 @@ func TestForeignKeyConstraints(t *testing.T) {
 			t.Errorf("ON UPDATE not set to CASCADE for constraint fk_modules_module_activities")
 		}
 	})
+}
+
+func TestTimestamps(t *testing.T) {
+	course := mockCourse()
+
+	nilTime := time.Time{}
+	if course.CreatedAt == nilTime {
+		t.Errorf("CreatedAt is empty but should not have been")
+	}
+	if course.UpdatedAt == nilTime {
+		t.Errorf("UpdatedAt is empty but should not have been")
+	}
+
+	time.Sleep(5)
+	db.Conn.Model(&course).Update("credit_hours", 4)
+	if course.CreatedAt == course.UpdatedAt {
+		t.Errorf("UpdatedAt did not change with record update")
+	}
 }
 
 func mockCourse() models.Course {

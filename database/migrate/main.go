@@ -11,12 +11,3 @@ func main() {
 
 	log.Print("Migration complete")
 }
-
-// [x] remove versioning
-// [x] extract as much as possible to migration.go
-// [x] extract seeds to separate executable
-// [x] change seeds to use first or create
-// [x] update circle & heroku config to run seeds
-// [ ] write tests based on what the state of the database should be
-// [ ] try using gorm.Model
-// [ ] delete gorm_migrations table from heroku

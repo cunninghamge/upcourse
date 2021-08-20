@@ -18,11 +18,20 @@ func TestMain(m *testing.M) {
 		log.Fatal("could not connect to test database")
 	}
 
+	dropTables()
+
 	code := m.Run()
 
 	db.Conn.Where("1=1").Delete(&models.Course{})
 
 	os.Exit(code)
+}
+
+func dropTables() {
+	db.Conn.Migrator().DropTable(&models.ModuleActivity{})
+	db.Conn.Migrator().DropTable(&models.Module{})
+	db.Conn.Migrator().DropTable(&models.Activity{})
+	db.Conn.Migrator().DropTable(&models.Course{})
 }
 func TestPackageMain(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
@@ -34,7 +43,6 @@ func TestPackageMain(t *testing.T) {
 
 		messages := []string{
 			"Completed automigration of database models",
-			"Completed creation of database indexes",
 			"Migration complete",
 		}
 		for _, message := range messages {
