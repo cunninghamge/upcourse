@@ -9,7 +9,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"upcourse/config"
+	db "upcourse/database"
 	testHelpers "upcourse/internal/helpers"
 	"upcourse/internal/mocks"
 	"upcourse/models"
@@ -93,9 +93,9 @@ func TestCreateModule(t *testing.T) {
 
 	t.Run("it posts a new module with associated module activities", func(t *testing.T) {
 		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
+		db.Conn.Model(models.Module{}).Count(&moduleCount)
 		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 
 		newModuleInfo := `{
 			"name": "Module 9",
@@ -128,13 +128,13 @@ func TestCreateModule(t *testing.T) {
 		}
 
 		var newModuleCount int64
-		config.Conn.Model(models.Module{}).Count(&newModuleCount)
+		db.Conn.Model(models.Module{}).Count(&newModuleCount)
 		if newModuleCount != (moduleCount + 1) {
 			t.Errorf("module count did not change")
 		}
 
 		var newModuleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&newModuleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&newModuleActivityCount)
 		if newModuleActivityCount != (moduleActivityCount + 3) {
 			t.Errorf("activity count did not change")
 		}
@@ -142,9 +142,9 @@ func TestCreateModule(t *testing.T) {
 
 	t.Run("it returns an error if a required field is missing", func(t *testing.T) {
 		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
+		db.Conn.Model(models.Module{}).Count(&moduleCount)
 		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 
 		newModuleInfo := `{
 			"name": "Module 9",
@@ -175,13 +175,13 @@ func TestCreateModule(t *testing.T) {
 		testHelpers.AssertError(t, errs[0], "number is required")
 
 		var newModuleCount int64
-		config.Conn.Model(models.Module{}).Count(&newModuleCount)
+		db.Conn.Model(models.Module{}).Count(&newModuleCount)
 		if newModuleCount != moduleCount {
 			t.Errorf("module count changed but should not have")
 		}
 
 		var newModuleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&newModuleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&newModuleActivityCount)
 		if newModuleActivityCount != moduleActivityCount {
 			t.Errorf("module activity count changed but should not have")
 		}
@@ -248,9 +248,9 @@ func TestUpdateModule(t *testing.T) {
 
 	t.Run("it updates an existing module", func(t *testing.T) {
 		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
+		db.Conn.Model(models.Module{}).Count(&moduleCount)
 		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 
 		newModuleInfo := `{
 			"name": "new module name",
@@ -273,19 +273,19 @@ func TestUpdateModule(t *testing.T) {
 		}
 
 		var newCount int64
-		config.Conn.Model(models.Module{}).Count(&newCount)
+		db.Conn.Model(models.Module{}).Count(&newCount)
 		if newCount != moduleCount {
 			t.Errorf("patch request should not have changed module count but did")
 		}
 
 		var newModActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&newModActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&newModActivityCount)
 		if newModActivityCount != moduleActivityCount {
 			t.Errorf("added a new module activity but should not have")
 		}
 
 		var updatedModule models.Module
-		config.Conn.Preload("ModuleActivities", func(db *gorm.DB) *gorm.DB {
+		db.Conn.Preload("ModuleActivities", func(db *gorm.DB) *gorm.DB {
 			return db.Order("id")
 		}).First(&updatedModule, mockModule.ID)
 
@@ -304,9 +304,9 @@ func TestUpdateModule(t *testing.T) {
 
 	t.Run("it can add a new module activity to an existing module", func(t *testing.T) {
 		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
+		db.Conn.Model(models.Module{}).Count(&moduleCount)
 		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&moduleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&moduleActivityCount)
 
 		newModuleInfo := `{
 			"name": "new module name",
@@ -329,13 +329,13 @@ func TestUpdateModule(t *testing.T) {
 		}
 
 		var newCount int64
-		config.Conn.Model(models.Course{}).Count(&newCount)
+		db.Conn.Model(models.Course{}).Count(&newCount)
 		if newCount != moduleCount {
 			t.Errorf("patch request should not have changed module count but did")
 		}
 
 		var newModActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&newModActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&newModActivityCount)
 		if newModActivityCount != (moduleActivityCount + 1) {
 			t.Errorf("did not create a new module activity")
 		}
@@ -426,13 +426,13 @@ func TestDeleteModule(t *testing.T) {
 		}
 
 		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
+		db.Conn.Model(models.Module{}).Count(&moduleCount)
 		if moduleCount > 0 {
 			t.Errorf("Did not delete module")
 		}
 
 		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 		if moduleActivityCount > 0 {
 			t.Errorf("Did not delete associated module activities")
 		}

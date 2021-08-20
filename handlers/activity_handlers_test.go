@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"upcourse/config"
+	db "upcourse/database"
 	testHelpers "upcourse/internal/helpers"
 	"upcourse/internal/mocks"
 	"upcourse/models"
@@ -33,7 +33,7 @@ func TestGetActivities(t *testing.T) {
 	})
 
 	t.Run("does not include custom activities", func(t *testing.T) {
-		config.Conn.Create(&models.Activity{Custom: true})
+		db.Conn.Create(&models.Activity{Custom: true})
 		defer testHelpers.Teardown()
 
 		w := testHelpers.NewRequest(nil, "", GetActivities)

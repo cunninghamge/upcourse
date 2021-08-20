@@ -6,7 +6,7 @@ import (
 
 	"github.com/Pallinder/go-randomdata"
 
-	"upcourse/config"
+	db "upcourse/database"
 	"upcourse/models"
 )
 
@@ -17,7 +17,7 @@ func FullCourse() *models.Course {
 		CreditHours: randomdata.Number(5),
 		Length:      randomdata.Number(16),
 	}
-	config.Conn.Create(&course)
+	db.Conn.Create(&course)
 
 	var modules []models.Module
 	for i := 1; i < 5; i++ {
@@ -27,7 +27,7 @@ func FullCourse() *models.Course {
 			CourseId: course.ID,
 		})
 	}
-	config.Conn.Create(&modules)
+	db.Conn.Create(&modules)
 
 	var moduleActivities []models.ModuleActivity
 	for _, module := range modules {
@@ -40,9 +40,9 @@ func FullCourse() *models.Course {
 			})
 		}
 	}
-	config.Conn.Create(&moduleActivities)
+	db.Conn.Create(&moduleActivities)
 
-	config.Conn.Preload("Modules.ModuleActivities.Activity").First(&course)
+	db.Conn.Preload("Modules.ModuleActivities.Activity").First(&course)
 
 	course.CreatedAt = time.Time{}
 	course.UpdatedAt = time.Time{}
@@ -62,7 +62,7 @@ func FullCourse() *models.Course {
 
 func SimpleCourse() *models.Course {
 	course := models.Course{ID: 1, Name: "Foundations of Nursing"}
-	config.Conn.Create(&course)
+	db.Conn.Create(&course)
 	return &course
 }
 
@@ -84,7 +84,7 @@ func CourseList() []*models.Course {
 			},
 		})
 	}
-	config.Conn.Create(&courseList)
+	db.Conn.Create(&courseList)
 
 	return courseList
 }

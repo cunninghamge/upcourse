@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	database "upcourse/config"
+	db "upcourse/database"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +15,7 @@ type Server struct {
 }
 
 func NewServer() Server {
-	if err := database.Connect(); err != nil {
+	if err := db.Connect(); err != nil {
 		log.Panicf("Error connecting to database: %q", err)
 	}
 

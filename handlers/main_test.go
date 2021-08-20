@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"upcourse/config"
+	db "upcourse/database"
 	testHelpers "upcourse/internal/helpers"
 )
 
@@ -20,7 +20,7 @@ func TestMain(m *testing.M) {
 	}()
 
 	gin.SetMode(gin.TestMode)
-	if err := config.Connect(); err != nil {
+	if err := db.Connect(); err != nil {
 		log.Fatal("could not connect to test database")
 	}
 

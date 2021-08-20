@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"upcourse/config"
+	db "upcourse/database"
 	testHelpers "upcourse/internal/helpers"
 	"upcourse/internal/mocks"
 	"upcourse/models"
@@ -187,7 +187,7 @@ func TestCreateCourse(t *testing.T) {
 		defer testHelpers.Teardown()
 
 		var courseCount int64
-		config.Conn.Model(models.Course{}).Count(&courseCount)
+		db.Conn.Model(models.Course{}).Count(&courseCount)
 
 		newCourseInfo := `{
 			"name": "Nursing 101",
@@ -206,7 +206,7 @@ func TestCreateCourse(t *testing.T) {
 		}
 
 		var newCount int64
-		config.Conn.Model(models.Course{}).Count(&newCount)
+		db.Conn.Model(models.Course{}).Count(&newCount)
 
 		if newCount != (courseCount + 1) {
 			t.Errorf("course count did not change")
@@ -215,7 +215,7 @@ func TestCreateCourse(t *testing.T) {
 
 	t.Run("it returns an error if a required field is missing", func(t *testing.T) {
 		var courseCount int64
-		config.Conn.Model(models.Course{}).Count(&courseCount)
+		db.Conn.Model(models.Course{}).Count(&courseCount)
 
 		newCourseInfo := `{
 			"creditHours": 3,
@@ -232,7 +232,7 @@ func TestCreateCourse(t *testing.T) {
 		testHelpers.AssertError(t, errs[1], "institution is required")
 
 		var newCount int64
-		config.Conn.Model(models.Course{}).Count(&newCount)
+		db.Conn.Model(models.Course{}).Count(&newCount)
 
 		if newCount != courseCount {
 			t.Errorf("course count changed but should not have")
@@ -276,7 +276,7 @@ func TestUpdateCourse(t *testing.T) {
 
 	t.Run("it updates an existing course", func(t *testing.T) {
 		var courseCount int64
-		config.Conn.Model(models.Course{}).Count(&courseCount)
+		db.Conn.Model(models.Course{}).Count(&courseCount)
 
 		params := map[string]string{"id": fmt.Sprint(mockCourse.ID)}
 		newCourseInfo := `{
@@ -295,14 +295,14 @@ func TestUpdateCourse(t *testing.T) {
 		}
 
 		var newCount int64
-		config.Conn.Model(models.Course{}).Count(&newCount)
+		db.Conn.Model(models.Course{}).Count(&newCount)
 
 		if newCount != courseCount {
 			t.Errorf("patch request should not have changed course count")
 		}
 
 		var updatedCourse models.Course
-		config.Conn.First(&updatedCourse, mockCourse.ID)
+		db.Conn.First(&updatedCourse, mockCourse.ID)
 
 		if updatedCourse.Institution != "Tampa Bay Nurses United University" {
 			t.Errorf("did not update the course record")
@@ -361,7 +361,7 @@ func TestDeleteCourse(t *testing.T) {
 		defer testHelpers.Teardown()
 
 		var courseCount int64
-		config.Conn.Model(models.Course{}).Count(&courseCount)
+		db.Conn.Model(models.Course{}).Count(&courseCount)
 
 		params := map[string]string{"id": fmt.Sprint(mockCourse.ID)}
 		w := testHelpers.NewRequest(params, "", DeleteCourse)
@@ -374,19 +374,19 @@ func TestDeleteCourse(t *testing.T) {
 		}
 
 		var newCourseCount int64
-		config.Conn.Model(models.Course{}).Count(&newCourseCount)
+		db.Conn.Model(models.Course{}).Count(&newCourseCount)
 		if courseCount == newCourseCount {
 			t.Errorf("Did not delete course")
 		}
 
 		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
+		db.Conn.Model(models.Module{}).Count(&moduleCount)
 		if moduleCount > 0 {
 			t.Errorf("Did not delete associated modules")
 		}
 
 		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
+		db.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
 		if moduleActivityCount > 0 {
 			t.Errorf("Did not delete associated module activities")
 		}

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	db "upcourse/config"
+	db "upcourse/database"
 	"upcourse/models"
 )
 

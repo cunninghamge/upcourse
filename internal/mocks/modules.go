@@ -3,7 +3,7 @@ package mocks
 import (
 	"github.com/Pallinder/go-randomdata"
 
-	"upcourse/config"
+	db "upcourse/database"
 	"upcourse/models"
 )
 
@@ -15,7 +15,7 @@ func Module() *models.Module {
 		Number:   1,
 		CourseId: course.ID,
 	}
-	config.Conn.Create(&module)
+	db.Conn.Create(&module)
 
 	var moduleActivities []models.ModuleActivity
 	for i := 0; i < 4; i++ {
@@ -26,9 +26,9 @@ func Module() *models.Module {
 			ModuleId:   module.ID,
 		})
 	}
-	config.Conn.Create(&moduleActivities)
+	db.Conn.Create(&moduleActivities)
 
-	config.Conn.Preload("ModuleActivities.Activity").First(&module)
+	db.Conn.Preload("ModuleActivities.Activity").First(&module)
 	return &module
 }
 
@@ -40,7 +40,7 @@ func SimpleModule() *models.Module {
 		Number:   1,
 		CourseId: course.ID,
 	}
-	config.Conn.Create(&module)
+	db.Conn.Create(&module)
 
 	return &module
 }

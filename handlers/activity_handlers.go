@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/gin-gonic/gin"
 
-	db "upcourse/config"
+	db "upcourse/database"
 	"upcourse/models"
 )
 
