@@ -9,6 +9,62 @@ import (
 	"github.com/Pallinder/go-randomdata"
 )
 
+func mockBasicCourse() *Course {
+	course := Course{Name: "Models Test Basic Course"}
+	db.Conn.Create(&course)
+	return &course
+}
+
+func mockFullCourse() *Course {
+	course := Course{
+		Name:        "Models Test Full Course",
+		Institution: "Test University",
+		CreditHours: randomdata.Number(5),
+		Length:      randomdata.Number(16),
+		Goal:        "8-10 hours",
+	}
+	db.Conn.Create(&course)
+
+	for i := 1; i < 3; i++ {
+		course.Modules = append(course.Modules, mockFullModule(course.ID, i))
+	}
+
+	db.Conn.Preload("Modules.ModuleActivities.Activity").First(&course)
+
+	return &course
+}
+
+func mockCourseList() []*Course {
+	var courses []*Course
+	for i := 0; i < 2; i++ {
+		courses = append(courses, mockFullCourse())
+	}
+
+	return courses
+}
+
+func mockFullModule(params ...int) *Module {
+	if len(params) == 0 {
+		params = []int{mockBasicCourse().ID, 1}
+	}
+
+	module := Module{
+		Name:     "Models Test Full Module",
+		CourseId: params[0],
+		Number:   params[1],
+	}
+	for i := 0; i < 3; i++ {
+		module.ModuleActivities = append(module.ModuleActivities, &ModuleActivity{
+			Input:      randomdata.Number(200),
+			ActivityId: i + 1,
+		})
+	}
+
+	db.Conn.Create(&module).Preload("ModuleActivities.Activity").First(&module)
+
+	return &module
+}
+
 func TestGetCourse(t *testing.T) {
 	mockCourse := mockFullCourse()
 	defer teardown()
@@ -266,60 +322,4 @@ func TestDeleteCourse(t *testing.T) {
 			t.Errorf("unexpected error: %v", err)
 		}
 	})
-}
-
-func mockBasicCourse() *Course {
-	course := Course{Name: "Models Test Basic Course"}
-	db.Conn.Create(&course)
-	return &course
-}
-
-func mockFullCourse() *Course {
-	course := Course{
-		Name:        "Models Test Full Course",
-		Institution: "Test University",
-		CreditHours: randomdata.Number(5),
-		Length:      randomdata.Number(16),
-		Goal:        "8-10 hours",
-	}
-	db.Conn.Create(&course)
-
-	for i := 1; i < 3; i++ {
-		course.Modules = append(course.Modules, mockFullModule(course.ID, i))
-	}
-
-	db.Conn.Preload("Modules.ModuleActivities.Activity").First(&course)
-
-	return &course
-}
-
-func mockCourseList() []*Course {
-	var courses []*Course
-	for i := 0; i < 2; i++ {
-		courses = append(courses, mockFullCourse())
-	}
-
-	return courses
-}
-
-func mockFullModule(params ...int) *Module {
-	if len(params) == 0 {
-		params = []int{mockBasicCourse().ID, 1}
-	}
-
-	module := Module{
-		Name:     "Models Test Full Module",
-		CourseId: params[0],
-		Number:   params[1],
-	}
-	for i := 0; i < 3; i++ {
-		module.ModuleActivities = append(module.ModuleActivities, &ModuleActivity{
-			Input:      randomdata.Number(200),
-			ActivityId: i + 1,
-		})
-	}
-
-	db.Conn.Create(&module).Preload("ModuleActivities.Activity").First(&module)
-
-	return &module
 }

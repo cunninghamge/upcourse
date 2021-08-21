@@ -16,18 +16,10 @@ import (
 	"github.com/google/jsonapi"
 
 	db "upcourse/database"
-	testHelpers "upcourse/internal/helpers"
 	"upcourse/models"
 )
 
 func TestMain(m *testing.M) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("recovered from error: %v", err)
-			testHelpers.Teardown()
-		}
-	}()
-
 	gin.SetMode(gin.TestMode)
 	if err := db.Connect(); err != nil {
 		log.Fatal("could not connect to test database")
@@ -49,6 +41,7 @@ func clearError() {
 
 func teardown() {
 	db.Conn.Where("custom=true").Delete(&models.Activity{})
+	db.Conn.Where("1=1").Delete(&models.Course{})
 }
 
 func newRequest(fn func(*gin.Context), params map[string]string, body string) *httptest.ResponseRecorder {
