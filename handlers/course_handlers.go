@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	db "upcourse/database"
 	"upcourse/models"
@@ -14,24 +13,19 @@ import (
 const courseSchema = "./schemas/course_schema.json"
 
 func GetCourse(c *gin.Context) {
-	var course models.Course
-	tx := db.Conn.Preload("Modules.ModuleActivities.Activity").
-		First(&course, c.Param("id"))
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	course, err := models.GetCourse(c.Param("id"))
+	if err != nil {
+		renderError(c, err)
 		return
 	}
 
-	renderFoundRecords(c, &course)
+	renderFoundRecords(c, course)
 }
 
 func GetCourses(c *gin.Context) {
-	var courses []*models.Course
-	tx := db.Conn.Preload("Modules", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id, name, number, course_id")
-	}).Select("courses.id, courses.name").Find(&courses)
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	courses, err := models.GetCourseList()
+	if err != nil {
+		renderError(c, err)
 		return
 	}
 
