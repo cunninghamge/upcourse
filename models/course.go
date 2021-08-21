@@ -40,3 +40,15 @@ func GetCourseList() ([]*Course, error) {
 
 	return courses, nil
 }
+
+func CreateCourse(course *Course) error {
+	return db.Conn.Create(course).Error
+}
+
+func UpdateCourse(course Course, id string) error {
+	return db.Conn.First(&Course{}, id).Updates(&course).Error
+}
+
+func DeleteCourse(id string) error {
+	return db.Conn.Delete(&Course{}, id).Error
+}

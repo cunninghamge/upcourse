@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	db "upcourse/database"
 	"upcourse/models"
 )
 
@@ -45,9 +44,8 @@ func CreateCourse(c *gin.Context) {
 		return
 	}
 
-	tx := db.Conn.Create(&course)
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	if err := models.CreateCourse(&course); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -61,9 +59,8 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	tx := db.Conn.Model(&models.Course{}).First(&models.Course{}, c.Param("id")).Updates(&course)
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	if err := models.UpdateCourse(course, c.Param("id")); err != nil {
+		renderError(c, err)
 		return
 	}
 
@@ -71,10 +68,8 @@ func UpdateCourse(c *gin.Context) {
 }
 
 func DeleteCourse(c *gin.Context) {
-	tx := db.Conn.Model(&models.Course{}).
-		Delete(&models.Course{}, c.Param("id"))
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	if err := models.DeleteCourse(c.Param("id")); err != nil {
+		renderError(c, err)
 		return
 	}
 
