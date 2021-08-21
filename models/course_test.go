@@ -139,6 +139,135 @@ func TestGetCourseList(t *testing.T) {
 	})
 }
 
+func TestCreateCourse(t *testing.T) {
+	defer teardown()
+
+	t.Run("creates a course", func(t *testing.T) {
+		name := "Successful creation"
+		newCourse := Course{
+			Name:        name,
+			Institution: "Test Institution",
+			CreditHours: 3,
+			Length:      8,
+			Goal:        "8-10 hours",
+		}
+
+		err := CreateCourse(&newCourse)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+		if err := db.Conn.Where("name = ?", name).First(&Course{}).Error; err != nil {
+			t.Error("new course not found in database")
+		}
+	})
+
+	t.Run("returns an error if course is not created", func(t *testing.T) {
+		forceError()
+		defer clearError()
+
+		name := "Failed creation"
+		newCourse := Course{
+			Name:        name,
+			Institution: "Test Institution",
+			CreditHours: 3,
+			Length:      8,
+			Goal:        "8-10 hours",
+		}
+
+		err := CreateCourse(&newCourse)
+
+		if err == nil {
+			t.Errorf("expected an error but didn't get one")
+		}
+
+		db.Conn.Error = nil
+		if err := db.Conn.Where("name = ?", name).First(&Course{}).Error; err == nil {
+			t.Errorf("expected an error but didn't get one")
+		}
+	})
+}
+
+func TestUpdateCourse(t *testing.T) {
+	mockCourse := mockBasicCourse()
+	defer teardown()
+
+	t.Run("updates a course", func(t *testing.T) {
+		name := "New Course name"
+		mockCourse.Name = name
+
+		err := UpdateCourse(mockCourse, strconv.Itoa(mockCourse.ID))
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		var foundCourse Course
+		err = db.Conn.Where("name = ?", name).First(&foundCourse).Error
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if foundCourse.Name != name {
+			t.Errorf("got %s want %s for updated course name", foundCourse.Name, name)
+		}
+	})
+
+	t.Run("returns an error if course is not updated", func(t *testing.T) {
+		number := mockCourse.Length + 1
+		mockCourse.Length = number
+
+		err := UpdateCourse(mockCourse, strconv.Itoa(mockCourse.ID+1))
+
+		if err == nil {
+			t.Errorf("expected an error but didn't get one")
+		}
+
+		var foundCourse Course
+		err = db.Conn.First(&foundCourse, mockCourse.ID).Error
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if foundCourse.Length == number {
+			t.Errorf("got %d want %d for course number", foundCourse.Length, mockCourse.Length)
+		}
+	})
+}
+
+func TestDeleteCourse(t *testing.T) {
+	t.Run("deletes a course", func(t *testing.T) {
+		mockCourse := mockBasicCourse()
+
+		err := DeleteCourse(strconv.Itoa(mockCourse.ID))
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+
+		if err = db.Conn.First(&mockCourse, mockCourse.ID).Error; err == nil {
+			t.Errorf("course not deleted from database")
+		}
+	})
+
+	t.Run("returns an error if course can't be deleted", func(t *testing.T) {
+		mockCourse := mockBasicCourse()
+		defer teardown()
+		forceError()
+
+		err := DeleteCourse(strconv.Itoa(mockCourse.ID))
+
+		if err == nil {
+			t.Errorf("expected an error but didn't get one")
+		}
+
+		db.Conn.Error = nil
+		if err = db.Conn.First(&mockCourse, mockCourse.ID).Error; err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+}
+
 func mockBasicCourse() *Course {
 	course := Course{Name: "Models Test Basic Course"}
 	db.Conn.Create(&course)

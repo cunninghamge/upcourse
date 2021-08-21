@@ -45,7 +45,7 @@ func CreateCourse(course *Course) error {
 	return db.Conn.Create(course).Error
 }
 
-func UpdateCourse(course Course, id string) error {
+func UpdateCourse(course *Course, id string) error {
 	return db.Conn.First(&Course{}, id).Updates(&course).Error
 }
 

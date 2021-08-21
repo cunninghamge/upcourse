@@ -59,7 +59,7 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
-	if err := models.UpdateCourse(course, c.Param("id")); err != nil {
+	if err := models.UpdateCourse(&course, c.Param("id")); err != nil {
 		renderError(c, err)
 		return
 	}
