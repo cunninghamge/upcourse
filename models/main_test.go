@@ -32,4 +32,5 @@ func clearError() {
 
 func teardown() {
 	db.Conn.Where("custom=true").Delete(&Activity{})
+	db.Conn.Where("1=1").Delete(&Course{})
 }
