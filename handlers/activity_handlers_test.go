@@ -2,59 +2,28 @@ package handlers
 
 import (
 	"net/http"
-	"reflect"
 	"testing"
 
-	db "upcourse/database"
-	testHelpers "upcourse/internal/helpers"
-	"upcourse/internal/mocks"
 	"upcourse/models"
 )
 
 func TestGetActivities(t *testing.T) {
-	activities := mocks.DefaultActivities()
+	t.Run("when GetActivities succeeds", func(t *testing.T) {
+		w := newRequest(GetActivities, nil, "")
 
-	t.Run("returns a list of the default activities", func(t *testing.T) {
-		w := testHelpers.NewRequest(nil, "", GetActivities)
+		assertStatusCode(t, w.Code, http.StatusOK)
 
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusOK)
-
-		response := testHelpers.UnmarshalManyPayload(t, w, new(models.Activity))
-		for i := 0; i < len(activities); i++ {
-			got, ok := response[i].(*models.Activity)
-			if !ok {
-				t.Errorf("error casting response element as activity")
-			}
-			want := activities[i]
-			if !reflect.DeepEqual(got, want) {
-				t.Errorf("got %v want %v for response activities[%d]", got, want, i)
-			}
-		}
+		unmarshalPayload(t, w.Body, new(models.Activity), many)
 	})
 
-	t.Run("does not include custom activities", func(t *testing.T) {
-		db.Conn.Create(&models.Activity{Custom: true})
-		defer testHelpers.Teardown()
+	t.Run("when GetActivities fails", func(t *testing.T) {
+		forceError()
+		defer clearError()
 
-		w := testHelpers.NewRequest(nil, "", GetActivities)
+		w := newRequest(GetActivities, nil, "")
 
-		response := testHelpers.UnmarshalManyPayload(t, w, new(models.Activity))
-		if len(response) != len(activities) {
-			t.Errorf("got %d want %d for number of results", len(response), len(activities))
-		}
-	})
+		assertStatusCode(t, w.Code, http.StatusInternalServerError)
 
-	t.Run("returns database errors if they occur", func(t *testing.T) {
-		testHelpers.ForceError()
-		defer testHelpers.ClearError()
-
-		w := testHelpers.NewRequest(nil, "", GetActivities)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
-
-		response := testHelpers.UnmarshalErrors(t, w)
-		if response[0] != testHelpers.DatabaseErr {
-			t.Errorf("got %s want %s for error message", response[0], testHelpers.DatabaseErr)
-		}
+		unmarshalPayload(t, w.Body, new(error), many)
 	})
 }
