@@ -2,43 +2,19 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/jsonapi"
 )
 
-const (
-	ErrNotFound   = "record not found"
-	ErrBadRequest = "invalid request"
-)
-
-func renderFoundRecords(c *gin.Context, records interface{}) {
-	payload, err := jsonapi.Marshal(records)
-	if err != nil {
-		renderError(c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, payload)
+var errCodes = map[string]int{
+	"record not found": http.StatusNotFound,
+	"invalid request":  http.StatusBadRequest,
 }
 
-func renderError(c *gin.Context, err error) {
-	var code int
-	if err.Error() == ErrNotFound {
-		code = http.StatusNotFound
-	} else if err.Error() == ErrBadRequest {
-		code = http.StatusBadRequest
-	} else {
-		code = http.StatusInternalServerError
-	}
-
-	c.JSON(code, gin.H{
-		"errors": []string{err.Error()},
-	})
-}
-
-func renderErrors(c *gin.Context, errs []error) {
-	c.JSON(http.StatusBadRequest, gin.H{
+func renderErrors(c *gin.Context, errs ...error) {
+	c.JSON(errorCode(errs), gin.H{
 		"errors": func(errs []error) []string {
 			strErrors := make([]string, len(errs))
 			for i, err := range errs {
@@ -47,4 +23,26 @@ func renderErrors(c *gin.Context, errs []error) {
 			return strErrors
 		}(errs),
 	})
+}
+
+func errorCode(errs []error) int {
+	switch l := len(errs); {
+	case l > 1 || strings.Contains(errs[0].Error(), "is required"):
+		return http.StatusBadRequest
+	case l == 1:
+		if status, ok := errCodes[errs[0].Error()]; ok {
+			return status
+		}
+	}
+	return http.StatusInternalServerError
+}
+
+func renderFoundRecords(c *gin.Context, records interface{}) {
+	payload, err := jsonapi.Marshal(records)
+	if err != nil {
+		renderErrors(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, payload)
 }

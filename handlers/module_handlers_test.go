@@ -3,456 +3,176 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
-	"time"
 
-	"gorm.io/gorm"
-
-	"upcourse/config"
-	testHelpers "upcourse/internal/helpers"
-	"upcourse/internal/mocks"
+	db "upcourse/database"
 	"upcourse/models"
+
+	"github.com/Pallinder/go-randomdata"
+	"github.com/gin-gonic/gin"
 )
 
-func TestGetModule(t *testing.T) {
-	mockModule := mocks.Module()
-	defer testHelpers.Teardown()
+func TestModules(t *testing.T) {
+	courseId := mockCourseId()
+	defer teardown()
 
-	t.Run("returns a module and its moduleActivities", func(t *testing.T) {
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, "", GetModule)
+	testCases := map[string]struct {
+		funcToTest func(*gin.Context)
+		params     map[string]string
+		body       string
+		statusCode int
+		model      interface{}
+		many       bool
+	}{
+		"GetModule": {
+			funcToTest: GetModule,
+			params:     map[string]string{"id": fmt.Sprint(mockModule(courseId, 1).ID)},
+			statusCode: http.StatusOK,
+			model:      new(models.Module),
+		},
+		"CreateModule": {
+			funcToTest: CreateModule,
+			params:     map[string]string{"id": fmt.Sprint(courseId)},
+			body: `{
+				"name": "Module 9",
+				"number": 9,
+				"moduleActivities":[
+					{
+						"input": 30,
+						"notes": "A note",
+						"activityId": 1
+					},
+					{
+						"input": 8,
+						"activityId": 2
+					},
+					{
+						"input": 180,
+						"notes": "",
+						"activityId": 11
+					}
+				]
+			}`,
+			statusCode: http.StatusCreated,
+		},
+		"UpdateModule": {
+			funcToTest: UpdateModule,
+			params:     map[string]string{"id": fmt.Sprint(mockModule(courseId, 2).ID)},
+			body: `{
+				"name": "new module name",
+				"moduleActivities":[
+					{
+						"input": 30,
+						"notes": "A new note",
+						"activityId": 1
+					}
+				]
+			}`,
+			statusCode: http.StatusOK,
+		},
+		"DeleteModule": {
+			funcToTest: DeleteModule,
+			params:     map[string]string{"id": fmt.Sprint(mockModule(courseId, 3).ID)},
+			statusCode: http.StatusOK,
+		},
+	}
 
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusOK)
+	for name, tc := range testCases {
+		t.Run(name+" success", func(t *testing.T) {
+			w := newRequest(tc.funcToTest, tc.params, tc.body)
 
-		response := testHelpers.UnmarshalPayload(t, w, new(models.Module))
-		responseModule, ok := response.(*models.Module)
-		if !ok {
-			t.Errorf("error casting response element as module")
-		}
+			assertStatusCode(t, w.Code, tc.statusCode)
 
-		modActivitiesLen := len(responseModule.ModuleActivities)
-		testHelpers.AssertEqualLength(t, modActivitiesLen, len(mockModule.ModuleActivities), "module activities")
-
-		for i := 0; i < modActivitiesLen; i++ {
-			gotModuleActivity := responseModule.ModuleActivities[i]
-			wantModuleActivity := mockModule.ModuleActivities[i]
-
-			gotActivity := gotModuleActivity.Activity
-			wantActivity := wantModuleActivity.Activity
-			wantActivity.CreatedAt, wantActivity.UpdatedAt = time.Time{}, time.Time{}
-			if !reflect.DeepEqual(gotActivity, wantActivity) {
-				t.Errorf("got %v want %v for activity for module_activity %d", gotActivity, wantActivity, wantModuleActivity.ID)
+			if tc.model != nil {
+				unmarshalPayload(t, w.Body, tc.model, tc.many)
 			}
+		})
 
-			gotModuleActivity.Activity, wantModuleActivity.Activity = nil, nil
-			wantModuleActivity.ModuleId, wantModuleActivity.ActivityId = 0, 0
-			wantModuleActivity.CreatedAt, wantModuleActivity.UpdatedAt = time.Time{}, time.Time{}
-			if !reflect.DeepEqual(gotModuleActivity, wantModuleActivity) {
-				t.Errorf("got %v want %v for module_activity %d", gotModuleActivity, wantModuleActivity, wantModuleActivity.ID)
-			}
-		}
+		t.Run(name+" failure", func(t *testing.T) {
+			forceError()
+			defer clearError()
 
-		responseModule.ModuleActivities, mockModule.ModuleActivities = nil, nil
-		mockModule.CourseId = 0
-		mockModule.CreatedAt, mockModule.UpdatedAt = time.Time{}, time.Time{}
-		if !reflect.DeepEqual(responseModule, mockModule) {
-			t.Errorf("got %v want %v for module", responseModule, mockModule)
-		}
-	})
+			w := newRequest(tc.funcToTest, tc.params, tc.body)
 
-	t.Run("returns a message if the module is not found", func(t *testing.T) {
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID + 1)}
-		w := testHelpers.NewRequest(params, "", GetModule)
+			assertStatusCode(t, w.Code, http.StatusInternalServerError)
 
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusNotFound)
+			unmarshalPayload(t, w.Body, new(error), many)
+		})
 
-		response := testHelpers.UnmarshalErrors(t, w)
-		testHelpers.AssertError(t, response[0], ErrNotFound)
-	})
+	}
 
-	t.Run("returns database errors if they occur", func(t *testing.T) {
-		testHelpers.ForceError()
-		defer testHelpers.ClearError()
-
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, "", GetModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
-
-		response := testHelpers.UnmarshalErrors(t, w)
-		if response[0] != testHelpers.DatabaseErr {
-			t.Errorf("got %s want %s for error message", response[0], testHelpers.DatabaseErr)
-		}
-	})
-}
-
-func TestCreateModule(t *testing.T) {
-	course := mocks.SimpleCourse()
-	defer testHelpers.Teardown()
-
-	t.Run("it posts a new module with associated module activities", func(t *testing.T) {
-		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
-		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
-
-		newModuleInfo := `{
-			"name": "Module 9",
-			"number": 9,
-			"moduleActivities":[
-				{
-					"input": 30,
-					"notes": "A note",
-					"activityId": 1
-				},
-				{
-					"input": 8,
-					"activityId": 2
-				},
-				{
-					"input": 180,
-					"notes": "",
-					"activityId": 11
-				}
-			]
-		}`
-		params := map[string]string{"id": fmt.Sprint(course.ID)}
-		w := testHelpers.NewRequest(params, newModuleInfo, CreateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusCreated)
-
-		errs := testHelpers.UnmarshalErrors(t, w)
-		if len(errs) != 0 {
-			t.Errorf("got unexpected errors: %s", errs)
-		}
-
-		var newModuleCount int64
-		config.Conn.Model(models.Module{}).Count(&newModuleCount)
-		if newModuleCount != (moduleCount + 1) {
-			t.Errorf("module count did not change")
-		}
-
-		var newModuleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&newModuleActivityCount)
-		if newModuleActivityCount != (moduleActivityCount + 3) {
-			t.Errorf("activity count did not change")
-		}
-	})
-
-	t.Run("it returns an error if a required field is missing", func(t *testing.T) {
-		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
-		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
-
-		newModuleInfo := `{
-			"name": "Module 9",
-			"moduleActivities":[
-				{
-					"input": 30,
-					"notes": "A note",
-					"activityId": 1
-				},
-				{
-					"input": 8,
-					"activityId": 2
-				},
-				{
-					"input": 180,
-					"notes": "",
-					"activityId": 11
-				}
-			]
-		}`
-		params := map[string]string{"id": fmt.Sprint(course.ID)}
-		w := testHelpers.NewRequest(params, newModuleInfo, CreateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusBadRequest)
-
-		errs := testHelpers.UnmarshalErrors(t, w)
-
-		testHelpers.AssertError(t, errs[0], "number is required")
-
-		var newModuleCount int64
-		config.Conn.Model(models.Module{}).Count(&newModuleCount)
-		if newModuleCount != moduleCount {
-			t.Errorf("module count changed but should not have")
-		}
-
-		var newModuleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&newModuleActivityCount)
-		if newModuleActivityCount != moduleActivityCount {
-			t.Errorf("module activity count changed but should not have")
-		}
-	})
-
-	t.Run("it returns an error if no body is sent", func(t *testing.T) {
-		params := map[string]string{"id": fmt.Sprint(course.ID)}
-		w := testHelpers.NewRequest(params, "", CreateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusBadRequest)
-
-		errs := testHelpers.UnmarshalErrors(t, w)
-		testHelpers.AssertError(t, errs[0], ErrBadRequest)
-	})
-
-	t.Run("returns database errors if they occur", func(t *testing.T) {
-		testHelpers.ForceError()
-		defer testHelpers.ClearError()
-
-		newModuleInfo := `{
+	t.Run("CreateModule missing course failure", func(t *testing.T) {
+		moduleInfo := `{
 			"name": "Module 9",
 			"number": 9,
 			"moduleActivities":[
 				{
 					"input": 180,
-					"notes": "",
 					"activityId": 11
 				}
 			]
 		}`
-		params := map[string]string{"id": fmt.Sprint(course.ID)}
-		w := testHelpers.NewRequest(params, newModuleInfo, CreateModule)
+		params := map[string]string{"id": "-"}
+		w := newRequest(CreateModule, params, moduleInfo)
 
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
+		assertStatusCode(t, w.Code, http.StatusBadRequest)
 
-		response := testHelpers.UnmarshalErrors(t, w)
-		if response[0] != testHelpers.DatabaseErr {
-			t.Errorf("got %s want %s for error message", response[0], testHelpers.DatabaseErr)
-		}
+		unmarshalPayload(t, w.Body, new(error), many)
 	})
 
-	t.Run("it returns an error if an invalid course id is sent", func(t *testing.T) {
-		newModuleInfo := `{
+	t.Run("CreateModule missing info failure", func(t *testing.T) {
+		moduleInfo := `{
 			"name": "Module 9",
-			"number": 9,
 			"moduleActivities":[
 				{
 					"input": 180,
-					"notes": "",
 					"activityId": 11
 				}
 			]
 		}`
-		params := map[string]string{"id": fmt.Sprint("-")}
-		w := testHelpers.NewRequest(params, newModuleInfo, CreateModule)
+		params := map[string]string{"id": fmt.Sprint(courseId)}
+		w := newRequest(CreateModule, params, moduleInfo)
 
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusBadRequest)
+		assertStatusCode(t, w.Code, http.StatusBadRequest)
+
+		unmarshalPayload(t, w.Body, new(error), many)
+	})
+
+	t.Run("UpdateModule json unmarshal failure", func(t *testing.T) {
+		w := newRequest(UpdateModule, nil, "")
+
+		assertStatusCode(t, w.Code, http.StatusBadRequest)
+
+		unmarshalPayload(t, w.Body, new(error), many)
 	})
 }
 
-func TestUpdateModule(t *testing.T) {
-	mockModule := mocks.Module()
-	defer testHelpers.Teardown()
+func mockCourseId() int {
+	course := models.Course{
+		Name:        "Handlers Test Course",
+		Institution: "Test University",
+		CreditHours: randomdata.Number(5),
+		Length:      randomdata.Number(16),
+		Goal:        "8-10 hours",
+	}
 
-	t.Run("it updates an existing module", func(t *testing.T) {
-		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
-		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
+	db.Conn.Create(&course)
 
-		newModuleInfo := `{
-			"name": "new module name",
-			"moduleActivities":[
-				{
-					"input": 30,
-					"notes": "A new note",
-					"activityId": 1
-				}
-			]
-		}`
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, newModuleInfo, UpdateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusOK)
-
-		errs := testHelpers.UnmarshalErrors(t, w)
-		if len(errs) != 0 {
-			t.Errorf("got unexpected errors: %s", errs)
-		}
-
-		var newCount int64
-		config.Conn.Model(models.Module{}).Count(&newCount)
-		if newCount != moduleCount {
-			t.Errorf("patch request should not have changed module count but did")
-		}
-
-		var newModActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&newModActivityCount)
-		if newModActivityCount != moduleActivityCount {
-			t.Errorf("added a new module activity but should not have")
-		}
-
-		var updatedModule models.Module
-		config.Conn.Preload("ModuleActivities", func(db *gorm.DB) *gorm.DB {
-			return db.Order("id")
-		}).First(&updatedModule, mockModule.ID)
-
-		if updatedModule.Name != "new module name" {
-			t.Errorf("did not update the module record")
-		}
-
-		if updatedModule.ModuleActivities[0].Notes != "A new note" {
-			t.Errorf("did not update the module activity for the module")
-		}
-
-		if updatedModule.Number != mockModule.Number {
-			t.Errorf("updated a field that should not have been updated")
-		}
-	})
-
-	t.Run("it can add a new module activity to an existing module", func(t *testing.T) {
-		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
-		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&moduleActivityCount)
-
-		newModuleInfo := `{
-			"name": "new module name",
-			"moduleActivities":[
-				{
-					"input": 30,
-					"notes": "A new note",
-					"activityId": 14
-				}
-			]
-		}`
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, newModuleInfo, UpdateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusOK)
-
-		errs := testHelpers.UnmarshalErrors(t, w)
-		if len(errs) != 0 {
-			t.Errorf("got unexpected errors: %s", errs)
-		}
-
-		var newCount int64
-		config.Conn.Model(models.Course{}).Count(&newCount)
-		if newCount != moduleCount {
-			t.Errorf("patch request should not have changed module count but did")
-		}
-
-		var newModActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Where("module_id = ?", mockModule.ID).Count(&newModActivityCount)
-		if newModActivityCount != (moduleActivityCount + 1) {
-			t.Errorf("did not create a new module activity")
-		}
-	})
-
-	t.Run("it returns a 404 if module not found", func(t *testing.T) {
-		newModuleInfo := `{
-			"name": "new module name",
-			"moduleActivities":[
-				{
-					"id": 1,
-					"input": 30,
-					"notes": "A new note",
-					"activityId": 1
-				}
-			]
-		}`
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID + 1)}
-		w := testHelpers.NewRequest(params, newModuleInfo, UpdateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusNotFound)
-	})
-
-	t.Run("it returns an error if no body is sent", func(t *testing.T) {
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID + 1)}
-		w := testHelpers.NewRequest(params, "", UpdateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusBadRequest)
-	})
-
-	t.Run("returns database errors if they occur", func(t *testing.T) {
-		testHelpers.ForceError()
-		defer testHelpers.ClearError()
-
-		newModuleInfo := `{
-			"name": "new module name",
-			"moduleActivities":[
-				{
-					"id": 1,
-					"input": 30,
-					"notes": "A new note",
-					"activityId": 1
-				}
-			]
-		}`
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, newModuleInfo, UpdateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
-
-		response := testHelpers.UnmarshalErrors(t, w)
-		if response[0] != testHelpers.DatabaseErr {
-			t.Errorf("got %s want %s for error message", response[0], testHelpers.DatabaseErr)
-		}
-	})
-
-	t.Run("returns an error for an invalid activity id", func(t *testing.T) {
-		newModuleInfo := `{
-			"name": "new module name",
-			"moduleActivities":[
-				{
-					"id": 1,
-					"input": 30,
-					"activityId": 20
-				}
-			]
-		}`
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, newModuleInfo, UpdateModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
-	})
+	return course.ID
 }
 
-func TestDeleteModule(t *testing.T) {
-	t.Run("Deletes a module and its children", func(t *testing.T) {
-		mockModule := mocks.Module()
-		defer testHelpers.Teardown()
+func mockModule(courseId, moduleNumber int) *models.Module {
+	module := models.Module{
+		Name:     "Handlers Test Module",
+		Number:   moduleNumber,
+		CourseId: courseId,
+		ModuleActivities: []*models.ModuleActivity{
+			{Input: 10, ActivityId: 1},
+			{Input: 20, ActivityId: 2},
+		},
+	}
 
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, "", DeleteModule)
+	db.Conn.Create(&module)
 
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusOK)
-
-		errs := testHelpers.UnmarshalErrors(t, w)
-		if len(errs) != 0 {
-			t.Errorf("got unexpected errors: %s", errs)
-		}
-
-		var moduleCount int64
-		config.Conn.Model(models.Module{}).Count(&moduleCount)
-		if moduleCount > 0 {
-			t.Errorf("Did not delete module")
-		}
-
-		var moduleActivityCount int64
-		config.Conn.Model(models.ModuleActivity{}).Count(&moduleActivityCount)
-		if moduleActivityCount > 0 {
-			t.Errorf("Did not delete associated module activities")
-		}
-	})
-
-	t.Run("returns database errors if they occur", func(t *testing.T) {
-		testHelpers.ForceError()
-		defer testHelpers.ClearError()
-
-		mockModule := mocks.Module()
-		defer testHelpers.Teardown()
-
-		params := map[string]string{"id": fmt.Sprint(mockModule.ID)}
-		w := testHelpers.NewRequest(params, "", DeleteModule)
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
-
-		response := testHelpers.UnmarshalErrors(t, w)
-		if response[0] != testHelpers.DatabaseErr {
-			t.Errorf("got %s want %s for error message", response[0], testHelpers.DatabaseErr)
-		}
-	})
+	return &module
 }

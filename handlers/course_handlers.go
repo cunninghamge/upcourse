@@ -5,33 +5,26 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
-	db "upcourse/config"
 	"upcourse/models"
 )
 
 const courseSchema = "./schemas/course_schema.json"
 
 func GetCourse(c *gin.Context) {
-	var course models.Course
-	tx := db.Conn.Preload("Modules.ModuleActivities.Activity").
-		First(&course, c.Param("id"))
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	course, err := models.GetCourse(c.Param("id"))
+	if err != nil {
+		renderErrors(c, err)
 		return
 	}
 
-	renderFoundRecords(c, &course)
+	renderFoundRecords(c, course)
 }
 
 func GetCourses(c *gin.Context) {
-	var courses []*models.Course
-	tx := db.Conn.Preload("Modules", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id, name, number, course_id")
-	}).Select("courses.id, courses.name").Find(&courses)
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	courses, err := models.GetCourseList()
+	if err != nil {
+		renderErrors(c, err)
 		return
 	}
 
@@ -39,21 +32,20 @@ func GetCourses(c *gin.Context) {
 }
 
 func CreateCourse(c *gin.Context) {
-	jsonData, errs := models.Validate(c, courseSchema)
+	jsonData, errs := Validate(c, courseSchema)
 	if errs != nil {
-		renderErrors(c, errs)
+		renderErrors(c, errs...)
 		return
 	}
 
 	var course models.Course
 	if err := json.Unmarshal(jsonData, &course); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
-	tx := db.Conn.Create(&course)
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	if err := models.CreateCourse(&course); err != nil {
+		renderErrors(c, err)
 		return
 	}
 
@@ -63,13 +55,12 @@ func CreateCourse(c *gin.Context) {
 func UpdateCourse(c *gin.Context) {
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
-	tx := db.Conn.Model(&models.Course{}).First(&models.Course{}, c.Param("id")).Updates(&course)
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	if err := models.UpdateCourse(&course, c.Param("id")); err != nil {
+		renderErrors(c, err)
 		return
 	}
 
@@ -77,10 +68,8 @@ func UpdateCourse(c *gin.Context) {
 }
 
 func DeleteCourse(c *gin.Context) {
-	tx := db.Conn.Model(&models.Course{}).
-		Delete(&models.Course{}, c.Param("id"))
-	if tx.Error != nil {
-		renderError(c, tx.Error)
+	if err := models.DeleteCourse(c.Param("id")); err != nil {
+		renderErrors(c, err)
 		return
 	}
 

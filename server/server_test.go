@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"upcourse/config"
+	db "upcourse/database"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +34,7 @@ func TestNewServer(t *testing.T) {
 
 	t.Run("it connects to the database", func(t *testing.T) {
 		NewServer()
-		db, err := config.Conn.DB()
+		db, err := db.Conn.DB()
 		if err != nil {
 			t.Errorf("error connecting to the database: %v", err)
 		}

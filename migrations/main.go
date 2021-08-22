@@ -6,16 +6,16 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"upcourse/config"
+	db "upcourse/database"
 )
 
 func main() {
-	if err := config.Connect(); err != nil {
+	if err := db.Connect(); err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
 	migration := GormMigration{
-		db:      config.Conn,
+		db:      db.Conn,
 		Version: time.Now().Unix(),
 	}
 

@@ -1,4 +1,4 @@
-package models
+package handlers
 
 import (
 	"errors"
@@ -10,6 +10,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type mockReadCloser int
+
+var testErr = errors.New("test error")
+
+func (mrc mockReadCloser) Read(p []byte) (n int, err error) {
+	return 0, testErr
+}
+
+func (mrc mockReadCloser) Close() error {
+	return testErr
+}
 
 func TestValidate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
@@ -142,16 +154,4 @@ func TestValidate(t *testing.T) {
 			}
 		})
 	}
-}
-
-type mockReadCloser int
-
-var testErr = errors.New("test error")
-
-func (mrc mockReadCloser) Read(p []byte) (n int, err error) {
-	return 0, testErr
-}
-
-func (mrc mockReadCloser) Close() error {
-	return testErr
 }

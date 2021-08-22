@@ -7,7 +7,7 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	t.Run("can't connect to release mode in test", func(t *testing.T) {
+	t.Run("configuration is specific to mode", func(t *testing.T) {
 		gin.SetMode(gin.ReleaseMode)
 
 		var err interface{}
