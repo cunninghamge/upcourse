@@ -30,17 +30,14 @@ func CreateModule(c *gin.Context) {
 		return
 	}
 
-	jsonData, errs := models.Validate(c, moduleSchema)
+	jsonData, errs := Validate(c, moduleSchema)
 	if errs != nil {
 		renderErrors(c, errs...)
 		return
 	}
 
 	module := models.Module{CourseId: courseId}
-	if err := json.Unmarshal(jsonData, &module); err != nil {
-		renderErrors(c, err)
-		return
-	}
+	json.Unmarshal(jsonData, &module)
 
 	if err := models.CreateModule(&module); err != nil {
 		renderErrors(c, err)

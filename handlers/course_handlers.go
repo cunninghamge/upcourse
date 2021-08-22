@@ -32,17 +32,14 @@ func GetCourses(c *gin.Context) {
 }
 
 func CreateCourse(c *gin.Context) {
-	jsonData, errs := models.Validate(c, courseSchema)
+	jsonData, errs := Validate(c, courseSchema)
 	if errs != nil {
 		renderErrors(c, errs...)
 		return
 	}
 
 	var course models.Course
-	if err := json.Unmarshal(jsonData, &course); err != nil {
-		renderErrors(c, err)
-		return
-	}
+	json.Unmarshal(jsonData, &course)
 
 	if err := models.CreateCourse(&course); err != nil {
 		renderErrors(c, err)
