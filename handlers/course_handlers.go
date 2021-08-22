@@ -39,7 +39,10 @@ func CreateCourse(c *gin.Context) {
 	}
 
 	var course models.Course
-	json.Unmarshal(jsonData, &course)
+	if err := json.Unmarshal(jsonData, &course); err != nil {
+		renderErrors(c, err)
+		return
+	}
 
 	if err := models.CreateCourse(&course); err != nil {
 		renderErrors(c, err)
