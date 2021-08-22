@@ -16,11 +16,9 @@ func TestSeedTestMode(t *testing.T) {
 		t.Errorf("expected 14 activities, got %d", count)
 	}
 
-	var courseCount int64
-	db.Conn.Model(&models.Course{}).Count(&courseCount)
-
-	if courseCount != 0 {
-		t.Errorf("expected 0 courses, got %d", courseCount)
+	tx := db.Conn.Where(&sampleCourse).First(&models.Course{})
+	if tx.Error == nil {
+		t.Error("expected not to find sample course in test database but did")
 	}
 }
 
