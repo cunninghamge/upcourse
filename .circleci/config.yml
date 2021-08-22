@@ -48,4 +48,4 @@ jobs:
           command: go run ./database/seed
       - run:
           name: Run tests
-          command: go test -p 1 ./... -v
+          command: go test ./... -v

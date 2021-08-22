@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var courseIds []int
+
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
 	if err := db.Connect(); err != nil {
@@ -32,5 +34,5 @@ func clearError() {
 
 func teardown() {
 	db.Conn.Where("custom=true").Delete(&Activity{})
-	db.Conn.Where("1=1").Delete(&Course{})
+	db.Conn.Where(courseIds).Delete(&Course{})
 }

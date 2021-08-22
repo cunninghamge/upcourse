@@ -19,6 +19,8 @@ import (
 	"upcourse/models"
 )
 
+var courseIds []int
+
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)
 	if err := db.Connect(); err != nil {
@@ -41,7 +43,7 @@ func clearError() {
 
 func teardown() {
 	db.Conn.Where("custom=true").Delete(&models.Activity{})
-	db.Conn.Where("1=1").Delete(&models.Course{})
+	db.Conn.Where(courseIds).Delete(&models.Course{})
 }
 
 func newRequest(fn func(*gin.Context), params map[string]string, body string) *httptest.ResponseRecorder {

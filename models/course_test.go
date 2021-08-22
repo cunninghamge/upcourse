@@ -12,6 +12,7 @@ import (
 func mockBasicCourse() *Course {
 	course := Course{Name: "Models Test Basic Course"}
 	db.Conn.Create(&course)
+	courseIds = append(courseIds, course.ID)
 	return &course
 }
 
@@ -24,6 +25,7 @@ func mockFullCourse() *Course {
 		Goal:        "8-10 hours",
 	}
 	db.Conn.Create(&course)
+	courseIds = append(courseIds, course.ID)
 
 	for i := 1; i < 3; i++ {
 		course.Modules = append(course.Modules, mockFullModule(course.ID, i))
@@ -191,9 +193,11 @@ func TestCreateCourse(t *testing.T) {
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
-		if err := db.Conn.Where("name = ?", name).First(&Course{}).Error; err != nil {
+		var course Course
+		if err := db.Conn.Where("name = ?", name).First(&course).Error; err != nil {
 			t.Error("new course not found in database")
 		}
+		courseIds = append(courseIds, course.ID)
 	})
 
 	t.Run("returns an error if course is not created", func(t *testing.T) {

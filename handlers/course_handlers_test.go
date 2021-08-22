@@ -10,18 +10,20 @@ import (
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-gonic/gin"
+	"github.com/google/jsonapi"
 )
 
 func TestCourses(t *testing.T) {
 	defer teardown()
 
 	testCases := map[string]struct {
-		funcToTest func(*gin.Context)
-		params     map[string]string
-		body       string
-		statusCode int
-		model      interface{}
-		many       bool
+		funcToTest      func(*gin.Context)
+		params          map[string]string
+		body            string
+		statusCode      int
+		model           interface{}
+		many            bool
+		getIdForCleanup bool
 	}{
 		"GetCourse": {
 			funcToTest: GetCourse,
@@ -44,7 +46,8 @@ func TestCourses(t *testing.T) {
 				"length": 16,
 				"goal": "8-10 hours"
 			}`,
-			statusCode: http.StatusCreated,
+			statusCode:      http.StatusCreated,
+			getIdForCleanup: true,
 		},
 		"UpdateCourse": {
 			funcToTest: UpdateCourse,
@@ -69,6 +72,12 @@ func TestCourses(t *testing.T) {
 			assertStatusCode(t, w.Code, tc.statusCode)
 			if tc.model != nil {
 				unmarshalPayload(t, w.Body, tc.model, tc.many)
+			}
+
+			if tc.getIdForCleanup {
+				var course models.Course
+				jsonapi.UnmarshalPayload(w.Body, &course)
+				courseIds = append(courseIds, course.ID)
 			}
 		})
 
@@ -118,6 +127,7 @@ func mockCourse() *models.Course {
 	}
 
 	db.Conn.Create(&course)
+	courseIds = append(courseIds, course.ID)
 
 	return &course
 }

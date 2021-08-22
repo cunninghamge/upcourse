@@ -157,6 +157,7 @@ func mockCourseId() int {
 	}
 
 	db.Conn.Create(&course)
+	courseIds = append(courseIds, course.ID)
 
 	return course.ID
 }
