@@ -74,8 +74,9 @@ func TestIndexes(t *testing.T) {
 	}
 
 	t.Run("index_module_activities_on_activities_modules works as expected", func(t *testing.T) {
-		module := mockCourse().Modules[0]
-		defer db.Conn.Where("1=1").Delete(&models.Course{})
+		course := mockCourse()
+		module := course.Modules[0]
+		defer db.Conn.Where(course.ID).Delete(&models.Course{})
 
 		invalidInsertion := []models.ModuleActivity{
 			{Input: 15, ModuleId: module.ID, ActivityId: 1},
@@ -94,7 +95,7 @@ func TestIndexes(t *testing.T) {
 
 	t.Run("index_modules_on_courses_number works as expected", func(t *testing.T) {
 		courseId := mockCourse().ID
-		defer db.Conn.Where("1=1").Delete(&models.Course{})
+		defer db.Conn.Where(courseId).Delete(&models.Course{})
 
 		invalidInsertion := models.Module{CourseId: courseId, Number: 1}
 
@@ -137,7 +138,7 @@ func TestForeignKeyConstraints(t *testing.T) {
 
 func TestTimestamps(t *testing.T) {
 	course := mockCourse()
-	defer db.Conn.Where("1=1").Delete(&models.Course{})
+	defer db.Conn.Where(course.ID).Delete(&models.Course{})
 
 	nilTime := time.Time{}
 	if course.CreatedAt == nilTime {

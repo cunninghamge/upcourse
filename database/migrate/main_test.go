@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 	db "upcourse/database"
-	"upcourse/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,8 +18,6 @@ func TestMain(m *testing.M) {
 	}
 
 	code := m.Run()
-
-	db.Conn.Where("1=1").Delete(&models.Course{})
 
 	os.Exit(code)
 }
