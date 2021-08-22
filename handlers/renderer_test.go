@@ -20,6 +20,8 @@ func defaultActivities() []*models.Activity {
 }
 
 func TestRenderFoundRecords(t *testing.T) {
+	defer teardown()
+
 	testCases := map[string]struct {
 		records interface{}
 		model   interface{}
