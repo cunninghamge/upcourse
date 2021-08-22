@@ -14,7 +14,7 @@ const courseSchema = "./schemas/course_schema.json"
 func GetCourse(c *gin.Context) {
 	course, err := models.GetCourse(c.Param("id"))
 	if err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
@@ -24,7 +24,7 @@ func GetCourse(c *gin.Context) {
 func GetCourses(c *gin.Context) {
 	courses, err := models.GetCourseList()
 	if err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
@@ -34,18 +34,18 @@ func GetCourses(c *gin.Context) {
 func CreateCourse(c *gin.Context) {
 	jsonData, errs := models.Validate(c, courseSchema)
 	if errs != nil {
-		renderErrors(c, errs)
+		renderErrors(c, errs...)
 		return
 	}
 
 	var course models.Course
 	if err := json.Unmarshal(jsonData, &course); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
 	if err := models.CreateCourse(&course); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
@@ -55,12 +55,12 @@ func CreateCourse(c *gin.Context) {
 func UpdateCourse(c *gin.Context) {
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
 	if err := models.UpdateCourse(&course, c.Param("id")); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
@@ -69,7 +69,7 @@ func UpdateCourse(c *gin.Context) {
 
 func DeleteCourse(c *gin.Context) {
 	if err := models.DeleteCourse(c.Param("id")); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 

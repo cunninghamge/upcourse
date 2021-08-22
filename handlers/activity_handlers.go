@@ -9,7 +9,7 @@ import (
 func GetActivities(c *gin.Context) {
 	activities, err := models.GetActivities()
 	if err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 

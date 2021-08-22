@@ -6,6 +6,13 @@ import (
 	db "upcourse/database"
 )
 
+func defaultActivities() []*Activity {
+	var activities []*Activity
+	db.Conn.Select("id, name, description, metric, multiplier").Where("custom=false").Find(&activities)
+
+	return activities
+}
+
 func TestGetActivities(t *testing.T) {
 	defaultActivities := defaultActivities()
 
@@ -51,12 +58,4 @@ func TestGetActivities(t *testing.T) {
 			t.Errorf("expected an error but didn't get one")
 		}
 	})
-}
-
-// fetches the list of core activities from database
-func defaultActivities() []*Activity {
-	var activities []*Activity
-	db.Conn.Select("id, name, description, metric, multiplier").Where("custom=false").Find(&activities)
-
-	return activities
 }

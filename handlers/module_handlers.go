@@ -16,7 +16,7 @@ const moduleSchema = "./schemas/module_schema.json"
 func GetModule(c *gin.Context) {
 	module, err := models.GetModule(c.Param("id"))
 	if err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
@@ -26,24 +26,24 @@ func GetModule(c *gin.Context) {
 func CreateModule(c *gin.Context) {
 	courseId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		renderError(c, errors.New(ErrBadRequest))
+		renderErrors(c, errors.New("invalid request"))
 		return
 	}
 
 	jsonData, errs := models.Validate(c, moduleSchema)
 	if errs != nil {
-		renderErrors(c, errs)
+		renderErrors(c, errs...)
 		return
 	}
 
 	module := models.Module{CourseId: courseId}
 	if err := json.Unmarshal(jsonData, &module); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
 	if err := models.CreateModule(&module); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
@@ -53,12 +53,12 @@ func CreateModule(c *gin.Context) {
 func UpdateModule(c *gin.Context) {
 	var module models.Module
 	if err := c.ShouldBindJSON(&module); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
 	if err := models.UpdateModule(&module, c.Param("id")); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 
@@ -67,7 +67,7 @@ func UpdateModule(c *gin.Context) {
 
 func DeleteModule(c *gin.Context) {
 	if err := models.DeleteModule(c.Param("id")); err != nil {
-		renderError(c, err)
+		renderErrors(c, err)
 		return
 	}
 

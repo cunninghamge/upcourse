@@ -67,7 +67,6 @@ func TestCourses(t *testing.T) {
 			w := newRequest(tc.funcToTest, tc.params, tc.body)
 
 			assertStatusCode(t, w.Code, tc.statusCode)
-
 			if tc.model != nil {
 				unmarshalPayload(t, w.Body, tc.model, tc.many)
 			}
@@ -80,7 +79,6 @@ func TestCourses(t *testing.T) {
 			w := newRequest(tc.funcToTest, tc.params, tc.body)
 
 			assertStatusCode(t, w.Code, http.StatusInternalServerError)
-
 			unmarshalPayload(t, w.Body, new(error), many)
 		})
 	}
@@ -89,11 +87,12 @@ func TestCourses(t *testing.T) {
 		incompleteCourseInfo := `{
 			"name": "Nursing 101",
 			"institution": "Tampa Bay Nurses United University",
+			"creditHours": 3,
+			"length": 16
 		}`
 		w := newRequest(CreateCourse, nil, incompleteCourseInfo)
 
 		assertStatusCode(t, w.Code, http.StatusBadRequest)
-
 		unmarshalPayload(t, w.Body, new(error), many)
 	})
 
@@ -101,7 +100,6 @@ func TestCourses(t *testing.T) {
 		w := newRequest(UpdateCourse, nil, "")
 
 		assertStatusCode(t, w.Code, http.StatusBadRequest)
-
 		unmarshalPayload(t, w.Body, new(error), many)
 	})
 }

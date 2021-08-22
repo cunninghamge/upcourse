@@ -6,85 +6,105 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	testHelpers "upcourse/internal/helpers"
-	"upcourse/internal/mocks"
+	db "upcourse/database"
 	"upcourse/models"
+
+	"github.com/gin-gonic/gin"
 )
 
+func defaultActivities() []*models.Activity {
+	var activities []*models.Activity
+	db.Conn.Select("id, name, description, metric, multiplier").Where("custom=false").Find(&activities)
+
+	return activities
+}
+
 func TestRenderFoundRecords(t *testing.T) {
-	testCases := map[string]interface{}{
-		"course":     mocks.FullCourse(),
-		"courses":    mocks.CourseList(),
-		"module":     mocks.Module(),
-		"activities": mocks.DefaultActivities(),
+	testCases := map[string]struct {
+		records interface{}
+		model   interface{}
+		many    bool
+	}{
+		"course": {
+			records: mockCourse(),
+			model:   &models.Course{},
+			many:    false,
+		},
+		"courses": {
+			records: []*models.Course{
+				mockCourse(),
+				mockCourse(),
+			},
+			model: &models.Course{},
+			many:  true,
+		},
+		"module": {
+			records: mockModule(mockCourseId(), 1),
+			model:   &models.Module{},
+			many:    false,
+		},
+		"activities": {
+			records: defaultActivities(),
+			model:   &models.Activity{},
+			many:    true,
+		},
 	}
 
-	for name, model := range testCases {
+	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			ctx := mocks.NewMockContext(w, nil)
+			ctx, _ := gin.CreateTestContext(w)
 
-			renderFoundRecords(ctx, model)
+			renderFoundRecords(ctx, tc.records)
 
-			testHelpers.AssertStatusCode(t, w.Code, http.StatusOK)
-
-			errs := testHelpers.UnmarshalErrors(t, w)
-			if len(errs) != 0 {
-				t.Errorf("got unexpected errors: %s", errs)
-			}
+			assertStatusCode(t, w.Code, http.StatusOK)
+			unmarshalPayload(t, w.Body, tc.model, tc.many)
 		})
 	}
 
 	t.Run("it returns jsonapi errors", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		ctx := mocks.NewMockContext(w, nil)
+		ctx, _ := gin.CreateTestContext(w)
 
 		renderFoundRecords(ctx, models.Course{})
-
-		testHelpers.AssertStatusCode(t, w.Code, http.StatusInternalServerError)
+		assertStatusCode(t, w.Code, http.StatusInternalServerError)
 	})
 }
 
 func TestRenderError(t *testing.T) {
-	testCases := map[string]int{
-		ErrNotFound:             http.StatusNotFound,
-		ErrBadRequest:           http.StatusBadRequest,
-		testHelpers.DatabaseErr: http.StatusInternalServerError,
-	}
-
-	for name, code := range testCases {
-		t.Run(name, func(t *testing.T) {
+	for message, code := range errCodes {
+		t.Run(message, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			ctx := mocks.NewMockContext(w, nil)
+			ctx, _ := gin.CreateTestContext(w)
 
-			renderError(ctx, errors.New(name))
+			renderErrors(ctx, errors.New(message))
 
-			testHelpers.AssertStatusCode(t, w.Code, code)
-
-			errs := testHelpers.UnmarshalErrors(t, w)
-			if errs[0] != name {
-				t.Errorf("failed to return errors")
-			}
+			assertStatusCode(t, w.Code, code)
+			unmarshalPayload(t, w.Body, new(error), many)
 		})
 	}
-}
 
-func TestRenderErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	ctx := mocks.NewMockContext(w, nil)
+	t.Run("default error", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		ctx, _ := gin.CreateTestContext(w)
 
-	mockErrors := []error{
-		errors.New("first error"),
-		errors.New("second error"),
-	}
-	renderErrors(ctx, mockErrors)
+		renderErrors(ctx, errors.New(testDBErr))
 
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("got %d want %d", w.Code, http.StatusBadRequest)
-	}
+		assertStatusCode(t, w.Code, http.StatusInternalServerError)
+		unmarshalPayload(t, w.Body, new(error), many)
+	})
 
-	errs := testHelpers.UnmarshalErrors(t, w)
-	if errs[0] != "first error" || errs[1] != "second error" {
-		t.Errorf("failed to return errors")
-	}
+	t.Run("render multiple errors", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		ctx, _ := gin.CreateTestContext(w)
+		errs := []error{
+			errors.New("first error"),
+			errors.New("second error"),
+		}
+
+		renderErrors(ctx, errs...)
+
+		assertStatusCode(t, w.Code, http.StatusBadRequest)
+		unmarshalPayload(t, w.Body, new(error), many)
+	})
 }
