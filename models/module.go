@@ -12,7 +12,7 @@ type Module struct {
 	Number               int    `jsonapi:"attr,number" gorm:"not null"`
 	CourseId             int
 	CreatedAt, UpdatedAt time.Time         `gorm:"type:timestamp with time zone;default:CURRENT_TIMESTAMP"`
-	ModuleActivities     []*ModuleActivity `jsonapi:"relation,module_activities,omitempty"`
+	ModuleActivities     []*ModuleActivity `jsonapi:"relation,module_activities,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func GetModule(id string) (*Module, error) {
