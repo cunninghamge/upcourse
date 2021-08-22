@@ -13,7 +13,8 @@ type Activity struct {
 	Metric               string  `jsonapi:"attr,metric"`
 	Multiplier           float32 `jsonapi:"attr,multiplier"`
 	Custom               bool
-	CreatedAt, UpdatedAt time.Time `gorm:"type:timestamp with time zone;default:CURRENT_TIMESTAMP"`
+	CreatedAt, UpdatedAt time.Time        `gorm:"type:timestamp with time zone;default:CURRENT_TIMESTAMP"`
+	ModuleActivities     []ModuleActivity `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 func GetActivities() ([]*Activity, error) {
