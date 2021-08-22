@@ -15,7 +15,7 @@ type Course struct {
 	Length               int       `jsonapi:"attr,length" gorm:"not null"`
 	Goal                 string    `jsonapi:"attr,goal" gorm:"not null"`
 	CreatedAt, UpdatedAt time.Time `gorm:"type:timestamp with time zone;default:CURRENT_TIMESTAMP"`
-	Modules              []*Module `jsonapi:"relation,modules"`
+	Modules              []*Module `jsonapi:"relation,modules" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func GetCourse(id string) (*Course, error) {
