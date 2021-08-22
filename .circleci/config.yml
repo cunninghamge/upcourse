@@ -42,7 +42,10 @@ jobs:
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: database migrations
-          command: go run ./migrations
+          command: go run ./database/migrate
+      - run:
+          name: seed database
+          command: go run ./database/seed
       - run:
           name: Run tests
           command: go test ./... -v
