@@ -9,7 +9,7 @@ Upcourse is an instructional design tool to assist education professionals in de
 </p>
 <br>
 <p style="margin: 5px">
-Like many software tools, CourseChart was born from a desire to replace a difficult-to-use spreadsheet with a more interactive and user-friendly solution. The original app, CourseChart, was built by a team of students at the Turing School of Software & Design as our capstone project.Our team worked closely with an instructional design expert to ensure that our product met the needs of professionals in the field. 
+Like many software tools, Upcourse was born from a desire to replace a difficult-to-use spreadsheet with a more interactive and user-friendly solution. The original app, CourseChart, was built by a team of students at the Turing School of Software & Design as our capstone project.Our team worked closely with an instructional design expert to ensure that our product met the needs of professionals in the field. 
 </p>
 
 ## Table of Contents
